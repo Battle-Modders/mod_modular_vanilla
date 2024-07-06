@@ -16,6 +16,19 @@
 ::ModularVanilla.MH <- ::Hooks.register(::ModularVanilla.ID, ::ModularVanilla.Version, ::ModularVanilla.Name);
 ::ModularVanilla.MH.require("mod_msu");
 
+::ModularVanilla.MH.queue("<mod_msu", function()
+{
+	foreach (file in ::IO.enumerateFiles("mod_modular_vanilla/config"))
+	{
+		::include(file);
+	}
+
+	foreach (file in ::IO.enumerateFiles("mod_modular_vanilla/hooks"))
+	{
+		::include(file);
+	}
+}, ::Hooks.QueueBucket.VeryEarly);
+
 ::ModularVanilla.MH.queue(">mod_msu", function() {
 	::ModularVanilla.Mod <- ::MSU.Class.Mod(::ModularVanilla.ID, ::ModularVanilla.Version, ::ModularVanilla.Name);
 	::ModularVanilla.Mod.Registry.addModSource(::MSU.System.Registry.ModSourceDomain.GitHub, ::ModularVanilla.GitHubURL);
