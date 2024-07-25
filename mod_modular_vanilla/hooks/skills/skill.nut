@@ -197,6 +197,8 @@
 		}
 		else
 		{
+			// TODO: Perhaps tactical state should have a new `.onAttackMissed` function which can be called here
+			// and these arena sounds can be triggered from there.
 			if (this.m.SoundOnHit.len() != 0)
 			{
 				this.Sound.play(this.m.SoundOnHit[this.Math.rand(0, this.m.SoundOnHit.len() - 1)], this.Const.Sound.Volume.Skill * this.m.SoundVolume, _attackInfo.Target.getPos());
@@ -239,12 +241,15 @@
 			}
 		}
 
+		// TODO: Everything from `local prohibitDiversion = false` to this if statement should be extracted into a new function e.g. `attackMissed_isGoingToDivert`
 		if (!prohibitDiversion && _attackInfo.AllowDiversion && this.m.IsRanged && !(this.m.IsShieldRelevant && shield != null && _attackInfo.Roll <= _attackInfo.ChanceToHit + shieldBonus * 2) && distanceToTarget > 2)
 		{
 			this.divertAttack(_attackInfo.User, _attackInfo.Target);
 		}
+		// TODO: This should be extracted into a new `attackMissed_isGoingToHitShield` function
 		else if (this.m.IsShieldRelevant && shield != null && _attackInfo.Roll <= _attackInfo.ChanceToHit + shieldBonus * 2)
 		{
+			// TODO: The contents of this if block should be extracted into a new `attackMissed_hitShield` function
 			local info = {
 				Skill = this,
 				User = _attackInfo.User,
@@ -270,6 +275,7 @@
 				this.onShieldHit(info);
 			}
 		}
+		// TODO: This should be extracted into a new `attackMissed_fullMiss` function
 		else
 		{
 			if (this.m.SoundOnMiss.len() != 0)
@@ -288,6 +294,8 @@
 				}
 			}
 
+			// TODO: Perhaps tactical state should have a new `.onAttackMissed` function which can be called here
+			// and these arena sounds can be triggered from there.
 			if (this.Tactical.State.getStrategicProperties() != null && this.Tactical.State.getStrategicProperties().IsArenaMode)
 			{
 				if (_attackInfo.ChanceToHit >= 90 || _attackInfo.Target.getHitpointsPct() <= 0.1)
