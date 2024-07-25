@@ -217,7 +217,7 @@
 		local shield = _attackInfo.Target.getItems().getItemAtSlot(::Const.ItemSlot.Offhand);
 		local shieldBonus = this.getShieldBonus(_attackInfo.Target);
 
-		_attackInfo.Target.onMissed(_attackInfo.User, this, this.m.IsShieldRelevant && shield != null && _rolled <= _hitChance + shieldBonus * 2);
+		_attackInfo.Target.onMissed(_attackInfo.User, this, this.m.IsShieldRelevant && shield != null && _attackInfo.Roll <= _attackInfo.ChanceToHit + shieldBonus * 2);
 		this.m.Container.onTargetMissed(this, _attackInfo.Target);
 		local prohibitDiversion = false;
 
