@@ -318,7 +318,7 @@
 			{
 				_attackInfo.Roll = this.Math.max(1, _attackInfo.Roll - 5);
 			}
-			else if (_targetEntity.isPlayerControlled())
+			else if (_attackInfo.Target.isPlayerControlled())
 			{
 				_attackInfo.Roll = this.Math.min(100, _attackInfo.Roll + 5);
 			}
