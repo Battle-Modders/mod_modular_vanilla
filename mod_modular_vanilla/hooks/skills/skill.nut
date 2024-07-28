@@ -1,4 +1,29 @@
 ::ModularVanilla.MH.hook("scripts/skills/skill", function (q) {
+	q.getDamageRegular <- function( _properties, _targetEntity = null )
+	{
+		local damage = ::Math.rand(_properties.DamageRegularMin, _properties.DamageRegularMax) * _properties.DamageRegularMult;
+		if (_targetEntity != null && _targetEntity.isPlacedOnMap() && !::MSU.isNull(this.getContainer()) && this.getContainer().getActor().isPlacedOnMap())
+		{
+			damage = ::Math.max(0, damage + this.getContainer().getActor().getTile().getDistanceTo(_targetEntity.getTile()) * _properties.DamageAdditionalWithEachTile);
+		}
+		return damage * _properties.DamageTotalMult * (this.isRanged() ? _properties.RangedDamageMult : _properties.MeleeDamageMult);
+	}
+
+	q.getDamageArmor <- function( _properties, _targetEntity = null )
+	{
+		local damage = ::Math.rand(_properties.DamageRegularMin, _properties.DamageRegularMax) * _properties.DamageArmorMult;
+		if (_targetEntity != null && _targetEntity.isPlacedOnMap() && !::MSU.isNull(this.getContainer()) && this.getContainer().getActor().isPlacedOnMap())
+		{
+			damage = ::Math.max(0, damage + this.getContainer().getActor().getTile().getDistanceTo(_targetEntity.getTile()) * _properties.DamageAdditionalWithEachTile);
+		}
+		return damage * _properties.DamageTotalMult * (this.isRanged() ? _properties.RangedDamageMult : _properties.MeleeDamageMult);
+	}
+
+	q.getDamageDirect <- function( _properties, _targetEntity = null )
+	{
+		return ::Math.minf(1.0, _properties.DamageDirectMult * (this.getDirectDamage() + _properties.DamageDirectAdd + (this.isRanged() ? _properties.DamageDirectRangedAdd : _properties.DamageDirectMeleeAdd)));
+	}
+
 	q.getDiversionChance <- function( _targetEntity, _userProperties = null, _targetProperties = null )
 	{
 		if (!this.m.IsRanged || this.m.MaxRangeBonus <= 1)
@@ -485,15 +510,8 @@
 			bodyPart = this.Const.BodyPart.Body;
 		}
 
-		// TODO: Extract all these calculations into separate relevant functions
 		bodyPartDamageMult = bodyPartDamageMult * _info.Properties.DamageAgainstMult[bodyPart];
-		local damageMult = this.m.IsRanged ? _info.Properties.RangedDamageMult : _info.Properties.MeleeDamageMult;
-		damageMult = damageMult * _info.Properties.DamageTotalMult;
-		local damageRegular = this.Math.rand(_info.Properties.DamageRegularMin, _info.Properties.DamageRegularMax) * _info.Properties.DamageRegularMult;
-		local damageArmor = this.Math.rand(_info.Properties.DamageRegularMin, _info.Properties.DamageRegularMax) * _info.Properties.DamageArmorMult;
-		damageRegular = this.Math.max(0, damageRegular + _info.DistanceToTarget * _info.Properties.DamageAdditionalWithEachTile);
-		damageArmor = this.Math.max(0, damageArmor + _info.DistanceToTarget * _info.Properties.DamageAdditionalWithEachTile);
-		local damageDirect = this.Math.minf(1.0, _info.Properties.DamageDirectMult * (this.m.DirectDamageMult + _info.Properties.DamageDirectAdd + (this.m.IsRanged ? _info.Properties.DamageDirectRangedAdd : _info.Properties.DamageDirectMeleeAdd)));
+
 		local injuries;
 
 		if (this.m.InjuriesOnBody != null && bodyPart == this.Const.BodyPart.Body)
@@ -512,9 +530,10 @@
 		hitInfo.PropertiesForDefense = _info.DefenderProperties;
 		// --
 
-		hitInfo.DamageRegular = damageRegular * damageMult;
-		hitInfo.DamageArmor = damageArmor * damageMult;
-		hitInfo.DamageDirect = damageDirect;
+		// MV: Extracted the calculation of DamageRegular, DamageArmor, DamageDirect
+		hitInfo.DamageRegular = this.getDamageRegular(_info.Properties, _info.TargetEntity);
+		hitInfo.DamageArmor = this.getDamageArmor(_info.Properties, _info.TargetEntity);
+		hitInfo.DamageDirect = this.getDamageDirect(_info.Properties, _info.TargetEntity);
 		hitInfo.DamageFatigue = this.Const.Combat.FatigueReceivedPerHit * _info.Properties.FatigueDealtPerHitMult;
 		hitInfo.DamageMinimum = _info.Properties.DamageMinimum;
 		hitInfo.BodyPart = bodyPart;
