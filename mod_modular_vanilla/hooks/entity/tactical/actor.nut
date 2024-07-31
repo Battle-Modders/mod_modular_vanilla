@@ -1,4 +1,14 @@
 ::ModularVanilla.MH.hook("scripts/entity/tactical/actor", function (q) {
+	// MV: Added
+	// Part of the actor.interrupt framework
+	// If _offensive is true then interrupts offensive skills e.g. riposte, spearwall
+	// If _defensive is true then interrupts defensive skills e.g. shieldwall
+	q.interrupt <- function( _offensive = true, _defensive = true)
+	{
+		::logInfo(this.getName() + " interrupted");
+		this.getSkills().onActorInterrupted(_offensive, _defensive);
+	}
+
 	// Extraction of part of vanilla logic from actor.onDamageReceived
 	q.calcArmorDamageReceived <- function( _skill, _hitInfo )
 	{
