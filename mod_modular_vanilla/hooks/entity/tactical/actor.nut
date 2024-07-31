@@ -46,6 +46,15 @@
 });
 
 ::ModularVanilla.MH.hook("scripts/entity/tactical/actor", function (q) {
+	// MV: Added
+	// Part of the actor.interrupt framework
+	// If _offensive is true then interrupts offensive skills e.g. riposte, spearwall
+	// If _defensive is true then interrupts defensive skills e.g. shieldwall
+	q.interrupt <- function( _offensive = true, _defensive = true )
+	{
+		this.getSkills().onActorInterrupted(_offensive, _defensive);
+	}
+	
 // part of affordability preview system START
 	// MV: Added
 	q.m.MV_IsDoingPreviewUpdate <- false;

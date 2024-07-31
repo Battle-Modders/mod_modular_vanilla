@@ -77,6 +77,13 @@
 }, ::Hooks.QueueBucket.AfterHooks);
 
 ::ModularVanilla.MH.queue(function() {
+	foreach (fn in ::ModularVanilla.QueueBucket.VeryLate)
+	{
+		fn();
+	}
+}, ::Hooks.QueueBucket.VeryLate);
+
+::ModularVanilla.MH.queue(function() {
 	foreach (fn in ::ModularVanilla.QueueBucket.FirstWorldInit)
 	{
 		fn();
