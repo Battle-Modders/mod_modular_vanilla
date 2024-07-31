@@ -502,4 +502,30 @@
 		this.setDirty(true);
 		this.m.IsMoving = false;
 	}
+
+	// MV: Modularized
+	// Use fields added in character properties to enable preventing pushback from attacks on ZOC enter e.g. Spearwall
+	q.onAttackOfOpportunity = @(__original) function( _entity, _isOnEnter )
+	{
+		if (!_isOnEnter)
+		{
+			return __original(_entity, _isOnEnter);
+		}
+
+		local originalMovementType = _entity.m.CurrentMovementType;
+
+		local ret = __original(_entity, _isOnEnter);
+		if (ret)
+		{
+			if (_entity.getCurrentProperties().IsImmuneToOnEnterPushback || !this.getCurrentProperties().IsPushingBackOnEnterHit)
+			{
+				_entity.setCurrentMovementType(originalMovementType);
+				// We return false even though the attack happened and hit and the __original returned true.
+				// This is because the pushback is handled from the exe backend and depends on this function returning true.
+				return false;
+			}
+		}
+
+		return ret;
+	}
 });

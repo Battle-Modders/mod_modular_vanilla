@@ -3,3 +3,8 @@
 ::Const.MoraleCheckType.Surround <- ::Const.MoraleCheckType.len();
 ::Const.CharacterProperties.MoraleCheckBravery.push(0);
 ::Const.CharacterProperties.MoraleCheckBraveryMult.push(1.0);
+
+::MSU.Table.merge(::Const.CharacterProperties, {
+	IsImmuneToOnEnterPushback = false,
+	IsPushingBackOnEnterHit = true
+});
