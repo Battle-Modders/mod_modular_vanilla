@@ -1,4 +1,11 @@
 ::ModularVanilla.MH.hook("scripts/skills/effects/riposte_effect", function(q) {
+	// Part of the actor.interrupt framework
+	q.onActorInterrupted = @() function( _offensive, _defensive )
+	{
+		if (_offensive)
+			this.removeSelf();
+	}
+	
 	// MV: Added
 	// Part of modularization of actor.setMoraleState
 	q.MV_onMoraleStateChanged = @() { function MV_onMoraleStateChanged( _oldState )
