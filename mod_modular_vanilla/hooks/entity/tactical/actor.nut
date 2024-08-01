@@ -5,7 +5,6 @@
 	// If _defensive is true then interrupts defensive skills e.g. shieldwall
 	q.interrupt <- function( _offensive = true, _defensive = true)
 	{
-		::logInfo(this.getName() + " interrupted");
 		this.getSkills().onActorInterrupted(_offensive, _defensive);
 	}
 
