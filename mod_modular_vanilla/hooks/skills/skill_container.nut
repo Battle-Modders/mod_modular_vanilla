@@ -25,6 +25,7 @@
 					local frame = ::Time.getFrame();
 					if (frame != this.m.MV_InterruptionFrame)
 					{
+						this.m.MV_InterruptionCount = 0;
 						this.m.MV_InterruptionFrame = frame;
 					}
 					else
