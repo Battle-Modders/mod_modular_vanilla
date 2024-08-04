@@ -3,7 +3,7 @@
 	// Part of the actor.interrupt framework
 	// If _offensive is true then interrupts offensive skills e.g. riposte, spearwall
 	// If _defensive is true then interrupts defensive skills e.g. shieldwall
-	q.interrupt <- function( _offensive = true, _defensive = true)
+	q.interrupt <- function( _offensive = true, _defensive = true )
 	{
 		this.getSkills().onActorInterrupted(_offensive, _defensive);
 	}
