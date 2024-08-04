@@ -15,9 +15,9 @@
 		// This implementation should also cover all mods which followed the vanilla style of removing those 3 effects only.
 		// An exception is the disarmed_effect which doesn't remove shieldwall. For that we hook that effect directly and do
 		// offensive interrupt only.
-		q.removeByID = @(__original) function( _id )
+		q.removeByID = @(__original) function( _skillID )
 		{
-			switch (_id)
+			switch (_skillID)
 			{
 				case "effects.shieldwall":
 				case "effects.spearwall":
@@ -35,7 +35,7 @@
 					break;
 			}
 
-			__original(_id);
+			__original(_skillID);
 
 			if (this.m.MV_InterruptionCount >= 2)
 			{
