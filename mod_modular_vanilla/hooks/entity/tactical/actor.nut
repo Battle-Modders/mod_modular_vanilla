@@ -1,3 +1,50 @@
+::ModularVanilla.QueueBucket.VeryLate.push(function() {
+	::ModularVanilla.MH.hookTree("scripts/entity/tactical/actor", function (q) {
+	// part of affordability preview system START
+		// MV: Changed
+		// We modify all these below functions to prevent them
+		// from setting the fields during the skill_container.update() function
+		// during a preview type update -- part of the affordability preview system
+		// Note: Done inside a hookTree because vanilla overwrites these functions for e.g. lindwurm_tail
+		q.setActionPoints = @(__original) function( _a )
+		{
+			if (!this.isPreviewing())
+				return __original(_a);
+		}
+
+		q.setFatigue = @(__original) function( _f )
+		{
+			if (!this.isPreviewing())
+				return __original(_f);
+		}
+
+		q.setHitpointsPct = @(__original) function( _h )
+		{
+			if (!this.isPreviewing())
+				return __original(_h);
+		}
+
+		q.onSkillsUpdated = @(__original) function()
+		{
+			if (!this.isPreviewing())
+				return __original();
+		}
+
+		q.updateOverlay = @(__original) function()
+		{
+			if (!this.isPreviewing())
+				return __original();
+		}
+
+		q.setDirty = @(__original) function( _value )
+		{
+			if (!this.isPreviewing())
+				return __original(_value);
+		}
+	// part of affordability preview system END
+	});
+});
+
 ::ModularVanilla.MH.hook("scripts/entity/tactical/actor", function (q) {
 // part of affordability preview system START
 	// MV: Added
@@ -38,46 +85,6 @@
 	q.getCostsPreview <- function()
 	{
 		return this.m.MV_CostsPreview;
-	}
-
-	// MV: Changed
-	// We modify all these below functions to prevent them
-	// from setting the fields during the skill_container.update() function
-	// during a preview type update -- part of the affordability preview system
-	q.setActionPoints = @(__original) function( _a )
-	{
-		if (!this.isPreviewing())
-			return __original(_a);
-	}
-
-	q.setFatigue = @(__original) function( _f )
-	{
-		if (!this.isPreviewing())
-			return __original(_f);
-	}
-
-	q.setHitpointsPct = @(__original) function( _h )
-	{
-		if (!this.isPreviewing())
-			return __original(_h);
-	}
-
-	q.onSkillsUpdated = @(__original) function()
-	{
-		if (!this.isPreviewing())
-			return __original();
-	}
-
-	q.updateOverlay = @(__original) function()
-	{
-		if (!this.isPreviewing())
-			return __original();
-	}
-
-	q.setDirty = @(__original) function( _value )
-	{
-		if (!this.isPreviewing())
-			return __original(_value);
 	}
 // part of affordability preview system END
 
