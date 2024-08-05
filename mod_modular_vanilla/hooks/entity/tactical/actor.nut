@@ -1,4 +1,86 @@
 ::ModularVanilla.MH.hook("scripts/entity/tactical/actor", function (q) {
+// part of affordability preview system START
+	// MV: Added
+	q.m.MV_IsPreviewing <- false;
+	q.m.MV_CostsPreview <- null;
+	q.m.MV_PreviewSkill <- null;
+	q.m.MV_PreviewMovement <- null;
+
+	// MV: Added
+	q.resetPreview <- function()
+	{
+		this.m.MV_IsPreviewing = false;
+		this.m.MV_CostsPreview = null;
+		this.m.MV_PreviewSkill = null;
+		this.m.MV_PreviewMovement = null;
+		this.getSkills().update();
+	}
+
+	// MV: Added
+	q.isPreviewing <- function()
+	{
+		return this.m.MV_IsPreviewing;
+	}
+
+	// MV: Added
+	q.getPreviewSkill <- function()
+	{
+		return this.m.MV_PreviewSkill;
+	}
+
+	// MV: Added
+	q.getPreviewMovement <- function()
+	{
+		return this.m.MV_PreviewMovement;
+	}
+
+	// MV: Added
+	q.getCostsPreview <- function()
+	{
+		return this.m.MV_CostsPreview;
+	}
+
+	// MV: Changed
+	// We modify all these below functions to prevent them
+	// from setting the fields during the skill_container.update() function
+	// during a preview type update -- part of the affordability preview system
+	q.setActionPoints = @(__original) function( _a )
+	{
+		if (!this.isPreviewing())
+			return __original(_a);
+	}
+
+	q.setFatigue = @(__original) function( _f )
+	{
+		if (!this.isPreviewing())
+			return __original(_f);
+	}
+
+	q.setHitpointsPct = @(__original) function( _h )
+	{
+		if (!this.isPreviewing())
+			return __original(_h);
+	}
+
+	q.onSkillsUpdated = @(__original) function()
+	{
+		if (!this.isPreviewing())
+			return __original();
+	}
+
+	q.updateOverlay = @(__original) function()
+	{
+		if (!this.isPreviewing())
+			return __original();
+	}
+
+	q.setDirty = @(__original) function( _value )
+	{
+		if (!this.isPreviewing())
+			return __original(_value);
+	}
+// part of affordability preview system END
+
 	// Extraction of part of vanilla logic from actor.onDamageReceived
 	q.calcArmorDamageReceived <- function( _skill, _hitInfo )
 	{

@@ -583,3 +583,42 @@
 		}
 	}
 });
+
+
+::ModularVanilla.QueueBucket.VeryLate.push(function() {
+	::ModularVanilla.MH.hook("scripts/skills/skill", function(q) {
+		// MV: Changed
+		// part of affordability preview system
+		q.getCostString = @(__original) function()
+		{
+			if (!this.getContainer().getActor().isPreviewing() || ::getModSetting("mod_msu", "ExpandedSkillTooltips").getValue() == false)
+				return __original();
+
+			local actor = this.getContainer().getActor();
+			local previewFatigue = actor.getPreviewFatigue();
+			local previewAP = actor.getPreviewActionPoints();
+
+			this.getContainer().update();
+
+			// TODO: Hook the js side to work properly with animations of skills which aren't usable
+			// otherwise currently this isUsable thing doesn't work as intended
+			// i.e. preview_unusable skills don't show disabled icon when previewing
+			// local isUsablePreview = this.isUsable();
+
+			local ret = __original();
+
+			actor.m.MV_IsPreviewing = false;
+			this.getContainer().update();
+			actor.m.MV_IsPreviewing = true;
+
+			actor.setPreviewFatigue(previewFatigue);
+			actor.setPreviewActionPoints(previewAP);
+
+			// if (!isUsablePreview)
+			// {
+			// 	ret = ::MSU.String.replace(ret, "after ", "and will [color=" + ::Const.UI.Color.NegativeValue + "]not be usable[/color] after ");
+			// }
+			return ret;
+		}
+	});
+});
