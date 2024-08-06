@@ -116,13 +116,13 @@
 		return ret;
 	}
 
-	// In vanilla this function is primarily a cosmetic function used to display the hitchance in the hit factors tooltip.
+	// In vanilla the skill.getHitchance function is primarily a cosmetic function used to display the hitchance in the hit factors tooltip.
 	// Therefore, for ranged skills it "considers the chance of diversion" and shows the hit chance based on that.
 	// Vanilla calculates the actual hit chance manually using mostly duplicate code directly inside skill.attackEntity. The main difference
 	// being that the diversion chance is not considered.
-	// We improve this by reimplementing this function to have a parameter to turn diversion consideration on/off and using this function
-	// directly within skill.attackEntity to calculate the hitchance. This keeps things DRY.
-	q.getHitchance = @() function( _targetEntity, _considerDiversion = true, _userProperties = null, _targetProperties = null )
+	// So we implement our own MV_getHitchance function which has additional parameters for considering diversion and we redirect the vanilla
+	// function to our modular function by default. This keeps things DRY.
+	q.MV_getHitchance <- function( _targetEntity, _considerDiversion = true, _userProperties = null, _targetProperties = null )
 	{
 		if (!_targetEntity.isAttackable())
 		{
@@ -189,6 +189,11 @@
 		}
 
 		return this.Math.max(::ModularVanilla.Const.HitChanceMin, this.Math.min(::ModularVanilla.Const.HitChanceMax, toHit));
+	}
+
+	q.getHitchance = @() function( _targetEntity )
+	{
+		return this.MV_getHitChance(_targetEntity);
 	}
 
 	q.onAttackEntityHit <- function( _attackInfo )
@@ -438,7 +443,7 @@
 		}
 		else
 		{
-			toHit = this.getHitchance(_targetEntity, false, properties, defenderProperties);
+			toHit = this.MV_getHitchance(_targetEntity, false, properties, defenderProperties);
 			attackInfo.ChanceToHit = toHit;
 
 			if (this.m.IsRanged && !_allowDiversion && this.m.IsShowingProjectile)
