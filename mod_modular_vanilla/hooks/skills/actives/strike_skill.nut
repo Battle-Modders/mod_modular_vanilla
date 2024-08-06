@@ -12,7 +12,7 @@
 		else if (_properties.IsSpecializedInPolearms)
 		{
 			this.m.FatigueCostMult *= ::Const.Combat.WeaponSpecFatigueMult;
-			if (this.m.ActionPointCost > 5)
+			if (this.getBaseValue("ActionPointCost") > 5)
 			{
 				this.m.ActionPointCost -= 1;
 			}

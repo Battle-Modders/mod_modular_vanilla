@@ -5,10 +5,6 @@
 		if (_properties.IsProficientWithShieldWall || _properties.IsProficientWithShieldSkills)
 		{
 			this.m.FatigueCostMult *= ::Const.Combat.WeaponSpecFatigueMult;
-			if (this.m.ActionPointCost > 5)
-			{
-				this.m.ActionPointCost -= 1;
-			}
 		}
 	}
 });

@@ -8,10 +8,7 @@
 
 			if (this.getContainer().hasSkill("effects.goblin_grunt_potion"))
 			{
-				if (this.m.ActionPointCost > 2)
-				{
-					this.m.ActionPointCost -= 2;
-				}
+				this.m.ActionPointCost = ::Math.min(this.m.ActionPointCost, ::Math.max(1, this.m.ActionPointCost - 2));
 			}
 		}
 	}

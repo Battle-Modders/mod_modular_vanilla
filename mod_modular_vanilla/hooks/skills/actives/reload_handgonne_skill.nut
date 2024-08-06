@@ -5,7 +5,7 @@
 		if (_properties.IsSpecializedInCrossbows)
 		{
 			this.m.FatigueCostMult *= ::Const.Combat.WeaponSpecFatigueMult;
-			this.m.ActionPointCost -= 3;
+			this.m.ActionPointCost = ::Math.min(this.m.ActionPointCost, ::Math.max(1, this.m.ActionPointCost - 3));
 		}
 	}
 });
