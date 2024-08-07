@@ -434,21 +434,18 @@
 		if (!this.isUsingHitchance())
 		{
 			toHit = 100;
-			attackInfo.ChanceToHit = toHit;
 		}
 		else if (!_targetEntity.isAbleToDie() && _targetEntity.getHitpoints() == 1)
 		{
 			toHit = 0;
-			attackInfo.ChanceToHit = toHit;
 		}
 		else
 		{
 			toHit = this.MV_getHitchance(_targetEntity, false, properties, defenderProperties);
-			attackInfo.ChanceToHit = toHit;
 
 			if (this.m.IsRanged && !_allowDiversion && this.m.IsShowingProjectile)
 			{
-				this.Math.max(::ModularVanilla.Const.HitChanceMin, this.Math.min(::ModularVanilla.Const.HitChanceMax, toHit + ::ModularVanilla.Const.DiversionHitChanceAdd));
+				toHit = this.Math.max(::ModularVanilla.Const.HitChanceMin, this.Math.min(::ModularVanilla.Const.HitChanceMax, toHit + ::ModularVanilla.Const.DiversionHitChanceAdd));
 				properties.DamageTotalMult *= ::ModularVanilla.Const.DiversionDamageMult;
 			}
 
@@ -457,6 +454,8 @@
 			// 	toHit = this.Math.max(5, this.Math.min(95, toHit));
 			// }
 		}
+
+		attackInfo.ChanceToHit = toHit;
 
 		local r = this.Math.rand(1, 100);
 		attackInfo.Roll = r;
