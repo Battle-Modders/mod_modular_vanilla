@@ -8,7 +8,10 @@
 	// - the morale being set to fleeing also causes an interruption
 	q.interrupt <- function()
 	{
-		this.getSkills().onActorInterrupted();
+		if (!this.getCurrentProperties().IsImmuneToInterrupt)
+		{
+			this.getSkills().onActorInterrupted();
+		}
 	}
 
 	// Extraction of part of vanilla logic from actor.onDamageReceived
