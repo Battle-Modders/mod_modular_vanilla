@@ -1,5 +1,10 @@
 // MV: Added
 // Part of the actor.interrupt framework
+// The `onActorInterrupted` event is designed to allow skills to react to the actor experiencing an interruption. For example by removing themselves or losing stacks.
+// This event can be triggered by various factors such as stagger, stuns, knock backs, or other mechanics that disrupt an actor for at least a few seconds.
+// As a rule of thumb. If an effect is the representation of something that the actor is currently actively doing, then it should be removed when that actor is interrupted.
+// List of Vanilla skills which can be interrupted:
+// - riposte, spearwall, shieldwall
 ::MSU.Skills.addEvent("onActorInterrupted", function() {});
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {

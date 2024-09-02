@@ -1,6 +1,11 @@
 ::ModularVanilla.MH.hook("scripts/entity/tactical/actor", function (q) {
 	// MV: Added
 	// Part of the actor.interrupt framework
+	// The `interrupt` function should be called when an actor's actions are disrupted. This includes any mechanics that cause the actor to lose control over their body, even if only for a few seconds.
+	// List of Vanilla skills which can interrupt:
+	// - fling_back, gore, hook, knock_back, line_breaker, repel, serpent_hook, shatter, shoot_stake, swallow_whole, sweep, tail_slam_big, tail_slam, unstoppable_charge
+	// - horrified, nightmare, sleeping, stunned,
+	// - the morale being set to fleeing also causes an interruption
 	q.interrupt <- function()
 	{
 		this.getSkills().onActorInterrupted();
