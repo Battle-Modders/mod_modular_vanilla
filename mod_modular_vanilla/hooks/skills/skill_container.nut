@@ -1,6 +1,6 @@
 // MV: Added
 // Part of the actor.interrupt framework
-::MSU.Skills.addEvent("onActorInterrupted", function( _offensive, _defensive ) {});
+::MSU.Skills.addEvent("onActorInterrupted", function() {});
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
 	::ModularVanilla.MH.hook("scripts/skills/skill_container", function(q) {
@@ -13,8 +13,6 @@
 		// removed in a single frame and assume that the vanilla intention is to trigger an interruption of the actor.
 		// This is done instead of hooking every single vanilla file which triggers these kinds of interruptions.
 		// This implementation should also cover all mods which followed the vanilla style of removing those 3 effects only.
-		// An exception is the disarmed_effect which doesn't remove shieldwall. For that we hook that effect directly and do
-		// offensive interrupt only.
 		q.removeByID = @(__original) function( _skillID )
 		{
 			switch (_skillID)

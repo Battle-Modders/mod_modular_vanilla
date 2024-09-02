@@ -1,8 +1,8 @@
 ::ModularVanilla.MH.hook("scripts/skills/effects/spearwall_effect", function(q) {
+// Modular Vanilla Functions
 	// Part of the actor.interrupt framework
-	q.onActorInterrupted = @() function( _offensive, _defensive )
+	q.onActorInterrupted = @() function()
 	{
-		if (_offensive)
-			this.removeSelf();
+		this.removeSelf();
 	}
 });
