@@ -193,7 +193,7 @@
 
 	q.getHitchance = @() function( _targetEntity )
 	{
-		return this.MV_getHitChance(_targetEntity);
+		return this.MV_getHitchance(_targetEntity);
 	}
 
 	q.onAttackEntityHit <- function( _attackInfo )
