@@ -457,8 +457,7 @@
 
 		attackInfo.ChanceToHit = toHit;
 
-		local r = this.Math.rand(1, 100);
-		attackInfo.Roll = r;
+		attackInfo.Roll = this.Math.rand(1, 100);
 
 		this.onAttackRolled(attackInfo);
 
@@ -471,12 +470,12 @@
 			this.printAttackToLog(attackInfo);
 		}
 
-		local isHit = r <= toHit;
+		local isHit = attackInfo.Roll <= attackInfo.ChanceToHit;
 
 		if (isHit && this.Math.rand(1, 100) <= _targetEntity.getCurrentProperties().RerollDefenseChance)
 		{
-			r = this.Math.rand(1, 100);
-			isHit = r <= toHit;
+			attackInfo.Roll = ::Math.rand(1, 100);
+			isHit = attackInfo.Roll <= attackInfo.ChanceToHit;
 		}
 
 		if (isHit)
