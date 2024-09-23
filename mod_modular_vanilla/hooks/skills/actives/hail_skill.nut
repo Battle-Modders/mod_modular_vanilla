@@ -7,7 +7,9 @@
 			this.m.FatigueCostMult *= ::Const.Combat.WeaponSpecFatigueMult;
 			this.m.IsShieldRelevant = false;
 		}
-
-		this.m.IsShieldRelevant = true;
+		else
+		{
+			this.m.IsShieldRelevant = true;
+		}
 	}
 });
