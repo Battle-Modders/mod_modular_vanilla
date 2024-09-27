@@ -387,6 +387,7 @@
 		local attackInfo = clone ::Const.Tactical.MV_AttackInfo;
 		attackInfo.User = _user;
 		attackInfo.Target = _targetEntity;
+		attackInfo.AllowDiversion = _allowDiversion;
 
 		local properties = this.m.Container.buildPropertiesForUse(this, _targetEntity);
 		attackInfo.UserProperties = properties;
