@@ -35,7 +35,7 @@
 	::ModularVanilla.Mod.Registry.setUpdateSource(::MSU.System.Registry.ModSourceDomain.GitHub);
 });
 
-::ModularVanilla.MH.queue(function() {
+::ModularVanilla.MH.queue("<mod_msu", function() {
 	foreach (fn in ::ModularVanilla.QueueBucket.VeryLate)
 	{
 		fn();
