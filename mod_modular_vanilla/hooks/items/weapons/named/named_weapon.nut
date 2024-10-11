@@ -35,4 +35,13 @@
 			"RangeIdeal",
 		];
 	}
+
+	q.setValuesBeforeRandomize = @(__original) function( _baseItem )
+	{
+		// Part of what setValuesBeforeRandomize does is copying all weapon types over without adjusting the weapontype-string
+		// If a mod changes those weapon types during the create function, then those new type combination won't show up correctly
+		// We fix that by building categories manually for any named weapon after that transfer happened
+		__original(_baseItem);
+		this.buildCategoriesFromWeaponType();
+	}
 });
