@@ -1,4 +1,4 @@
-::ModularVanilla.MH.hook("scripts/skills/actives/throw_spear_skill", function(q) {
+::ModularVanilla.MH.hook("scripts/skills/actives/thrust", function(q) {
 	// Convert the vanilla method of "setting" certain fields to instead be incremental changes
 	q.onAfterUpdate = @() function( _properties )
 	{
