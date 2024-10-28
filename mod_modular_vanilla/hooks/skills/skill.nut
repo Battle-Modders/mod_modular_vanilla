@@ -578,6 +578,14 @@
 		}
 	}
 
+	// MV: Added
+	// Can be used to modify the result of behavior.queryTargetValue
+	// Must return the new value
+	q.getQueryTargetValueMult <- function( _entity, _target, _skill )
+	{
+		return 1.0;
+	}
+
 	q.onCostsPreview <- function( _costsPreview )
 	{
 	}

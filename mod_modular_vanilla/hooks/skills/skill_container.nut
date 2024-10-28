@@ -53,6 +53,26 @@
 			return __original();
 		}
 
+		// MV: Added
+		// called from behavior.queryTargetValue
+		q.getQueryTargetValueMult <- function( _entity, _target, _skill )
+		{
+			local ret = 1.0;
+
+			local wasUpdating = this.m.IsUpdating;
+			this.m.IsUpdating = true;
+			foreach (skill in this.m.Skills)
+			{
+				if (!skill.isGarbage())
+				{
+					ret *= skill.getQueryTargetValueMult(_entity, _target, _skill);
+				}
+			}
+			this.m.IsUpdating = wasUpdating;
+
+			return ret;
+		}
+
 		q.onCostsPreview <- function( _costsPreview )
 		{
 			local wasUpdating = this.m.IsUpdating;
