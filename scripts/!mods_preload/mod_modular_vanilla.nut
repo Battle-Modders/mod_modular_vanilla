@@ -43,6 +43,13 @@
 	}
 }, ::Hooks.QueueBucket.VeryLate);
 
+::ModularVanilla.MH.queue("<mod_msu", function() {
+	foreach (fn in ::ModularVanilla.QueueBucket.AfterHooks)
+	{
+		fn();
+	}
+}, ::Hooks.QueueBucket.AfterHooks);
+
 ::ModularVanilla.MH.queue(function() {
 	foreach (fn in ::ModularVanilla.QueueBucket.FirstWorldInit)
 	{
