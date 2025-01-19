@@ -26,6 +26,9 @@
 			}
 		}
 
+		// Vanilla Fix: Allow items, that are not changable during battle to be put into bag slots outside of battle
+		_putIntoBags = false;
+
 		return __original(_entity, _items, _putIntoBags);
 	}
 });
