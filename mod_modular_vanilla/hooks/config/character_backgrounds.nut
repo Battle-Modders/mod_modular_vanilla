@@ -1,6 +1,6 @@
 // List of all vanilla backgrounds that are hireable in towns
 // Mods which add new backgrounds need to add them to this list
-::Const.HireableCharacterBackgrounds <- [
+::Const.MV_HireableCharacterBackgrounds <- [
 	"adventurous_noble_background",
 	"anatomist_background",		// In Vanilla this background can always appear, even if the DLC is not active
 	"apprentice_background",
@@ -58,14 +58,14 @@
 
 if (::Const.DLC.Unhold)
 {
-	::Const.HireableCharacterBackgrounds.extend([
+	::Const.MV_HireableCharacterBackgrounds.extend([
 		"beast_hunter_background"
 	]);
 }
 
 if (::Const.DLC.Desert)
 {
-	::Const.HireableCharacterBackgrounds.extend([
+	::Const.MV_HireableCharacterBackgrounds.extend([
 		"assassin_southern_background",
 		"beggar_southern_background",
 		"butcher_southern_background",
@@ -92,5 +92,5 @@ if (::Const.DLC.Desert)
 
 ::ModularVanilla.QueueBucket.AfterHooks.push(function() {
 	// Removes all duplicate CharacterBackgrounds, just in case some mod added duplicate backgrounds
-	::Const.HireableCharacterBackgrounds = ::MSU.Array.uniques(::Const.HireableCharacterBackgrounds);
+	::Const.MV_HireableCharacterBackgrounds = ::MSU.Array.uniques(::Const.MV_HireableCharacterBackgrounds);
 });
