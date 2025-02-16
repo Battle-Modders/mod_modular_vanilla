@@ -1,95 +1,38 @@
-// List of all vanilla backgrounds that are hireable in towns
-// Mods which add new backgrounds need to add them to this list
-::Const.MV_HireableCharacterBackgrounds <- [
-	"adventurous_noble_background",
-	"anatomist_background",		// In Vanilla this background can always appear, even if the DLC is not active
-	"apprentice_background",
-	"bastard_background",
-	"beggar_background",
-	"bowyer_background",
-	"brawler_background",
-	"butcher_background",
-	"caravan_hand_background",
-	"cripple_background",
-	"cultist_background",
-	"daytaler_background",
-	"deserter_background",
-	"disowned_noble_background",
-	"eunuch_background",
-	"farmhand_background",
-	"fisherman_background",
-	"flagellant_background",
-	"gambler_background",
-	"gladiator_background",
-	"gravedigger_background",
-	"graverobber_background",
-	"hedge_knight_background",
-	"historian_background",
-	"houndmaster_background",
-	"hunter_background",
-	"juggler_background",
-	"killer_on_the_run_background",
-	"lumberjack_background",
-	"mason_background",
-	"messenger_background",
-	"militia_background",
-	"miller_background",
-	"miner_background",
-	"minstrel_background",
-	"monk_background",
-	"paladin_background",	// In Vanilla this background can always appear, even if the DLC is not active
-	"peddler_background",
-	"poacher_background",
-	"ratcatcher_background",
-	"raider_background",
-	"refugee_background",
-	"retired_soldier_background",
-	"sellsword_background",
-	"servant_background",
-	"shepherd_background",
-	"squire_background",
-	"swordmaster_background",
-	"tailor_background",
-	"thief_background",
-	"vagabond_background",
-	"witchhunter_background",
-	"wildman_background"
-];
-
-if (::Const.DLC.Unhold)
-{
-	::Const.MV_HireableCharacterBackgrounds.extend([
-		"beast_hunter_background"
-	]);
-}
-
-if (::Const.DLC.Desert)
-{
-	::Const.MV_HireableCharacterBackgrounds.extend([
-		"assassin_southern_background",
-		"beggar_southern_background",
-		"butcher_southern_background",
-		"caravan_hand_southern_background",
-		"cripple_southern_background",
-		"daytaler_southern_background",
-		"eunuch_southern_background",
-		"fisherman_southern_background",
-		"gambler_southern_background",
-		"historian_southern_background",
-		"manhunter_background",
-		"nomad_background",
-		"nomad_ranged_background",
-		"peddler_southern_background",
-		"servant_southern_background",
-		"shepherd_southern_background",
-		"slave_background",
-		"slave_southern_background",
-		"tailor_southern_background",
-		"thief_southern_background"
-	]);
-}
+// List of all backgrounds that are hireable in towns.
+// Is populated automatically AfterHooks so backgrounds from mods are also covered.
+// Mods can still add to this array manually.
+::Const.MV_HireableCharacterBackgrounds <- [];
 
 ::ModularVanilla.QueueBucket.AfterHooks.push(function() {
-	// Removes all duplicate CharacterBackgrounds, just in case some mod added duplicate backgrounds
+	// This is required in the create function of settlements as that function calls getRandomName() which tries to access this.
+	// So we instantiate it temporarily.
+	::World.EntityManager <- ::new("scripts/entity/world/entity_manager");
+
+	foreach (script in ::IO.enumerateFiles("scripts/entity/world"))
+	{
+		local obj = ::new(script);
+		if (::isKindOf(obj, "settlement"))
+		{
+			::Const.MV_HireableCharacterBackgrounds.extend(obj.m.DraftList);
+		}
+		else if (::isKindOf(obj, "attached_location") || ::isKindOf(obj, "building") || ::isKindOf(obj, "situation"))
+		{
+			// Pass clone of list in case backgrounds are being removed, then only push bg from clone to original
+			// if it is a new kind of bg so we don't double the list on every iteration.
+			// Note: an alternative is to keep extending the original array, but it crashes (seems squirrel has a limit on array length)
+			// If we try to prevent this crash by extending with an array of uniques only, it is still significantly slower than this implementation
+			local clonedList = clone ::Const.MV_HireableCharacterBackgrounds;
+			obj.onUpdateDraftList(clonedList);
+			foreach (bg in clonedList)
+			{
+				if (::Const.MV_HireableCharacterBackgrounds.find(bg) == null)
+				{
+					::Const.MV_HireableCharacterBackgrounds.push(bg);
+				}
+			}
+		}
+	}
+
+	delete ::World.EntityManager;
 	::Const.MV_HireableCharacterBackgrounds = ::MSU.Array.uniques(::Const.MV_HireableCharacterBackgrounds);
 });
