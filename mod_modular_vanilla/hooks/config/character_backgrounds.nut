@@ -76,7 +76,6 @@ if (::Const.DLC.Desert)
 		"fisherman_southern_background",
 		"gambler_southern_background",
 		"historian_southern_background",
-		"juggler_southern_background",
 		"manhunter_background",
 		"nomad_background",
 		"nomad_ranged_background",
