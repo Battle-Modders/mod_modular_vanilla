@@ -14,7 +14,15 @@
 }
 
 ::ModularVanilla.MH <- ::Hooks.register(::ModularVanilla.ID, ::ModularVanilla.Version, ::ModularVanilla.Name);
-::ModularVanilla.MH.require("mod_msu");
+::ModularVanilla.MH.require([
+	"vanilla >= 1.5.0-15",
+	"dlc_lindwurm",
+	"dlc_unhold",
+	"dlc_wildmen",
+	"dlc_desert",
+	"dlc_paladins",
+	"mod_msu"
+]);
 
 ::ModularVanilla.MH.queue("<mod_msu", function()
 {
