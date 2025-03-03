@@ -602,7 +602,9 @@
 			local previewFatigue = actor.getPreviewFatigue();
 			local previewAP = actor.getPreviewActionPoints();
 
+			actor.m.MV_IsDoingPreviewUpdate = true;
 			this.getContainer().update();
+			actor.m.MV_IsDoingPreviewUpdate = false;
 
 			// TODO: Hook the js side to work properly with animations of skills which aren't usable
 			// otherwise currently this isUsable thing doesn't work as intended
@@ -612,11 +614,10 @@
 			local ret = __original();
 
 			actor.m.MV_IsPreviewing = false;
+			actor.m.MV_IsDoingPreviewUpdate = true;
 			this.getContainer().update();
+			actor.m.MV_IsDoingPreviewUpdate = false;
 			actor.m.MV_IsPreviewing = true;
-
-			actor.setPreviewFatigue(previewFatigue);
-			actor.setPreviewActionPoints(previewAP);
 
 			// if (!isUsablePreview)
 			// {

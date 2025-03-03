@@ -5,7 +5,7 @@
 		// Prevent collectGarbage from running during a preview type skill_container.update
 		q.collectGarbage = @(__original) function( _performUpdate = true )
 		{
-			if (!this.getActor().isPreviewing())
+			if (!this.getActor().m.MV_IsDoingPreviewUpdate)
 				return __original(_performUpdate);
 		}
 

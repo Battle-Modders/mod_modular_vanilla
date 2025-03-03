@@ -36,7 +36,9 @@
 
 			activeEntity.m.MV_CostsPreview = _costsPreview;
 			activeEntity.m.MV_IsPreviewing = true;
+			activeEntity.m.MV_IsDoingPreviewUpdate = true;
 			activeEntity.getSkills().update();
+			activeEntity.m.MV_IsDoingPreviewUpdate = false;
 
 			this.m.ActiveEntityCostsPreview.actionPointsPreview <- activeEntity.getActionPoints() - _costsPreview.ActionPoints;
 			if (this.m.ActiveEntityCostsPreview.actionPointsPreview < 0)
@@ -58,12 +60,10 @@
 			this.m.JSHandle.asyncCall("updateCostsPreview", this.m.ActiveEntityCostsPreview);
 
 			activeEntity.m.MV_IsPreviewing = false;
+			activeEntity.m.MV_IsDoingPreviewUpdate = true;
 			activeEntity.getSkills().update();
+			activeEntity.m.MV_IsDoingPreviewUpdate = false;
 			activeEntity.m.MV_IsPreviewing = true;
-
-			// Have to set these again because the skill_container.update above sets these back to current action points
-			activeEntity.setPreviewActionPoints(this.m.ActiveEntityCostsPreview.actionPointsPreview);
-			activeEntity.setPreviewFatigue(this.m.ActiveEntityCostsPreview.fatiguePreview);
 		}
 
 		// MV: Changed

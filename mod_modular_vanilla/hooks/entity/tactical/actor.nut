@@ -8,37 +8,37 @@
 		// Note: Done inside a hookTree because vanilla overwrites these functions for e.g. lindwurm_tail
 		q.setActionPoints = @(__original) function( _a )
 		{
-			if (!this.isPreviewing())
+			if (!this.m.MV_IsDoingPreviewUpdate)
 				return __original(_a);
 		}
 
 		q.setFatigue = @(__original) function( _f )
 		{
-			if (!this.isPreviewing())
+			if (!this.m.MV_IsDoingPreviewUpdate)
 				return __original(_f);
 		}
 
 		q.setHitpointsPct = @(__original) function( _h )
 		{
-			if (!this.isPreviewing())
+			if (!this.m.MV_IsDoingPreviewUpdate)
 				return __original(_h);
 		}
 
 		q.onSkillsUpdated = @(__original) function()
 		{
-			if (!this.isPreviewing())
+			if (!this.m.MV_IsDoingPreviewUpdate)
 				return __original();
 		}
 
 		q.updateOverlay = @(__original) function()
 		{
-			if (!this.isPreviewing())
+			if (!this.m.MV_IsDoingPreviewUpdate)
 				return __original();
 		}
 
 		q.setDirty = @(__original) function( _value )
 		{
-			if (!this.isPreviewing())
+			if (!this.m.MV_IsDoingPreviewUpdate)
 				return __original(_value);
 		}
 	// part of affordability preview system END
@@ -48,6 +48,7 @@
 ::ModularVanilla.MH.hook("scripts/entity/tactical/actor", function (q) {
 // part of affordability preview system START
 	// MV: Added
+	q.m.MV_IsDoingPreviewUpdate <- false;
 	q.m.MV_IsPreviewing <- false;
 	q.m.MV_CostsPreview <- null;
 	q.m.MV_PreviewSkill <- null;
