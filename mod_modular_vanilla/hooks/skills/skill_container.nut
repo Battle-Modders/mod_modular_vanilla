@@ -32,5 +32,19 @@
 			this.getActor().resetPreview();
 			return __original();
 		}
+
+		q.onCostsPreview <- function( _costsPreview )
+		{
+			local wasUpdating = this.m.IsUpdating;
+			this.m.IsUpdating = true;
+			foreach (skill in this.m.Skills)
+			{
+				if (!skill.isGarbage())
+				{
+					skill.onCostsPreview(_costsPreview);
+				}
+			}
+			this.m.IsUpdating = wasUpdating;
+		}
 	});
 });

@@ -586,6 +586,10 @@
 			}
 		}
 	}
+
+	q.onCostsPreview <- function( _costsPreview )
+	{
+	}
 });
 
 
