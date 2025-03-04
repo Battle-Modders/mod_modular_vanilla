@@ -26,6 +26,8 @@
 
 ::ModularVanilla.MH.queue("<mod_msu", function()
 {
+	::include("mod_modular_vanilla/hooks_helper.nut");
+
 	foreach (file in ::IO.enumerateFiles("mod_modular_vanilla/config"))
 	{
 		::include(file);
@@ -64,4 +66,5 @@
 		fn();
 	}
 	delete ::ModularVanilla.QueueBucket;
+	delete ::ModularVanilla.HooksHelper;
 }, ::Hooks.QueueBucket.FirstWorldInit);
