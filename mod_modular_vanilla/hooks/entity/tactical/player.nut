@@ -3,7 +3,7 @@
 	// part of player_party.updateStrength modularization
 	q.MV_getStrength <- function()
 	{
-		// Same as vanilla in player_party.updateStrength except the addition of the skill_container event
+		// Same as vanilla in player_party.updateStrength
 		return 10 + (this.getLevel() + 1) * 2.0;
 	}
 });

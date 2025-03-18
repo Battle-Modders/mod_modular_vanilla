@@ -9,6 +9,7 @@
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
 	::ModularVanilla.MH.hookTree("scripts/scenarios/world/starting_scenario", function (q) {
+		// MV: Changed
 		// part of player_party.updateStrength modularization
 		// During loading a save game, the player_party.updateStrength is called before the origin
 		// is instantiated, therefore the multiplier from the origin doesn't apply. So, we manually
