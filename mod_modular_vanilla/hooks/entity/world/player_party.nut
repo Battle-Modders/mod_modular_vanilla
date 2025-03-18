@@ -1,0 +1,36 @@
+::ModularVanilla.MH.hook("scripts/entity/world/player_party", function (q) {
+	// MV: Modularized
+	q.updateStrength = @() function()
+	{
+		this.m.Strength = 0.0;
+		local roster = ::World.getPlayerRoster().getAll();
+
+		if (roster.len() > ::World.Assets.getBrothersScaleMax())
+		{
+			roster.sort(this.onLevelCompare);
+		}
+
+		if (roster.len() < ::World.Assets.getBrothersScaleMin())
+		{
+			this.m.Strength += 10.0 * (::World.Assets.getBrothersScaleMin() - roster.len());
+		}
+
+		foreach (i, bro in roster)
+		{
+			if (i >= ::World.Assets.getBrothersScaleMax())
+			{
+				break;
+			}
+
+			// Extracted the logic of adding each bro's contribution to the strength
+			// and added call to new skill_container event for getting strength mult
+			this.m.Strength += bro.MV_getStrength() * bro.getSkills().MV_getPlayerPartyStrengthMult();
+		}
+
+		// Added call to new starting_scenario event for getting strength mult
+		if (!::MSU.isNull(::World.Assets.getOrigin()))
+		{
+			this.m.Strength *= ::World.Assets.getOrigin().MV_getPlayerPartyStrengthMult();
+		}
+	}
+});
