@@ -20,6 +20,7 @@
 	q.onDamageReceived = @() function( _attacker, _skill, _hitInfo )
 	{
 		_hitInfo.BodyPart = ::Const.BodyPart.Body;
+		_hitInfo.BodyDamageMult = 1.0;
 
 		// This is explicitely done in the Vanilla implementation and it is needed to make Acid be applied correctly.
 		// The head is often too far (2+ tiles) away to apply acid with its own racial effect
