@@ -359,10 +359,10 @@
 		{
 			local overflowDamage = _hitInfo.DamageArmor;
 
-			if (this.getBaseProperties().Armor[_hitInfo.BodyPart] != 0)
+			if ((this.getBaseProperties().Armor[_hitInfo.BodyPart] * p.ArmorMult[_hitInfo.BodyPart]) != 0)
 			{
-				overflowDamage -= this.getBaseProperties().Armor[_hitInfo.BodyPart] * this.getBaseProperties().ArmorMult[_hitInfo.BodyPart];
-				this.getBaseProperties().Armor[_hitInfo.BodyPart] = this.Math.max(0, this.getBaseProperties().Armor[_hitInfo.BodyPart] * this.getBaseProperties().ArmorMult[_hitInfo.BodyPart] - _hitInfo.DamageArmor);
+				overflowDamage -= this.getBaseProperties().Armor[_hitInfo.BodyPart] * p.ArmorMult[_hitInfo.BodyPart];
+				this.getBaseProperties().Armor[_hitInfo.BodyPart] = this.Math.maxf(0, this.getBaseProperties().Armor[_hitInfo.BodyPart] - _hitInfo.DamageArmor / p.ArmorMult[_hitInfo.BodyPart]);
 				// vanilla lindwurm_tail says "natural armor is hit" here
 				this.Tactical.EventLog.logEx(this.Const.UI.getColorizedEntityName(this) + "\'s armor is hit for [b]" + this.Math.floor(_hitInfo.DamageArmor) + "[/b] damage");
 			}
