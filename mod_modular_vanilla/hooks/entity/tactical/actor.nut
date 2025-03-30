@@ -292,7 +292,10 @@
 			this.getTile().addVisibilityForCurrentEntity();
 		}
 
-		// MV: Extracted - Steel Brow part from vanilla has been moved to perk_steel_brow.onBeforeDamageReceived
+		if (this.getCurrentProperties().IsImmuneToCriticals || this.getCurrentProperties().IsImmuneToHeadshots)
+		{
+			_hitInfo.BodyDamageMult = 1.0;
+		}
 
 		local p = this.getSkills().buildPropertiesForBeingHit(_attacker, _skill, _hitInfo);
 		_hitInfo.PropertiesForBeingHit = p; // MV: Added
@@ -362,7 +365,9 @@
 			if (this.getBaseProperties().Armor[_hitInfo.BodyPart] != 0)
 			{
 				overflowDamage -= this.getBaseProperties().Armor[_hitInfo.BodyPart] * this.getBaseProperties().ArmorMult[_hitInfo.BodyPart];
-				this.getBaseProperties().Armor[_hitInfo.BodyPart] = this.Math.max(0, this.getBaseProperties().Armor[_hitInfo.BodyPart] * this.getBaseProperties().ArmorMult[_hitInfo.BodyPart] - _hitInfo.DamageArmor);
+				local newArmor = this.getBaseProperties().Armor[_hitInfo.BodyPart] * p.ArmorMult[_hitInfo.BodyPart] - _hitInfo.DamageArmor;
+				newArmor /= p.ArmorMult[_hitInfo.BodyPart];
+				this.getBaseProperties().Armor[_hitInfo.BodyPart] = this.Math.max(0, newArmor);
 				// vanilla lindwurm_tail says "natural armor is hit" here
 				this.Tactical.EventLog.logEx(this.Const.UI.getColorizedEntityName(this) + "\'s armor is hit for [b]" + this.Math.floor(_hitInfo.DamageArmor) + "[/b] damage");
 			}
@@ -587,7 +592,7 @@
 			_tile.Properties.Effect.Callback(_tile, this);
 		}
 
-		this.getSkills().update();
+		this.getSkills().onMovementFinished();
 		this.getItems().onMovementFinished();
 		this.setDirty(true);
 		this.m.IsMoving = false;
