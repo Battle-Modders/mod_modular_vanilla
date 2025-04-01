@@ -14,7 +14,4 @@
 			this.m.FatigueCostMult *= ::Const.Combat.WeaponSpecFatigueMult;
 		}
 	}
-
-	// VanillaFix: see documentation of helper function
-	::ModularVanilla.HooksHelper.fixGetTooltipProperties(q);
 });
