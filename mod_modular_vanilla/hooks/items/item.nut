@@ -1,6 +1,7 @@
 ::ModularVanilla.MH.hook("scripts/items/item", function(q) {
 	// MV: Added part of framework: base item for named items
 	q.m.BaseItemScript <- null;
+	q.m.IsUsingBaseItemSkills <- true;
 
 	// MV: Added part of framework: base item for named items
 	q.getBaseItemFields <- function()
@@ -64,7 +65,7 @@
 		// MV: Part of framework: base item for named items
 		q.onEquip = @(__original) function()
 		{
-			if (this.m.BaseItemScript == null)
+			if (this.m.BaseItemScript == null || !this.m.IsUsingBaseItemSkills)
 				return __original();
 
 			local function getParents( _obj )
