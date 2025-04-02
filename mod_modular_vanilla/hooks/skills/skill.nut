@@ -1,4 +1,11 @@
 ::ModularVanilla.MH.hook("scripts/skills/skill", function (q) {
+	// MV: Added
+	// part of player_party.updateStrength modularization
+	q.MV_getPlayerPartyStrengthMult <- function()
+	{
+		return 1.0;
+	}
+
 	q.getDamageRegular <- function( _properties, _targetEntity = null )
 	{
 		local damage = ::Math.rand(_properties.DamageRegularMin, _properties.DamageRegularMax) * _properties.DamageRegularMult;
