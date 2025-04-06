@@ -17,7 +17,11 @@
 		q.onInit = @(__original) function()
 		{
 			__original();
-			::World.State.getPlayer().updateStrength();
+			// Null check is necessary because `World.State.getPlayer()` is null during `onBeforeDeserialize` which happens when loading a
+			// saved game while already having loaded a saved game previously. This leads to `asset_manager.resetToDefaults` being called
+			// which calls `onInit` on the Origin but at this point the player party doesn't exist.
+			if (!::MSU.isNull(::World.State.getPlayer()))
+				::World.State.getPlayer().updateStrength();
 		}
 	});
 });
