@@ -24,6 +24,10 @@
 	"mod_msu"
 ]);
 
+::ModularVanilla.MH.conflictWith([
+	"tnf_modRNG [Overwrites attackEntity and getHitchance vanilla functions]" // Part of Tweaks and Fixes by LeVilainJoueur. https://www.nexusmods.com/battlebrothers/mods/69
+]);
+
 ::ModularVanilla.MH.queue("<mod_msu", function()
 {
 	::include("mod_modular_vanilla/hooks_helper.nut");
