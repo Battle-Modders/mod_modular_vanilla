@@ -16,6 +16,20 @@
 
 		return ret;
 	}
+
+	// MV: Added
+	// part of MV_onUpdateAIAgent skill_container event
+	q.MV_onUpdateAIAgent <- function()
+	{
+		local wasUpdating = this.m.IsUpdating;
+		this.m.IsUpdating = true;
+		foreach (s in this.m.Skills)
+		{
+			if (!s.isGarbage())
+				s.MV_onUpdateAIAgent();
+		}
+		this.m.IsUpdating = wasUpdating;
+	}
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
