@@ -19,8 +19,8 @@
 			// MV: Added
 			// part of MV_onUpdateAIAgent skill_container event
 			this.m.Properties = ::MSU.deepClone(this.m.MV_OriginalProperties);
-			this.getActor().getSkills().MV_onUpdateAIAgent();
 			__original();
+			this.getActor().getSkills().MV_onUpdateAIAgent();
 		}
 	});
 });
