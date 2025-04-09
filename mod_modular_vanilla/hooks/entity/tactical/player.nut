@@ -4,6 +4,6 @@
 	q.MV_getStrength <- function()
 	{
 		// Same as vanilla in player_party.updateStrength
-		return 10 + (this.getLevel() + 1) * 2.0;
+		return 10 + (this.getLevel() - 1) * 2.0;
 	}
 });
