@@ -24,7 +24,7 @@
 
 			// Extracted the logic of adding each bro's contribution to the strength
 			// and added call to new skill_container event for getting strength mult
-			this.m.Strength += bro.MV_getStrength() * bro.getSkills().MV_getPlayerPartyStrengthMult();
+			this.m.Strength += bro.MV_getStrength();
 		}
 
 		// Added call to new starting_scenario event for getting strength mult
