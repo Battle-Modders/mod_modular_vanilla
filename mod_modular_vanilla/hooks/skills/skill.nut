@@ -586,6 +586,12 @@
 		return 1.0;
 	}
 
+	// MV: Added
+	// part of MV_onUpdateAIAgent skill_container event
+	q.MV_onUpdateAIAgent <- function()
+	{
+	}
+
 	q.onCostsPreview <- function( _costsPreview )
 	{
 	}
