@@ -12,7 +12,8 @@
 
 		if (roster.len() < ::World.Assets.getBrothersScaleMin())
 		{
-			this.m.Strength += 10.0 * (::World.Assets.getBrothersScaleMin() - roster.len());
+			// Extracted the strength of empty slot into a separate function
+			this.m.Strength += this.MV_getEmptyBroStrength() * (::World.Assets.getBrothersScaleMin() - roster.len());
 		}
 
 		foreach (i, bro in roster)
@@ -32,5 +33,12 @@
 		{
 			this.m.Strength *= ::World.Assets.getOrigin().MV_getPlayerPartyStrengthMult();
 		}
+	}
+
+	// MV: Added
+	// Part of player_party.updateStrength modularization
+	q.MV_getEmptyBroStrength <- function()
+	{
+		return 10.0;
 	}
 });
