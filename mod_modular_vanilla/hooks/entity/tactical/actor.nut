@@ -407,6 +407,7 @@
 		if (this.getHitpoints() <= 0)
 		{
 			this.spawnBloodDecals(this.getTile());
+			::Tactical.EventLog.logEx(format("%s\'s %s is hit for %i damage", ::Const.UI.getColorizedEntityName(this), ::Const.Strings.BodyPartName[_hitInfo.BodyPart], ::Math.floor(damage)));
 			this.kill(_attacker, _skill, fatalityType);
 		}
 		else
