@@ -330,6 +330,7 @@
 			}
 		}
 
+		local oldHitpoints = this.getHitpoints();	// We save the old hitpoints so that we can display them later in the combat log
 		if (damage > 0)
 		{
 			if (!this.m.IsAbleToDie && damage >= this.getHitpoints())
@@ -407,7 +408,7 @@
 		if (this.getHitpoints() <= 0)
 		{
 			this.spawnBloodDecals(this.getTile());
-			::Tactical.EventLog.logEx(format("%s\'s %s is hit for %i damage", ::Const.UI.getColorizedEntityName(this), ::Const.Strings.BodyPartName[_hitInfo.BodyPart], ::Math.floor(damage)));
+			::Tactical.EventLog.logEx(format("%s\'s %s (%i) is hit for %i damage", ::Const.UI.getColorizedEntityName(this), ::Const.Strings.BodyPartName[_hitInfo.BodyPart], oldHitpoints, ::Math.floor(damage)));
 			this.kill(_attacker, _skill, fatalityType);
 		}
 		else
@@ -444,20 +445,20 @@
 				{
 					if (damage > 0 && !this.isHiddenToPlayer())
 					{
-						::Tactical.EventLog.logEx(format("%s\'s %s is hit for %i damage", ::Const.UI.getColorizedEntityName(this), ::Const.Strings.BodyPartName[_hitInfo.BodyPart], ::Math.floor(damage)));
+						::Tactical.EventLog.logEx(format("%s\'s %s (%i) is hit for %i damage", ::Const.UI.getColorizedEntityName(this), ::Const.Strings.BodyPartName[_hitInfo.BodyPart], oldHitpoints, ::Math.floor(damage)));
 					}
 				}
 				else
 				{
 					if (this.isPlayerControlled() || !this.isHiddenToPlayer())
 					{
-						::Tactical.EventLog.logEx(format("%s\'s %s is hit for %i damage and suffers %s", ::Const.UI.getColorizedEntityName(this), ::Const.Strings.BodyPartName[_hitInfo.BodyPart], ::Math.floor(damage), injury.getNameOnly()));
+						::Tactical.EventLog.logEx(format("%s\'s %s (%i) is hit for %i damage and suffers %s", ::Const.UI.getColorizedEntityName(this), ::Const.Strings.BodyPartName[_hitInfo.BodyPart], oldHitpoints, ::Math.floor(damage), injury.getNameOnly()));
 					}
 				}
 			}
 			else if (damage > 0 && !this.isHiddenToPlayer())
 			{
-				::Tactical.EventLog.logEx(format("%s\'s %s is hit for %i damage", ::Const.UI.getColorizedEntityName(this), ::Const.Strings.BodyPartName[_hitInfo.BodyPart], ::Math.floor(damage)));
+				::Tactical.EventLog.logEx(format("%s\'s %s (%i) is hit for %i damage", ::Const.UI.getColorizedEntityName(this), ::Const.Strings.BodyPartName[_hitInfo.BodyPart], oldHitpoints, ::Math.floor(damage)));
 			}
 
 			// MV: Extracted
