@@ -444,20 +444,20 @@
 				{
 					if (damage > 0 && !this.isHiddenToPlayer())
 					{
-						this.Tactical.EventLog.logEx(this.Const.UI.getColorizedEntityName(this) + "\'s " + this.Const.Strings.BodyPartName[_hitInfo.BodyPart] + " is hit for [b]" + this.Math.floor(damage) + "[/b] damage");
+						::Tactical.EventLog.logEx(format("%s\'s %s is hit for %i damage", ::Const.UI.getColorizedEntityName(this), ::Const.Strings.BodyPartName[_hitInfo.BodyPart], ::Math.floor(damage)));
 					}
 				}
 				else
 				{
 					if (this.isPlayerControlled() || !this.isHiddenToPlayer())
 					{
-						this.Tactical.EventLog.logEx(this.Const.UI.getColorizedEntityName(this) + "\'s " + this.Const.Strings.BodyPartName[_hitInfo.BodyPart] + " is hit for [b]" + this.Math.floor(damage) + "[/b] damage and suffers " + injury.getNameOnly() + "!");
+						::Tactical.EventLog.logEx(format("%s\'s %s is hit for %i damage and suffers %s", ::Const.UI.getColorizedEntityName(this), ::Const.Strings.BodyPartName[_hitInfo.BodyPart], ::Math.floor(damage), injury.getNameOnly()));
 					}
 				}
 			}
 			else if (damage > 0 && !this.isHiddenToPlayer())
 			{
-				this.Tactical.EventLog.logEx(this.Const.UI.getColorizedEntityName(this) + "\'s " + this.Const.Strings.BodyPartName[_hitInfo.BodyPart] + " is hit for [b]" + this.Math.floor(damage) + "[/b] damage");
+				::Tactical.EventLog.logEx(format("%s\'s %s is hit for %i damage", ::Const.UI.getColorizedEntityName(this), ::Const.Strings.BodyPartName[_hitInfo.BodyPart], ::Math.floor(damage)));
 			}
 
 			// MV: Extracted
