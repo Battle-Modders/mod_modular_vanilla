@@ -54,7 +54,7 @@
 			];
 
 			// MV: Changed
-			// Vanilla iterates only 10 times and tries to add random traits from ::Const.CharacterTraits
+			// VanillaFix: Vanilla iterates only 10 times and tries to add random traits from ::Const.CharacterTraits
 			// and keeps rolling random traits until it finds one that returns false for isExcluded. This can
 			// sometimes lead to fewer traits than desired. So we change this logic completely.
 			local potential = ::Const.CharacterTraits.filter(@(_, _entry) !traits[0].isExcluded(_entry[0]));
