@@ -11,7 +11,11 @@
 		Target = null
 		UserProperties = null,
 		TargetProperties = null
-	}
+	},
+	// Contains a weakref to an instance of MV_AttackInfo during skill.attackEntity.
+	// The purpose is to allow access to the attackInfo from all functions which
+	// do not get it passed directly e.g. onTargetMissed.
+	MV_CurrentAttackInfo = null
 });
 
 // MV: Modularized
