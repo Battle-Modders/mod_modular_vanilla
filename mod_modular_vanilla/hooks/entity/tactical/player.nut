@@ -57,17 +57,18 @@
 			// VanillaFix: Vanilla iterates only 10 times and tries to add random traits from ::Const.CharacterTraits
 			// and keeps rolling random traits until it finds one that returns false for isExcluded. This can
 			// sometimes lead to fewer traits than desired. So we change this logic completely.
-			local potential = ::Const.CharacterTraits.filter(@(_, _entry) !traits[0].isExcluded(_entry[0]));
-			local maxTraits = this.MV_getMaxTraits();
+			local trait = traits[0];
+			local potential = ::Const.CharacterTraits;
 
 			for (local i = 0; i < maxTraits; i++)
 			{
+				potential = potential.filter(@(_, _entry) !trait.isExcluded(_entry[0]));
+
 				if (potential.len() == 0)
 					break;
 
-				local trait = ::new(::MSU.Array.rand(potential)[1]);
+				trait = ::new(::MSU.Array.rand(potential)[1]);
 				traits.push(trait);
-				potential = potential.filter(@(_, _entry) !trait.isExcluded(_entry[0]));
 			}
 
 			for (local i = 1; i < traits.len(); i++)
