@@ -22,7 +22,7 @@
 		if (strengths.len() > ::World.Assets.getBrothersScaleMax())
 		{
 			// sort descending
-			strengths.sort(@(_a, _b) -a <=> -_b);
+			strengths.sort(@(_a, _b) -_a <=> -_b);
 			strengths = strengths.slice(0, ::World.Assets.getBrothersScaleMax());
 		}
 
