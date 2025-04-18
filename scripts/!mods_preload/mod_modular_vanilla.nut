@@ -43,6 +43,13 @@
 	}
 }, ::Hooks.QueueBucket.VeryEarly);
 
+::ModularVanilla.MH.queue("<mod_msu", function() {
+	foreach (fn in ::ModularVanilla.QueueBucket.Early)
+	{
+		fn();
+	}
+}, ::Hooks.QueueBucket.Early);
+
 ::ModularVanilla.MH.queue(">mod_msu", function() {
 	::ModularVanilla.Mod <- ::MSU.Class.Mod(::ModularVanilla.ID, ::ModularVanilla.Version, ::ModularVanilla.Name);
 	::ModularVanilla.Mod.Registry.addModSource(::MSU.System.Registry.ModSourceDomain.GitHub, ::ModularVanilla.GitHubURL);
