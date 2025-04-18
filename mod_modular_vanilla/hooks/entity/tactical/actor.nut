@@ -269,6 +269,8 @@
 	// so that lindwurm_tail properly accessess the correct fields from the Body instead of itself
 	q.onDamageReceived = @() function( _attacker, _skill, _hitInfo )
 	{
+		::Const.Tactical.MV_CurrentHitInfo = _hitInfo.weakref();
+
 		if (!this.isAlive() || !this.isPlacedOnMap())
 		{
 			return 0;

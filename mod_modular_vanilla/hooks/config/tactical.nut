@@ -15,7 +15,13 @@
 	// Contains a weakref to an instance of MV_AttackInfo during skill.attackEntity.
 	// The purpose is to allow access to the attackInfo from all functions which
 	// do not get it passed directly e.g. onTargetMissed.
-	MV_CurrentAttackInfo = null
+	MV_CurrentAttackInfo = null,
+	// Contains a weakref to an instance of HitInfo during actor.onDamageReceived.
+	// The purpose is to allow access to the HitInfo from all functions which
+	// do not get it passed directly.
+	// Note: We populate it during actor.onDamageReceived only. However, during regular skill attack
+	// HitInfo is also first passed to onBeforeTargetHit (in skill.onScheduledTargetHit).
+	MV_CurrentHitInfo = null
 });
 
 // MV: Modularized
