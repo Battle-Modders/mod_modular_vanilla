@@ -48,6 +48,11 @@
 	::ModularVanilla.Mod.Registry.addModSource(::MSU.System.Registry.ModSourceDomain.GitHub, ::ModularVanilla.GitHubURL);
 	::ModularVanilla.Mod.Registry.addModSource(::MSU.System.Registry.ModSourceDomain.NexusMods, "https://www.nexusmods.com/battlebrothers/mods/768");
 	::ModularVanilla.Mod.Registry.setUpdateSource(::MSU.System.Registry.ModSourceDomain.GitHub);
+
+	foreach (fn in ::ModularVanilla.QueueBucket.Normal)
+	{
+		fn();
+	}
 });
 
 ::ModularVanilla.MH.queue("<mod_msu", function() {
