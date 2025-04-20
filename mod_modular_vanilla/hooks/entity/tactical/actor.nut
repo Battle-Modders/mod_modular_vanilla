@@ -358,7 +358,7 @@
 		}
 
 		// TODO: Extract into a separate function?
-		if (_hitInfo.DamageDirect < 1.0)
+		if (_hitInfo.DamageDirect < 1.0 && _hitInfo.DamageArmor > 0)	// Vanilla only checks for _hitInfo.DamageDirect here but DamageArmor might be set to 0 during some skills onBeforeDamageReceived event
 		{
 			local overflowDamage = _hitInfo.DamageArmor;
 
