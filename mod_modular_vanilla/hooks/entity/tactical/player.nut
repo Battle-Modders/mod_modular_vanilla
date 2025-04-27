@@ -67,7 +67,7 @@
 				if (potential.len() == 0)
 					break;
 
-				trait = ::new(::MSU.Array.rand(potential)[1]);
+				trait = ::new(potential.remove(::Math.rand(0, potential.len() - 1))[1]);
 				traits.push(trait);
 			}
 
