@@ -50,7 +50,8 @@
 	// Part of the actor.MV_interrupt framework
 	q.MV_interrupt <- function()
 	{
-		this.getSkills().MV_onActorInterrupted();
+		if (!this.getCurrentProperties().MV_IsImmuneToInterrupt)
+			this.getSkills().MV_onActorInterrupted();
 	}
 	
 // part of affordability preview system START
