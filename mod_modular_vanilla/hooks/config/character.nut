@@ -47,5 +47,7 @@ local original_getClone = ::Const.CharacterProperties.getClone;
 	MV_MoraleCheckBraveryCallbacks = [],
 	// During actor.setMoraleState if the passed morale state is found in this
 	// array, the morale state will not be set to that value..
-	MV_ForbiddenMoraleStates = []
+	MV_ForbiddenMoraleStates = [],
+
+	MV_IsImmuneToInterrupt = false
 });
