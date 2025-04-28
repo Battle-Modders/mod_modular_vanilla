@@ -1,7 +1,3 @@
-// MV: Added
-// Part of the actor.interrupt framework
-::MSU.Skills.addEvent("onActorInterrupted", function( _offensive, _defensive ) {});
-
 ::ModularVanilla.MH.hook("scripts/skills/skill_container", function(q) {
 	// MV: Added
 	// part of affordability preview system
@@ -93,6 +89,23 @@
 
 		this.update();
 	}}.MV_onMoraleStateChanged;
+
+	// MV: Added
+	// Part of the actor.interrupt framework
+	q.onActorInterrupted <- function( _offensive, _defensive )
+	{
+		local wasUpdating = this.m.IsUpdating;
+		this.m.IsUpdating = true;
+
+		foreach (s in this.m.Skills)
+		{
+			if (!s.isGarbage())
+				s.onActorInterrupted(_offensive, _defensive);
+		}
+
+		this.m.IsUpdating = wasUpdating;
+		this.update();
+	}
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
