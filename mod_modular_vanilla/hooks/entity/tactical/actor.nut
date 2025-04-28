@@ -47,10 +47,10 @@
 
 ::ModularVanilla.MH.hook("scripts/entity/tactical/actor", function (q) {
 	// MV: Added
-	// Part of the actor.interrupt framework
-	q.interrupt <- function()
+	// Part of the actor.MV_interrupt framework
+	q.MV_interrupt <- function()
 	{
-		this.getSkills().onActorInterrupted();
+		this.getSkills().MV_onActorInterrupted();
 	}
 	
 // part of affordability preview system START
