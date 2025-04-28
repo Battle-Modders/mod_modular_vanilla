@@ -7,6 +7,12 @@
 	}
 
 	// MV: Added
+	// Part of the actor.interrupt framework
+	q.onActorInterrupted <- function( _offensive, _defensive )
+	{
+	}
+
+	// MV: Added
 	// Part of skill.onScheduledTargetHit modularization.
 	// But useful on its own as well.
 	q.MV_getDamageRegular <- function( _properties, _targetEntity = null )
