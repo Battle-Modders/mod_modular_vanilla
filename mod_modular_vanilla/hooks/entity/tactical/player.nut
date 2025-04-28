@@ -49,17 +49,15 @@
 		{
 			// MV: Extracted calculation of maxTraits into a new function
 			local maxTraits = this.MV_getMaxStartingTraits();
-			local traits = [
-				this.getBackground()
-			];
 
 			// MV: Changed
 			// VanillaFix: Vanilla iterates only 10 times and tries to add random traits from ::Const.CharacterTraits
 			// and keeps rolling random traits until it finds one that returns false for isExcluded. This can
 			// sometimes lead to fewer traits than desired. So we change this logic completely.
-			local trait = traits[0];
 			local potential = ::Const.CharacterTraits;
 
+			local traits = [];
+			local trait = background;
 			for (local i = 0; i < maxTraits; i++)
 			{
 				potential = potential.filter(@(_, _entry) !trait.isExcluded(_entry[0]));
@@ -71,13 +69,10 @@
 				traits.push(trait);
 			}
 
-			for (local i = 1; i < traits.len(); i++)
+			foreach (t in traits)
 			{
-				this.getSkills().add(traits[i]);
-				if (traits[i].getContainer() != null)
-				{
-					traits[i].addTitle();
-				}
+				this.getSkills().add(t);
+				t.addTitle();
 			}
 		}
 
