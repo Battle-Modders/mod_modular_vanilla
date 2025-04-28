@@ -19,7 +19,7 @@
 
 	// MV: Added
 	// Part of the actor.interrupt framework
-	q.onActorInterrupted <- function( _offensive, _defensive )
+	q.onActorInterrupted <- function()
 	{
 		local wasUpdating = this.m.IsUpdating;
 		this.m.IsUpdating = true;
@@ -27,7 +27,25 @@
 		foreach (s in this.m.Skills)
 		{
 			if (!s.isGarbage())
-				s.onActorInterrupted(_offensive, _defensive);
+				s.onActorInterrupted();
+		}
+
+		this.m.IsUpdating = wasUpdating;
+		this.update();
+	}
+
+	// MV: Added
+	// triggered from onAdded of disarmed_effect
+	// but modders can also manually call this from other places as necessary.
+	q.MV_onDisarmed <- function()
+	{
+		local wasUpdating = this.m.IsUpdating;
+		this.m.IsUpdating = true;
+
+		foreach (s in this.m.Skills)
+		{
+			if (!s.isGarbage())
+				s.MV_onDisarmed();
 		}
 
 		this.m.IsUpdating = wasUpdating;
@@ -46,8 +64,8 @@
 		// removed in a single frame and assume that the vanilla intention is to trigger an interruption of the actor.
 		// This is done instead of hooking every single vanilla file which triggers these kinds of interruptions.
 		// This implementation should also cover all mods which followed the vanilla style of removing those 3 effects only.
-		// An exception is the disarmed_effect which doesn't remove shieldwall. For that we hook that effect directly and do
-		// offensive interrupt only.
+		// An exception is the disarmed_effect which doesn't remove shieldwall. For that we trigger a new event MV_onDisarmed
+		// from disarmed_effect.onAdded directly.
 		q.removeByID = @(__original) function( _skillID )
 		{
 			switch (_skillID)
@@ -70,7 +88,7 @@
 
 			__original(_skillID);
 
-			if (this.m.MV_InterruptionCount >= 2)
+			if (this.m.MV_InterruptionCount == 3)
 			{
 				this.m.MV_InterruptionCount = 0;
 				this.getActor().interrupt();

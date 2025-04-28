@@ -8,7 +8,14 @@
 
 	// MV: Added
 	// Part of the actor.interrupt framework
-	q.onActorInterrupted <- function( _offensive, _defensive )
+	q.onActorInterrupted <- function()
+	{
+	}
+
+	// MV: Added
+	// skill_container event that is triggered from onAdded of disarmed_effect
+	// but modders can also manually call this from other places as necessary.
+	q.MV_onDisarmed <- function()
 	{
 	}
 

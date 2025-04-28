@@ -1,15 +1,11 @@
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
 	::ModularVanilla.MH.hook("scripts/skills/effects/disarmed_effect", function(q) {
-		// Part of the actor.interrupt framework
-		// Because this effect doesn't remove shieldwall_effect, we don't want to catch it in auto-interrupt detection
-		// in skill_container.removeByID. Instead we trigger a manual interruption here for offensive effects only.
+		// MV: Changed
+		// Part of skill_container.onDisarmed event
 		q.onAdded = @(__original) function()
 		{
 			__original();
-			if (!this.isGarbage())
-			{
-				this.getContainer().getActor().interrupt(true, false);
-			}
+			this.getContainer().MV_onDisarmed();
 		}
 	});
 });
