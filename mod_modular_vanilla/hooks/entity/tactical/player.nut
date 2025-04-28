@@ -54,7 +54,8 @@
 			// VanillaFix: Vanilla iterates only 10 times and tries to add random traits from ::Const.CharacterTraits
 			// and keeps rolling random traits until it finds one that returns false for isExcluded. This can
 			// sometimes lead to fewer traits than desired. So we change this logic completely.
-			local potential = ::Const.CharacterTraits;
+			local presentTraits = this.getSkills().getAllSkillsOfType(::Const.SkillType.Trait).map(@(_t) _t.getID());
+			local potential = ::Const.CharacterTraits.filter(@(_, _entry) presentTraits.find(_entry[0]) == null);
 
 			local traits = [];
 			local trait = background;
