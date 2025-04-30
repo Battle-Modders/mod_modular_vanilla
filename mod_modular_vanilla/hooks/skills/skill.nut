@@ -2,8 +2,11 @@
 	// MV: Added
 	// Part of skill.onScheduledTargetHit modularization.
 	// But useful on its own as well.
-	q.MV_getDamageRegular <- { function MV_getDamageRegular( _properties, _targetEntity = null )
+	q.MV_getDamageRegular <- { function MV_getDamageRegular( _properties = null, _targetEntity = null )
 	{
+		if (_properties == null)
+			_properties = this.getContainer().buildPropertiesForUse(this, _targetEntity);
+
 		local damage = ::Math.rand(_properties.DamageRegularMin, _properties.DamageRegularMax) * _properties.DamageRegularMult;
 		if (_targetEntity != null && _targetEntity.isPlacedOnMap() && !::MSU.isNull(this.getContainer()) && this.getContainer().getActor().isPlacedOnMap())
 		{
@@ -15,8 +18,11 @@
 	// MV: Added
 	// Part of skill.onScheduledTargetHit modularization.
 	// But useful on its own as well.
-	q.MV_getDamageArmor <- { function MV_getDamageArmor( _properties, _targetEntity = null )
+	q.MV_getDamageArmor <- { function MV_getDamageArmor( _properties = null, _targetEntity = null )
 	{
+		if (_properties == null)
+			_properties = this.getContainer().buildPropertiesForUse(this, _targetEntity);
+
 		local damage = ::Math.rand(_properties.DamageRegularMin, _properties.DamageRegularMax) * _properties.DamageArmorMult;
 		if (_targetEntity != null && _targetEntity.isPlacedOnMap() && !::MSU.isNull(this.getContainer()) && this.getContainer().getActor().isPlacedOnMap())
 		{
@@ -28,8 +34,11 @@
 	// MV: Added
 	// Part of skill.onScheduledTargetHit modularization.
 	// But useful on its own as well.
-	q.MV_getDamageDirect <- { function MV_getDamageDirect( _properties, _targetEntity = null )
+	q.MV_getDamageDirect <- { function MV_getDamageDirect( _properties = null, _targetEntity = null )
 	{
+		if (_properties == null)
+			_properties = this.getContainer().buildPropertiesForUse(this, _targetEntity);
+
 		return ::Math.minf(1.0, _properties.DamageDirectMult * (this.getDirectDamage() + _properties.DamageDirectAdd + (this.isRanged() ? _properties.DamageDirectRangedAdd : _properties.DamageDirectMeleeAdd)));
 	}}.MV_getDamageDirect;
 
