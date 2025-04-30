@@ -201,7 +201,7 @@
 			toHit = ::Math.floor(toHit * (1.0 - this.MV_getDiversionChance(_targetEntity, _userProperties, _targetProperties)));
 		}
 
-		return this.Math.max(::ModularVanilla.Const.HitChanceMin, this.Math.min(::ModularVanilla.Const.HitChanceMax, toHit));
+		return this.Math.max(::Const.Combat.MV_HitChanceMin, this.Math.min(::Const.Combat.MV_HitChanceMax, toHit));
 	}
 
 	// MV: Changed
@@ -473,8 +473,8 @@
 
 			if (this.m.IsRanged && !_allowDiversion && this.m.IsShowingProjectile)
 			{
-				toHit = this.Math.max(::ModularVanilla.Const.HitChanceMin, this.Math.min(::ModularVanilla.Const.HitChanceMax, toHit + ::ModularVanilla.Const.DiversionHitChanceAdd));
-				properties.DamageTotalMult *= ::ModularVanilla.Const.DiversionDamageMult;
+				toHit = this.Math.max(::Const.Combat.MV_HitChanceMin, this.Math.min(::Const.Combat.MV_HitChanceMax, toHit + ::Const.Combat.MV_DiversionHitChanceAdd));
+				properties.DamageTotalMult *= ::Const.Combat.MV_DiversionDamageMult;
 			}
 
 			// if (defense > -100 && skill > -100)
