@@ -3,3 +3,10 @@
 ::Const.MoraleCheckType.MV_Surround <- ::Const.MoraleCheckType.len();
 ::Const.CharacterProperties.MoraleCheckBravery.push(0);
 ::Const.CharacterProperties.MoraleCheckBraveryMult.push(1.0);
+
+::MSU.Table.merge(::Const.Combat, {
+	MV_HitChanceMin = 5,
+	MV_HitChanceMax = 95,
+	MV_DiversionHitChanceAdd = -15,
+	MV_DiversionDamageMult = 0.75
+});
