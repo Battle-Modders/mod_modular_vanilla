@@ -90,9 +90,9 @@
 // part of affordability preview system END
 
 	// Extraction of part of vanilla logic from actor.onDamageReceived
-	q.calcArmorDamageReceived <- function( _skill, _hitInfo )
+	q.MV_calcArmorDamageReceived <- function( _skill, _hitInfo )
 	{
-		local p = _hitInfo.PropertiesForBeingHit;
+		local p = _hitInfo.MV_PropertiesForBeingHit;
 		local dmgMult = p.DamageReceivedTotalMult;
 		if (_skill != null)
 		{
@@ -106,10 +106,9 @@
 
 		if (_hitInfo.DamageDirect < 1.0)
 		{
-			// MV: ArmorRemaining is a new field added by us
-			_hitInfo.ArmorRemaining = p.Armor[_hitInfo.BodyPart] * p.ArmorMult[_hitInfo.BodyPart];
-			armorDamage = this.Math.min(_hitInfo.ArmorRemaining, _hitInfo.DamageArmor);
-			_hitInfo.ArmorRemaining -= armorDamage;
+			_hitInfo.MV_ArmorRemaining = p.Armor[_hitInfo.BodyPart] * p.ArmorMult[_hitInfo.BodyPart];
+			armorDamage = this.Math.min(_hitInfo.MV_ArmorRemaining, _hitInfo.DamageArmor);
+			_hitInfo.MV_ArmorRemaining -= armorDamage;
 			_hitInfo.DamageInflictedArmor = this.Math.max(0, armorDamage);
 		}
 
@@ -117,9 +116,9 @@
 	}
 
 	// Extraction of part of vanilla logic from actor.onDamageReceived
-	q.calcHitpointsDamageReceived <- function( _skill, _hitInfo )
+	q.MV_calcHitpointsDamageReceived <- function( _skill, _hitInfo )
 	{
-		local p = _hitInfo.PropertiesForBeingHit;
+		local p = _hitInfo.MV_PropertiesForBeingHit;
 		local dmgMult = p.DamageReceivedTotalMult;
 		if (_skill != null)
 		{
@@ -130,9 +129,9 @@
 		_hitInfo.DamageRegular *= p.DamageReceivedRegularMult * dmgMult;
 
 		local damage = 0;
-		damage += this.Math.maxf(0.0, _hitInfo.DamageRegular * _hitInfo.DamageDirect * p.DamageReceivedDirectMult - _hitInfo.ArmorRemaining * this.Const.Combat.ArmorDirectDamageMitigationMult);
+		damage += this.Math.maxf(0.0, _hitInfo.DamageRegular * _hitInfo.DamageDirect * p.DamageReceivedDirectMult - _hitInfo.MV_ArmorRemaining * this.Const.Combat.ArmorDirectDamageMitigationMult);
 
-		if (_hitInfo.ArmorRemaining <= 0 || _hitInfo.DamageDirect >= 1.0)
+		if (_hitInfo.MV_ArmorRemaining <= 0 || _hitInfo.DamageDirect >= 1.0)
 		{
 			damage += this.Math.max(0, _hitInfo.DamageRegular * this.Math.maxf(0.0, 1.0 - _hitInfo.DamageDirect * p.DamageReceivedDirectMult) - _hitInfo.DamageInflictedArmor);
 		}
@@ -144,15 +143,15 @@
 	}
 
 	// Extraction of part of vanilla logic from actor.onDamageReceived
-	q.calcFatigueDamageReceived <- function( _skill, _hitInfo )
+	q.MV_calcFatigueDamageReceived <- function( _skill, _hitInfo )
 	{
-		local p = _hitInfo.PropertiesForBeingHit;
+		local p = _hitInfo.MV_PropertiesForBeingHit;
 		_hitInfo.DamageFatigue *= p.FatigueEffectMult;
 		return _hitInfo.DamageFatigue * p.FatigueReceivedPerHitMult * this.getCurrentProperties().FatigueLossOnAnyAttackMult;
 	}
 
 	// Extraction of part of vanilla logic from actor.onDamageReceived
-	q.getFatalityType <- function( _skill, _hitInfo )
+	q.MV_getFatalityType <- function( _skill, _hitInfo )
 	{
 		if (_skill != null)
 		{
@@ -174,7 +173,7 @@
 	}
 
 	// Extraction of part of vanilla logic from actor.onDamageReceived
-	q.onInjuryReceived <- function( _injury )
+	q.MV_onInjuryReceived <- function( _injury )
 	{
 		if (this.isPlayerControlled() && this.isKindOf(this, "player"))
 		{
@@ -189,7 +188,7 @@
 
 	// Returns the injury if an injury is successfully applied, otherwise returns null
 	// Extraction of part of vanilla logic from actor.onDamageReceived
-	q.applyInjury <- function( _skill, _hitInfo )
+	q.MV_applyInjury <- function( _skill, _hitInfo )
 	{
 		local potentialInjuries = [];
 		local bonus = _hitInfo.BodyPart == this.Const.BodyPart.Head ? 1.25 : 1.0;
@@ -214,7 +213,7 @@
 			if (injury.isValid(this))
 			{
 				this.getSkills().add(injury);
-				this.onInjuryReceived(injury);
+				this.MV_onInjuryReceived(injury);
 				return injury;
 			}
 			else
@@ -225,7 +224,7 @@
 	}
 
 	// Extraction of part of vanilla logic from actor.onDamageReceived
-	q.onBeforeDeathConfirmed <- function( _attacker, _skill, _hitInfo )
+	q.MV_onBeforeDeathConfirmed <- function( _attacker, _skill, _hitInfo )
 	{
 		local lorekeeperPotionEffect = this.getSkills().getSkillByID("effects.lorekeeper_potion");
 
@@ -251,7 +250,7 @@
 	}
 
 	// Extraction of part of vanilla logic from actor.onDamageReceived
-	q.checkMoraleOnDamageReceived <- function( _skill, _attacker, _hitInfo )
+	q.MV_checkMoraleOnDamageReceived <- function( _skill, _attacker, _hitInfo )
 	{
 		if (this.getMoraleState() != this.Const.MoraleState.Ignore && _hitInfo.DamageInflictedHitpoints >= this.Const.Morale.OnHitMinDamage && this.getCurrentProperties().IsAffectedByLosingHitpoints)
 		{
@@ -300,15 +299,15 @@
 		}
 
 		local p = this.getSkills().buildPropertiesForBeingHit(_attacker, _skill, _hitInfo);
-		_hitInfo.PropertiesForBeingHit = p; // MV: Added
+		_hitInfo.MV_PropertiesForBeingHit = p; // MV: Added
 
 		this.getItems().onBeforeDamageReceived(_attacker, _skill, _hitInfo, p);
 
-		this.calcArmorDamageReceived(_skill, _hitInfo); // MV: Extracted
-		this.calcHitpointsDamageReceived(_skill, _hitInfo);// MV: Extracted
+		this.MV_calcArmorDamageReceived(_skill, _hitInfo); // MV: Extracted
+		this.MV_calcHitpointsDamageReceived(_skill, _hitInfo);// MV: Extracted
 
-		// MV: Extracted calcFatigueDamageReceived
-		this.setFatigue(this.Math.min(this.getFatigueMax(), this.Math.round(this.getFatigue() + this.calcFatigueDamageReceived(_skill, _hitInfo))));
+		// MV: Extracted MV_calcFatigueDamageReceived
+		this.setFatigue(this.Math.min(this.getFatigueMax(), this.Math.round(this.getFatigue() + this.MV_calcFatigueDamageReceived(_skill, _hitInfo))));
 
 		this.getSkills().onDamageReceived(_attacker, _hitInfo.DamageInflictedHitpoints, _hitInfo.DamageInflictedArmor);
 		// vanilla lindwurm_tail also calls this.m.Racial.onDamageReceived here but I believe that
@@ -348,7 +347,7 @@
 		if (this.getHitpoints() <= 0)
 		{
 			// MV: Extracted
-			this.onBeforeDeathConfirmed(_attacker, _skill, _hitInfo);
+			this.MV_onBeforeDeathConfirmed(_attacker, _skill, _hitInfo);
 		}
 
 		local fatalityType = this.Const.FatalityType.None;
@@ -356,7 +355,7 @@
 		if (this.getHitpoints() <= 0)
 		{
 			this.m.IsDying = true;
-			fatalityType = this.getFatalityType(_skill, _hitInfo);
+			fatalityType = this.MV_getFatalityType(_skill, _hitInfo);
 		}
 
 		// TODO: Extract into a separate function?
@@ -437,7 +436,7 @@
 			if (this.getCurrentProperties().IsAffectedByInjuries && this.m.IsAbleToDie && damage >= this.Const.Combat.InjuryMinDamage && this.getCurrentProperties().ThresholdToReceiveInjuryMult != 0 && _hitInfo.InjuryThresholdMult != 0 && _hitInfo.Injuries != null)
 			{
 				// MV: Extracted
-				local injury = this.applyInjury(_skill, _hitInfo);
+				local injury = this.MV_applyInjury(_skill, _hitInfo);
 
 				// In vanilla it checks for appliedInjury boolean here but we extracted the injury application into
 				// a separate function which returns the injury so we check for the returned injury being null
@@ -462,7 +461,7 @@
 			}
 
 			// MV: Extracted
-			this.checkMoraleOnDamageReceived(_skill, _attacker, _hitInfo);
+			this.MV_checkMoraleOnDamageReceived(_skill, _attacker, _hitInfo);
 
 			this.getSkills().onAfterDamageReceived();
 
@@ -497,7 +496,7 @@
 	}
 
 	// Extraction of part of vanilla logic from actor.onMovementFinish
-	q.onMovementFinish_checkMorale <- function( _tile )
+	q.MV_checkMoraleOnMovementFinish <- function( _tile )
 	{
 		local numOfEnemiesAdjacentToMe = _tile.getZoneOfControlCountOtherThan(this.getAlliedFactions());
 
@@ -520,8 +519,8 @@
 					if (otherActor.m.MaxEnemiesThisTurn < numEnemies && !otherActor.isAlliedWith(this))
 					{
 						local difficulty = this.Math.maxf(10.0, 50.0 - this.getXPValue() * 0.1);
-						// MV: Changed morale check type to the new added MV Surround type
-						otherActor.checkMorale(-1, difficulty, ::Const.MoraleCheckType.Surround);
+						// MV: Changed morale check type to the new added MV_Surround type
+						otherActor.checkMorale(-1, difficulty, ::Const.MoraleCheckType.MV_Surround);
 						otherActor.m.MaxEnemiesThisTurn = numEnemies;
 					}
 				}
@@ -532,8 +531,8 @@
 			if (this.m.MaxEnemiesThisTurn < numOfEnemiesAdjacentToMe)
 			{
 				local difficulty = 40.0;
-				// MV: Changed morale check type to the new added MV Surround type
-				this.checkMorale(-1, difficulty, ::Const.MoraleCheckType.Surround);
+				// MV: Changed morale check type to the new added MV_Surround type
+				this.checkMorale(-1, difficulty, ::Const.MoraleCheckType.MV_Surround);
 			}
 		}
 	}
@@ -570,7 +569,7 @@
 		local numOfEnemiesAdjacentToMe = _tile.getZoneOfControlCountOtherThan(this.getAlliedFactions());
 
 		// MV: Extracted
-		this.onMovementFinish_checkMorale(_tile);
+		this.MV_checkMoraleOnMovementFinish(_tile);
 
 		this.m.CurrentMovementType = this.Const.Tactical.MovementType.Default;
 		this.m.MaxEnemiesThisTurn = this.Math.max(1, numOfEnemiesAdjacentToMe);

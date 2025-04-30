@@ -28,8 +28,8 @@
 // We add several new fields to HitInfo to make more information
 // available in the functions where it is passed
 ::MSU.Table.merge(::Const.Tactical.HitInfo, {
-	ArmorRemaining = 0,
-	PropertiesForUse = null, // attacker skill_container.buildPropertiesForUse
-	PropertiesForDefense = null, // target skill_container.buildPropertiesForDefense
-	PropertiesForBeingHit = null // target skill_container.buildPropertiesForBeingHit
+	MV_ArmorRemaining = 0,
+	MV_PropertiesForUse = null, // attacker skill_container.buildPropertiesForUse
+	MV_PropertiesForDefense = null, // target skill_container.buildPropertiesForDefense
+	MV_PropertiesForBeingHit = null // target skill_container.buildPropertiesForBeingHit
 });

@@ -6,7 +6,7 @@
 		return 1.0;
 	}
 
-	q.getDamageRegular <- function( _properties, _targetEntity = null )
+	q.MV_getDamageRegular <- function( _properties, _targetEntity = null )
 	{
 		local damage = ::Math.rand(_properties.DamageRegularMin, _properties.DamageRegularMax) * _properties.DamageRegularMult;
 		if (_targetEntity != null && _targetEntity.isPlacedOnMap() && !::MSU.isNull(this.getContainer()) && this.getContainer().getActor().isPlacedOnMap())
@@ -16,7 +16,7 @@
 		return damage * _properties.DamageTotalMult * (this.isRanged() ? _properties.RangedDamageMult : _properties.MeleeDamageMult);
 	}
 
-	q.getDamageArmor <- function( _properties, _targetEntity = null )
+	q.MV_getDamageArmor <- function( _properties, _targetEntity = null )
 	{
 		local damage = ::Math.rand(_properties.DamageRegularMin, _properties.DamageRegularMax) * _properties.DamageArmorMult;
 		if (_targetEntity != null && _targetEntity.isPlacedOnMap() && !::MSU.isNull(this.getContainer()) && this.getContainer().getActor().isPlacedOnMap())
@@ -26,12 +26,12 @@
 		return damage * _properties.DamageTotalMult * (this.isRanged() ? _properties.RangedDamageMult : _properties.MeleeDamageMult);
 	}
 
-	q.getDamageDirect <- function( _properties, _targetEntity = null )
+	q.MV_getDamageDirect <- function( _properties, _targetEntity = null )
 	{
 		return ::Math.minf(1.0, _properties.DamageDirectMult * (this.getDirectDamage() + _properties.DamageDirectAdd + (this.isRanged() ? _properties.DamageDirectRangedAdd : _properties.DamageDirectMeleeAdd)));
 	}
 
-	q.getDiversionChance <- function( _targetEntity, _userProperties = null, _targetProperties = null )
+	q.MV_getDiversionChance <- function( _targetEntity, _userProperties = null, _targetProperties = null )
 	{
 		if (!this.m.IsRanged || this.m.MaxRangeBonus <= 1)
 			return 0.0;
@@ -53,7 +53,7 @@
 		return 0.0;
 	}
 
-	q.getDiversionTarget <- function( _user, _targetEntity, _userProperties = null )
+	q.MV_getDiversionTarget <- function( _user, _targetEntity, _userProperties = null )
 	{
 		if (_userProperties == null)
 			_userProperties = this.getContainer().buildPropertiesForUse(this, _targetEntity);
@@ -66,7 +66,7 @@
 		}
 	}
 
-	q.printAttackToLog <- function( _attackInfo )
+	q.MV_printAttackToLog <- function( _attackInfo )
 	{
 		this.Tactical.EventLog.log_newline();
 		if (_attackInfo.IsAstray)
@@ -105,7 +105,7 @@
 	}
 
 	// TODO - this is temporary, will be moved to a modularization of shields
-	q.getShieldBonus <- function( _entity )
+	q.MV_getShieldBonus <- function( _entity )
 	{
 		local ret = 0;
 
@@ -176,7 +176,7 @@
 
 		if (_considerDiversion)
 		{
-			toHit = ::Math.floor(toHit * (1.0 - this.getDiversionChance(_targetEntity, _userProperties, _targetProperties)));
+			toHit = ::Math.floor(toHit * (1.0 - this.MV_getDiversionChance(_targetEntity, _userProperties, _targetProperties)));
 		}
 
 		return this.Math.max(::ModularVanilla.Const.HitChanceMin, this.Math.min(::ModularVanilla.Const.HitChanceMax, toHit));
@@ -187,7 +187,7 @@
 		return this.MV_getHitchance(_targetEntity);
 	}
 
-	q.onAttackEntityHit <- function( _attackInfo )
+	q.MV_onAttackEntityHit <- function( _attackInfo )
 	{
 		this.getContainer().setBusy(true);
 		local distanceToTarget = _attackInfo.User.getTile().getDistanceTo(_attackInfo.Target.getTile());
@@ -234,11 +234,11 @@
 		}
 	}
 
-	q.onAttackEntityMissed <- function( _attackInfo )
+	q.MV_onAttackEntityMissed <- function( _attackInfo )
 	{
 		local distanceToTarget = _attackInfo.User.getTile().getDistanceTo(_attackInfo.Target.getTile());
 		local shield = _attackInfo.Target.getItems().getItemAtSlot(::Const.ItemSlot.Offhand);
-		local shieldBonus = this.getShieldBonus(_attackInfo.Target);
+		local shieldBonus = this.MV_getShieldBonus(_attackInfo.Target);
 
 		_attackInfo.Target.onMissed(_attackInfo.User, this, this.m.IsShieldRelevant && shield != null && _attackInfo.Roll <= _attackInfo.ChanceToHit + shieldBonus * 2);
 		this.m.Container.onTargetMissed(this, _attackInfo.Target);
@@ -331,7 +331,7 @@
 		}
 	}
 
-	q.onAttackRolled <- function( _attackInfo )
+	q.MV_onAttackRolled <- function( _attackInfo )
 	{
 		if (("Assets" in this.World) && this.World.Assets != null && this.World.Assets.getCombatDifficulty() == 0)
 		{
@@ -346,7 +346,7 @@
 		}
 	}
 
-	q.doAttackShake <- function( _attackInfo )
+	q.MV_doAttackShake <- function( _attackInfo )
 	{
 		if (this.m.IsDoingAttackMove && !_attackInfo.User.isHiddenToPlayer() && !_attackInfo.Target.isHiddenToPlayer())
 		{
@@ -388,7 +388,7 @@
 		local astray = false;
 		if (_allowDiversion && this.isRanged() && userTile.getDistanceTo(_targetEntity.getTile()) > 1)
 		{
-			local astrayTarget = this.getDiversionTarget(_user, _targetEntity, properties);
+			local astrayTarget = this.MV_getDiversionTarget(_user, _targetEntity, properties);
 			if (astrayTarget != null)
 			{
 				_allowDiversion = false;
@@ -452,15 +452,15 @@
 
 		attackInfo.Roll = this.Math.rand(1, 100);
 
-		this.onAttackRolled(attackInfo);
+		this.MV_onAttackRolled(attackInfo);
 
-		this.doAttackShake(attackInfo);
+		this.MV_doAttackShake(attackInfo);
 
 		_targetEntity.onAttacked(_user);
 
 		if (!_user.isHiddenToPlayer() && !_targetEntity.isHiddenToPlayer())
 		{
-			this.printAttackToLog(attackInfo);
+			this.MV_printAttackToLog(attackInfo);
 		}
 
 		local isHit = attackInfo.Roll <= attackInfo.ChanceToHit;
@@ -473,12 +473,12 @@
 
 		if (isHit)
 		{
-			this.onAttackEntityHit(attackInfo);
+			this.MV_onAttackEntityHit(attackInfo);
 			return true;
 		}
 		else
 		{
-			this.onAttackEntityMissed(attackInfo);
+			this.MV_onAttackEntityMissed(attackInfo);
 			return false;
 		}
 	}
@@ -522,14 +522,14 @@
 		local hitInfo = clone this.Const.Tactical.HitInfo;
 
 		// Added by MV
-		hitInfo.PropertiesForUse = _info.Properties;
-		hitInfo.PropertiesForDefense = _info.DefenderProperties;
+		hitInfo.MV_PropertiesForUse = _info.Properties;
+		hitInfo.MV_PropertiesForDefense = _info.DefenderProperties;
 		// --
 
 		// MV: Extracted the calculation of DamageRegular, DamageArmor, DamageDirect
-		hitInfo.DamageRegular = this.getDamageRegular(_info.Properties, _info.TargetEntity);
-		hitInfo.DamageArmor = this.getDamageArmor(_info.Properties, _info.TargetEntity);
-		hitInfo.DamageDirect = this.getDamageDirect(_info.Properties, _info.TargetEntity);
+		hitInfo.DamageRegular = this.MV_getDamageRegular(_info.Properties, _info.TargetEntity);
+		hitInfo.DamageArmor = this.MV_getDamageArmor(_info.Properties, _info.TargetEntity);
+		hitInfo.DamageDirect = this.MV_getDamageDirect(_info.Properties, _info.TargetEntity);
 		hitInfo.DamageFatigue = this.Const.Combat.FatigueReceivedPerHit * _info.Properties.FatigueDealtPerHitMult;
 		hitInfo.DamageMinimum = _info.Properties.DamageMinimum;
 		hitInfo.BodyPart = bodyPart;

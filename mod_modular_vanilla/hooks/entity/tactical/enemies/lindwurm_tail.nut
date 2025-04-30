@@ -1,17 +1,17 @@
 ::ModularVanilla.MH.hook("scripts/entity/tactical/enemies/lindwurm_tail", function (q) {
 	// Is set to true during onDamageReceived so that getSkills() returns the skills of this.m.Body
 	// because in vanilla the tail's onDamageReceived calls events on the Body's skill container
-	q.m.MV_IsDuringOnDamageReceived <- false;
+	q.m.__MV_IsDuringOnDamageReceived <- false;
 
 	q.getSkills = @() function()
 	{
-		return this.m.MV_IsDuringOnDamageReceived && this.getBody() != null ? this.getBody().getSkills() : this.m.Skills;
+		return this.m.__MV_IsDuringOnDamageReceived && this.getBody() != null ? this.getBody().getSkills() : this.m.Skills;
 	}
 
 	// MV added function in actor.nut
-	q.onInjuryReceived = @(__original) function( _injury )
+	q.MV_onInjuryReceived = @(__original) function( _injury )
 	{
-		this.m.Body.onInjuryReceived(_injury);
+		this.m.Body.MV_onInjuryReceived(_injury);
 	}
 
 	// MV: Modularized
@@ -27,9 +27,9 @@
 		// In Vanilla this call is more in the middle of the replicated onDamageReceived code. Not sure how much difference that makes
 		this.m.Racial.onDamageReceived(_attacker, _hitInfo.DamageInflictedHitpoints, _hitInfo.DamageInflictedArmor);
 
-		this.m.MV_IsDuringOnDamageReceived = true;
+		this.m.__MV_IsDuringOnDamageReceived = true;
 		local ret = this.actor.onDamageReceived(_attacker, _skill, _hitInfo);
-		this.m.MV_IsDuringOnDamageReceived = false;
+		this.m.__MV_IsDuringOnDamageReceived = false;
 
 		return ret;
 	}
