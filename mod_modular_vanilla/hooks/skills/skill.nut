@@ -511,30 +511,13 @@
 		}
 	}}.attackEntity;
 
-	// MV: Modularized
-	q.onScheduledTargetHit = @() { function onScheduledTargetHit( _info )
+	q.MV_initHitInfo <- function( _targetEntity, _propertiesForUse = null )
 	{
-		_info.Container.setBusy(false);
+		if (_propertiesForUse == null)
+			_propertiesForUse = this.getContainer().buildPropertiesForUse(this, _targetEntity);
 
-		if (!_info.TargetEntity.isAlive())
-		{
-			return;
-		}
-
-		local partHit = this.Math.rand(1, 100);
-		local bodyPart = this.Const.BodyPart.Body;
-		local bodyPartDamageMult = 1.0;
-
-		if (partHit <= _info.Properties.getHitchance(this.Const.BodyPart.Head))
-		{
-			bodyPart = this.Const.BodyPart.Head;
-		}
-		else
-		{
-			bodyPart = this.Const.BodyPart.Body;
-		}
-
-		bodyPartDamageMult = bodyPartDamageMult * _info.Properties.DamageAgainstMult[bodyPart];
+		local bodyPart = ::Math.rand(1, 100) <= _propertiesForUse.getHitchance(::Const.BodyPart.Head) ? ::Const.BodyPart.Head : ::Const.BodyPart.Body;
+		local bodyPartDamageMult = _propertiesForUse.DamageAgainstMult[bodyPart];
 
 		local injuries;
 
@@ -549,23 +532,40 @@
 
 		local hitInfo = clone this.Const.Tactical.HitInfo;
 
-		// Added by MV
-		hitInfo.MV_PropertiesForUse = _info.Properties;
-		hitInfo.MV_PropertiesForDefense = _info.DefenderProperties;
-		// --
+		// MV: Added
+		hitInfo.MV_PropertiesForUse = _propertiesForUse;
 
 		// MV: Extracted the calculation of DamageRegular, DamageArmor, DamageDirect
-		hitInfo.DamageRegular = this.MV_getDamageRegular(_info.Properties, _info.TargetEntity);
-		hitInfo.DamageArmor = this.MV_getDamageArmor(_info.Properties, _info.TargetEntity);
-		hitInfo.DamageDirect = this.MV_getDamageDirect(_info.Properties, _info.TargetEntity);
-		hitInfo.DamageFatigue = this.Const.Combat.FatigueReceivedPerHit * _info.Properties.FatigueDealtPerHitMult;
-		hitInfo.DamageMinimum = _info.Properties.DamageMinimum;
+		hitInfo.DamageRegular = this.MV_getDamageRegular(_propertiesForUse, _targetEntity);
+		hitInfo.DamageArmor = this.MV_getDamageArmor(_propertiesForUse, _targetEntity);
+		hitInfo.DamageDirect = this.MV_getDamageDirect(_propertiesForUse, _targetEntity);
+		hitInfo.DamageFatigue = this.Const.Combat.FatigueReceivedPerHit * _propertiesForUse.FatigueDealtPerHitMult;
+		hitInfo.DamageMinimum = _propertiesForUse.DamageMinimum;
 		hitInfo.BodyPart = bodyPart;
 		hitInfo.BodyDamageMult = bodyPartDamageMult;
-		hitInfo.FatalityChanceMult = _info.Properties.FatalityChanceMult;
+		hitInfo.FatalityChanceMult = _propertiesForUse.FatalityChanceMult;
 		hitInfo.Injuries = injuries;
-		hitInfo.InjuryThresholdMult = _info.Properties.ThresholdToInflictInjuryMult;
-		hitInfo.Tile = _info.TargetEntity.getTile();
+		hitInfo.InjuryThresholdMult = _propertiesForUse.ThresholdToInflictInjuryMult;
+		hitInfo.Tile = _targetEntity == null ? null : _targetEntity.getTile();
+
+		return hitInfo;
+	}
+
+	// MV: Modularized
+	q.onScheduledTargetHit = @() { function onScheduledTargetHit( _info )
+	{
+		_info.Container.setBusy(false);
+
+		if (!_info.TargetEntity.isAlive())
+		{
+			return;
+		}
+
+		local hitInfo = this.MV_initHitInfo(_info.TargetEntity, _info.Properties);
+
+		// MV: Added
+		hitInfo.MV_PropertiesForDefense = _info.DefenderProperties;
+
 		_info.Container.onBeforeTargetHit(_info.Skill, _info.TargetEntity, hitInfo);
 		local pos = _info.TargetEntity.getPos();
 		local hasArmorHitSound = _info.TargetEntity.getItems().getAppearance().ImpactSound[bodyPart].len() != 0;
