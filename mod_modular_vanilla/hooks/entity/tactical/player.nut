@@ -22,6 +22,47 @@
 		return ::Math.rand(::Math.rand(0, 1) == 0 ? 0 : 1, 2);
 	}
 
+	// MV: Added
+	// Part of modularization of player.setStartValuesEx
+	// Adds new traits to the character up to _amount, properly filtering traits based on existing traits and background.
+	q.MV_addTraits <- function( _amount )
+	{
+		// MV: Changed
+		// VanillaFix: Vanilla iterates only 10 times and tries to add random traits from ::Const.CharacterTraits
+		// and keeps rolling random traits until it finds one that returns false for isExcluded. This can
+		// sometimes lead to fewer traits than desired. So we change this logic completely.
+
+		// We use isKindOf to filter because vanilla applies Trait SkillType even to skills which are neither
+		// character_background nor character_trait which leads to the later call to .isExcluded to throw an error.
+		local presentTraits = this.getSkills().getSkillsByFunction(@(_s) ::isKindOf(_s, "character_background") || ::isKindOf(_s, "character_trait"));
+		local potential = ::Const.CharacterTraits.filter(function(_, _entry) {
+			foreach (t in presentTraits)
+			{
+				if (t.getID() == _entry[0] || t.isExcluded(_entry[0]))
+					return false;
+			}
+			return true;
+		});
+
+		local addedTraits = [];
+		local trait;
+		for (local i = 0; i < _amount; i++)
+		{
+			if (i != 0)
+				potential = potential.filter(@(_, _entry) !trait.isExcluded(_entry[0]));
+
+			if (potential.len() == 0)
+				break;
+
+			trait = ::new(potential.remove(::Math.rand(0, potential.len() - 1))[1]);
+			addedTraits.push(trait);
+
+			this.getSkills().add(trait);
+		}
+
+		return addedTraits;
+	}
+
 	// MV: Modularized
 	// Copy of the vanilla function with the following changes:
 	// Extracted the calculation of max traits to add
@@ -48,31 +89,9 @@
 		if (_addTraits)
 		{
 			// MV: Extracted calculation of maxTraits into a new function
-			local maxTraits = this.MV_getMaxStartingTraits();
-
-			// MV: Changed
-			// VanillaFix: Vanilla iterates only 10 times and tries to add random traits from ::Const.CharacterTraits
-			// and keeps rolling random traits until it finds one that returns false for isExcluded. This can
-			// sometimes lead to fewer traits than desired. So we change this logic completely.
-			local presentTraits = this.getSkills().getAllSkillsOfType(::Const.SkillType.Trait).map(@(_t) _t.getID());
-			local potential = ::Const.CharacterTraits.filter(@(_, _entry) presentTraits.find(_entry[0]) == null);
-
-			local traits = [];
-			local trait = background;
-			for (local i = 0; i < maxTraits; i++)
+			// MV: Extracted adding traits into a new function
+			foreach (t in this.MV_addTraits(this.MV_getMaxStartingTraits()))
 			{
-				potential = potential.filter(@(_, _entry) !trait.isExcluded(_entry[0]));
-
-				if (potential.len() == 0)
-					break;
-
-				trait = ::new(potential.remove(::Math.rand(0, potential.len() - 1))[1]);
-				traits.push(trait);
-			}
-
-			foreach (t in traits)
-			{
-				this.getSkills().add(t);
 				t.addTitle();
 			}
 		}
