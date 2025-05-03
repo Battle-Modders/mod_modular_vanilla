@@ -73,7 +73,7 @@
 	// MV: Added
 	q.getPreviewSkill <- function()
 	{
-		return this.m.MV_PreviewSkill;
+		return ::MSU.isNull(this.m.MV_PreviewSkill) ? null : this.m.MV_PreviewSkill.get();
 	}
 
 	// MV: Added
