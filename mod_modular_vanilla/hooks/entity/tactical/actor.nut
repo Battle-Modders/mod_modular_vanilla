@@ -67,7 +67,7 @@
 	// MV: Added
 	q.isPreviewing <- function()
 	{
-		return this.m.MV_IsPreviewing;
+		return this.m.MV_IsPreviewing && (!::MSU.isNull(this.getPreviewSkill()) || !::MSU.isNull(this.getPreviewMovement()));
 	}
 
 	// MV: Added

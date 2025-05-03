@@ -20,7 +20,7 @@
 
 			if ("SkillID" in _costsPreview)
 			{
-				activeEntity.m.MV_PreviewSkill = activeEntity.getSkills().getSkillByID(_costsPreview.SkillID);
+				activeEntity.m.MV_PreviewSkill = ::MSU.asWeakTableRef(activeEntity.getSkills().getSkillByID(_costsPreview.SkillID));
 				activeEntity.setPreviewSkillID(_costsPreview.SkillID);
 			}
 			else
