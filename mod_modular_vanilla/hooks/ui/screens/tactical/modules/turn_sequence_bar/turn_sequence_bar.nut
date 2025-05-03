@@ -1,5 +1,25 @@
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
 	::ModularVanilla.MH.hook("scripts/ui/screens/tactical/modules/turn_sequence_bar/turn_sequence_bar", function(q) {
+		q.m.__MV_FirstSlotEntityID <- null;
+
+		// VanillaFix: https://steamcommunity.com/app/365360/discussions/1/604155219069147354/
+		// Vanilla calls this function whenever an entity who is visible in the turn sequence bar is pushed back in
+		// the sequence resulting in calling `entity.onTurnResumed` on the currently active actor prematurely.
+		// Our fix is a bandaid which returns early when calling this function on an entity already in the first slot.
+		q.onEntityEntersFirstSlot = @(__original) function( _entityId )
+		{
+			if (_entityId == this.m.__MV_FirstSlotEntityID)
+			{
+				local entity = this.findEntityByID(this.m.AllEntities, _entityId);
+				if (entity != null)
+				{
+					return this.convertEntityToUIData(entity.entity, entity.index == this.m.CurrentEntities.len() - 1);
+				}
+			}
+			this.m.__MV_FirstSlotEntityID = _entityId;
+			return __original(_entityId);
+		}
+
 		// MV: Changed
 		// part of affordability preview system
 		q.setActiveEntityCostsPreview = @() function( _costsPreview )
