@@ -43,7 +43,7 @@
 	// MV: Added
 	// Part of skill.attackEntity modularization.
 	// But useful on its own as well.
-	q.MV_getDiversionChance <- function( _targetEntity, _userProperties = null, _targetProperties = null )
+	q.MV_getDiversionChance <- function( _targetEntity, _propertiesForUse = null, _propertiesForDefense = null )
 	{
 		if (!this.m.IsRanged || this.m.MaxRangeBonus <= 1)
 			return 0.0;
@@ -56,10 +56,10 @@
 
 		if (this.Const.Tactical.Common.getBlockedTiles(userTile, _targetEntity.getTile(), user.getFaction(), true).len() != 0)
 		{
-			if (_userProperties == null)
-				_userProperties = this.getContainer().buildPropertiesForUse(this, _targetEntity);
+			if (_propertiesForUse == null)
+				_propertiesForUse = this.getContainer().buildPropertiesForUse(this, _targetEntity);
 
-			return this.Const.Combat.RangedAttackBlockedChance * _userProperties.RangedAttackBlockedChanceMult;
+			return this.Const.Combat.RangedAttackBlockedChance * _propertiesForUse.RangedAttackBlockedChanceMult;
 		}
 
 		return 0.0;
@@ -67,14 +67,14 @@
 
 	// MV: Added
 	// Part of skill.attackEntity modularization.
-	q.MV_getDiversionTarget <- function( _user, _targetEntity, _userProperties = null )
+	q.MV_getDiversionTarget <- function( _user, _targetEntity, _propertiesForUse = null )
 	{
-		if (_userProperties == null)
-			_userProperties = this.getContainer().buildPropertiesForUse(this, _targetEntity);
+		if (_propertiesForUse == null)
+			_propertiesForUse = this.getContainer().buildPropertiesForUse(this, _targetEntity);
 
 		local blockedTiles = ::Const.Tactical.Common.getBlockedTiles(_user.getTile(), _targetEntity.getTile(), _user.getFaction());
 
-		if (blockedTiles.len() != 0 && this.Math.rand(1, 100) <= this.Math.ceil(this.Const.Combat.RangedAttackBlockedChance * _userProperties.RangedAttackBlockedChanceMult * 100))
+		if (blockedTiles.len() != 0 && this.Math.rand(1, 100) <= this.Math.ceil(this.Const.Combat.RangedAttackBlockedChance * _propertiesForUse.RangedAttackBlockedChanceMult * 100))
 		{
 			return blockedTiles[this.Math.rand(0, blockedTiles.len() - 1)].getEntity();
 		}
@@ -151,7 +151,7 @@
 		// with the main difference being that the diversion chance is not considered.
 		// So we implement our own MV_getHitchance function which has additional parameters for considering diversion
 		// and we redirect the vanilla function to our modular function by default. This keeps things DRY.
-	q.MV_getHitchance <- function( _targetEntity, _considerDiversion = true, _userProperties = null, _targetProperties = null )
+	q.MV_getHitchance <- function( _targetEntity, _considerDiversion = true, _propertiesForUse = null, _propertiesForDefense = null )
 	{
 		if (!_targetEntity.isAttackable())
 		{
@@ -165,21 +165,21 @@
 
 		local user = this.m.Container.getActor();
 
-		if (_userProperties == null)
-			_userProperties = this.m.Container.buildPropertiesForUse(this, _targetEntity);
+		if (_propertiesForUse == null)
+			_propertiesForUse = this.m.Container.buildPropertiesForUse(this, _targetEntity);
 
-		if (_targetProperties == null)
-			_targetProperties = _targetEntity.getSkills().buildPropertiesForDefense(user, this);
+		if (_propertiesForDefense == null)
+			_propertiesForDefense = _targetEntity.getSkills().buildPropertiesForDefense(user, this);
 
-		local skill = this.m.IsRanged ? _userProperties.RangedSkill * _userProperties.RangedSkillMult : _userProperties.MeleeSkill * _userProperties.MeleeSkillMult;
-		local defense = _targetEntity.getDefense(user, this, _targetProperties);
+		local skill = this.m.IsRanged ? _propertiesForUse.RangedSkill * _propertiesForUse.RangedSkillMult : _propertiesForUse.MeleeSkill * _propertiesForUse.MeleeSkillMult;
+		local defense = _targetEntity.getDefense(user, this, _propertiesForDefense);
 		local levelDifference = _targetEntity.getTile().Level - user.getTile().Level;
 		local distanceToTarget = user.getTile().getDistanceTo(_targetEntity.getTile());
 		local toHit = skill - defense;
 
 		if (this.m.IsRanged)
 		{
-			toHit = toHit + (distanceToTarget - this.m.MinRange) * _userProperties.HitChanceAdditionalWithEachTile * _userProperties.HitChanceWithEachTileMult;
+			toHit = toHit + (distanceToTarget - this.m.MinRange) * _propertiesForUse.HitChanceAdditionalWithEachTile * _propertiesForUse.HitChanceWithEachTileMult;
 		}
 
 		if (levelDifference < 0)
@@ -191,14 +191,14 @@
 			toHit = toHit + this.Const.Combat.LevelDifferenceToHitMalus * levelDifference;
 		}
 
-		toHit = toHit * _userProperties.TotalAttackToHitMult;
-		toHit = toHit + this.Math.max(0, 100 - toHit) * (1.0 - _targetProperties.TotalDefenseToHitMult);
+		toHit = toHit * _propertiesForUse.TotalAttackToHitMult;
+		toHit = toHit + this.Math.max(0, 100 - toHit) * (1.0 - _propertiesForDefense.TotalDefenseToHitMult);
 
 		local userTile = user.getTile();
 
 		if (_considerDiversion)
 		{
-			toHit = ::Math.floor(toHit * (1.0 - this.MV_getDiversionChance(_targetEntity, _userProperties, _targetProperties)));
+			toHit = ::Math.floor(toHit * (1.0 - this.MV_getDiversionChance(_targetEntity, _propertiesForUse, _propertiesForDefense)));
 		}
 
 		return this.Math.max(::Const.Combat.MV_HitChanceMin, this.Math.min(::Const.Combat.MV_HitChanceMax, toHit));
@@ -223,8 +223,8 @@
 			Container = this.getContainer(),
 			User = _attackInfo.User,
 			TargetEntity = _attackInfo.Target,
-			Properties = _attackInfo.UserProperties != null ? _attackInfo.UserProperties : _attackInfo.User.buildPropertiesForUse(this, _attackInfo.Target),
-			DefenderProperties = _attackInfo.TargetProperties != null ? _attackInfo.TargetProperties : _attackInfo.Target.buildPropertiesForDefense(_attackInfo.User, this),
+			Properties = _attackInfo.PropertiesForUse != null ? _attackInfo.PropertiesForUse : _attackInfo.User.buildPropertiesForUse(this, _attackInfo.Target),
+			DefenderProperties = _attackInfo.PropertiesForDefense != null ? _attackInfo.PropertiesForDefense : _attackInfo.Target.buildPropertiesForDefense(_attackInfo.User, this),
 			DistanceToTarget = distanceToTarget
 		};
 
@@ -417,7 +417,7 @@
 		attackInfo.AllowDiversion = _allowDiversion;
 
 		local properties = this.m.Container.buildPropertiesForUse(this, _targetEntity);
-		attackInfo.UserProperties = properties;
+		attackInfo.PropertiesForUse = properties;
 
 		local userTile = _user.getTile();
 		local astray = false;
@@ -452,7 +452,7 @@
 		}
 
 		local defenderProperties = _targetEntity.getSkills().buildPropertiesForDefense(_user, this);
-		attackInfo.TargetProperties = defenderProperties;
+		attackInfo.PropertiesForDefense = defenderProperties;
 
 		local defense = _targetEntity.getDefense(_user, this, defenderProperties);
 		local levelDifference = _targetEntity.getTile().Level - _user.getTile().Level;
