@@ -20,6 +20,24 @@
 			return __original(_entityId);
 		}
 
+		q.initNextRound = @(__original) function()
+		{
+			this.m.__MV_FirstSlotEntityID = null;
+			__original();
+		}
+
+		q.initNextTurn = @(__original) function( _force = false )
+		{
+			this.m.__MV_FirstSlotEntityID = null;
+			__original(_force);
+		}
+
+		q.initNextTurnBecauseOfWait = @(__original) function()
+		{
+			this.m.__MV_FirstSlotEntityID = null;
+			__original();
+		}
+
 		// MV: Changed
 		// part of affordability preview system
 		q.setActiveEntityCostsPreview = @() function( _costsPreview )
