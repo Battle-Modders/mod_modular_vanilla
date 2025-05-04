@@ -6,6 +6,9 @@
 		return 1.0;
 	}
 
+	// MV: Added
+	// Part of skill.onScheduledTargetHit modularization.
+	// But useful on its own as well.
 	q.MV_getDamageRegular <- function( _properties, _targetEntity = null )
 	{
 		local damage = ::Math.rand(_properties.DamageRegularMin, _properties.DamageRegularMax) * _properties.DamageRegularMult;
@@ -16,6 +19,9 @@
 		return damage * _properties.DamageTotalMult * (this.isRanged() ? _properties.RangedDamageMult : _properties.MeleeDamageMult);
 	}
 
+	// MV: Added
+	// Part of skill.onScheduledTargetHit modularization.
+	// But useful on its own as well.
 	q.MV_getDamageArmor <- function( _properties, _targetEntity = null )
 	{
 		local damage = ::Math.rand(_properties.DamageRegularMin, _properties.DamageRegularMax) * _properties.DamageArmorMult;
@@ -26,11 +32,17 @@
 		return damage * _properties.DamageTotalMult * (this.isRanged() ? _properties.RangedDamageMult : _properties.MeleeDamageMult);
 	}
 
+	// MV: Added
+	// Part of skill.onScheduledTargetHit modularization.
+	// But useful on its own as well.
 	q.MV_getDamageDirect <- function( _properties, _targetEntity = null )
 	{
 		return ::Math.minf(1.0, _properties.DamageDirectMult * (this.getDirectDamage() + _properties.DamageDirectAdd + (this.isRanged() ? _properties.DamageDirectRangedAdd : _properties.DamageDirectMeleeAdd)));
 	}
 
+	// MV: Added
+	// Part of skill.attackEntity modularization.
+	// But useful on its own as well.
 	q.MV_getDiversionChance <- function( _targetEntity, _userProperties = null, _targetProperties = null )
 	{
 		if (!this.m.IsRanged || this.m.MaxRangeBonus <= 1)
@@ -53,6 +65,8 @@
 		return 0.0;
 	}
 
+	// MV: Added
+	// Part of skill.attackEntity modularization.
 	q.MV_getDiversionTarget <- function( _user, _targetEntity, _userProperties = null )
 	{
 		if (_userProperties == null)
@@ -66,6 +80,8 @@
 		}
 	}
 
+	// MV: Added
+	// Part of skill.attackEntity modularization.
 	q.MV_printAttackToLog <- function( _attackInfo )
 	{
 		this.Tactical.EventLog.log_newline();
@@ -104,6 +120,8 @@
 		}
 	}
 
+	// MV: Added
+	// Part of skill.attackEntity modularization.
 	// TODO - this is temporary, will be moved to a modularization of shields
 	q.MV_getShieldBonus <- function( _entity )
 	{
@@ -123,12 +141,16 @@
 		return ret;
 	}
 
-	// In vanilla the skill.getHitchance function is primarily a cosmetic function used to display the hitchance in the hit factors tooltip.
-	// Therefore, for ranged skills it "considers the chance of diversion" and shows the hit chance based on that.
-	// Vanilla calculates the actual hit chance manually using mostly duplicate code directly inside skill.attackEntity. The main difference
-	// being that the diversion chance is not considered.
-	// So we implement our own MV_getHitchance function which has additional parameters for considering diversion and we redirect the vanilla
-	// function to our modular function by default. This keeps things DRY.
+	// MV: Added
+	// Part of skill.attackEntity modularization.
+	// This is meant to be the definitive function to use by modders for getting a skill's hitchance.
+		// In vanilla the skill.getHitchance function is primarily a cosmetic function used to display the
+		// hitchance in the hit factors tooltip.
+		// Therefore, for ranged skills it "considers the chance of diversion" and shows the hit chance based on that.
+		// Vanilla calculates the actual hit chance manually using mostly duplicate code directly inside skill.attackEntity
+		// with the main difference being that the diversion chance is not considered.
+		// So we implement our own MV_getHitchance function which has additional parameters for considering diversion
+		// and we redirect the vanilla function to our modular function by default. This keeps things DRY.
 	q.MV_getHitchance <- function( _targetEntity, _considerDiversion = true, _userProperties = null, _targetProperties = null )
 	{
 		if (!_targetEntity.isAttackable())
@@ -182,11 +204,15 @@
 		return this.Math.max(::ModularVanilla.Const.HitChanceMin, this.Math.min(::ModularVanilla.Const.HitChanceMax, toHit));
 	}
 
+	// MV: Changed
+	// See comment on MV_getHitchance
 	q.getHitchance = @() function( _targetEntity )
 	{
 		return this.MV_getHitchance(_targetEntity);
 	}
 
+	// MV: Added
+	// Part of skill.attackEntity modularization.
 	q.MV_onAttackEntityHit <- function( _attackInfo )
 	{
 		this.getContainer().setBusy(true);
@@ -234,6 +260,8 @@
 		}
 	}
 
+	// MV: Added
+	// Part of skill.attackEntity modularization.
 	q.MV_onAttackEntityMissed <- function( _attackInfo )
 	{
 		local distanceToTarget = _attackInfo.User.getTile().getDistanceTo(_attackInfo.Target.getTile());
@@ -331,6 +359,8 @@
 		}
 	}
 
+	// MV: Added
+	// Part of skill.attackEntity modularization.
 	q.MV_onAttackRolled <- function( _attackInfo )
 	{
 		if (("Assets" in this.World) && this.World.Assets != null && this.World.Assets.getCombatDifficulty() == 0)
@@ -346,6 +376,8 @@
 		}
 	}
 
+	// MV: Added
+	// Part of skill.attackEntity modularization.
 	q.MV_doAttackShake <- function( _attackInfo )
 	{
 		if (this.m.IsDoingAttackMove && !_attackInfo.User.isHiddenToPlayer() && !_attackInfo.Target.isHiddenToPlayer())
@@ -368,6 +400,9 @@
 		}
 	}
 
+	// MV: Modularized
+	// The logic has been extracted into several smaller functions.
+	// A new MV_AttackInfo object is used and passed around to functions to carry and develop information about the attack.
 	q.attackEntity = @() function( _user, _targetEntity, _allowDiversion = true )
 	{
 		if (_targetEntity != null && !_targetEntity.isAlive())
