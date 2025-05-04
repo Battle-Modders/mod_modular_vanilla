@@ -9,8 +9,8 @@
 		IsAstray = false,
 		User = null,
 		Target = null
-		UserProperties = null,
-		TargetProperties = null
+		PropertiesForUse = null,
+		PropertiesForDefense = null
 	},
 	// Contains a weakref to an instance of MV_AttackInfo during skill.attackEntity.
 	// The purpose is to allow access to the attackInfo from all functions which
