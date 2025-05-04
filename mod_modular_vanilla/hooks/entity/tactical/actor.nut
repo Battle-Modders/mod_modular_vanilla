@@ -89,6 +89,7 @@
 	}
 // part of affordability preview system END
 
+	// MV: Added
 	// Extraction of part of vanilla logic from actor.onDamageReceived
 	q.MV_calcArmorDamageReceived <- function( _skill, _hitInfo )
 	{
@@ -115,6 +116,7 @@
 		return _hitInfo.DamageInflictedArmor;
 	}
 
+	// MV: Added
 	// Extraction of part of vanilla logic from actor.onDamageReceived
 	q.MV_calcHitpointsDamageReceived <- function( _skill, _hitInfo )
 	{
@@ -142,6 +144,7 @@
 		return _hitInfo.DamageInflictedHitpoints;
 	}
 
+	// MV: Added
 	// Extraction of part of vanilla logic from actor.onDamageReceived
 	q.MV_calcFatigueDamageReceived <- function( _skill, _hitInfo )
 	{
@@ -150,6 +153,7 @@
 		return _hitInfo.DamageFatigue * p.FatigueReceivedPerHitMult * this.getCurrentProperties().FatigueLossOnAnyAttackMult;
 	}
 
+	// MV: Added
 	// Extraction of part of vanilla logic from actor.onDamageReceived
 	q.MV_getFatalityType <- function( _skill, _hitInfo )
 	{
@@ -172,6 +176,7 @@
 		return this.Const.FatalityType.None;
 	}
 
+	// MV: Added
 	// Extraction of part of vanilla logic from actor.onDamageReceived
 	q.MV_onInjuryReceived <- function( _injury )
 	{
@@ -186,6 +191,7 @@
 		}
 	}
 
+	// MV: Added
 	// Returns the injury if an injury is successfully applied, otherwise returns null
 	// Extraction of part of vanilla logic from actor.onDamageReceived
 	q.MV_applyInjury <- function( _skill, _hitInfo )
@@ -223,7 +229,10 @@
 		}
 	}
 
-	// Extraction of part of vanilla logic from actor.onDamageReceived
+	// MV: Added
+	// Extraction of part of vanilla logic from actor.onDamageReceived.
+	// The use case seems to be to prevent the actor from dying.
+	// TODO: Instead of this, perhaps this can simply be a skill_container.onBeforeDeath event?
 	q.MV_onBeforeDeathConfirmed <- function( _attacker, _skill, _hitInfo )
 	{
 		local lorekeeperPotionEffect = this.getSkills().getSkillByID("effects.lorekeeper_potion");
@@ -249,6 +258,7 @@
 		}
 	}
 
+	// MV: Added
 	// Extraction of part of vanilla logic from actor.onDamageReceived
 	q.MV_checkMoraleOnDamageReceived <- function( _skill, _attacker, _hitInfo )
 	{
@@ -268,6 +278,8 @@
 	// so that lindwurm_tail properly accessess the correct fields from the Body instead of itself
 	q.onDamageReceived = @() function( _attacker, _skill, _hitInfo )
 	{
+		// MV: Added
+		// To allow the current HitInfo to be globally accessible.
 		::Const.Tactical.MV_CurrentHitInfo = _hitInfo.weakref();
 
 		if (!this.isAlive() || !this.isPlacedOnMap())
@@ -495,6 +507,7 @@
 		return damage;
 	}
 
+	// MV: Added
 	// Extraction of part of vanilla logic from actor.onMovementFinish
 	q.MV_checkMoraleOnMovementFinish <- function( _tile )
 	{
