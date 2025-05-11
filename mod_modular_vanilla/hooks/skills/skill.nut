@@ -39,13 +39,15 @@
 			// skill.onBeforeTargetHit and then sets the container IsUpdating back to its value which it had before.
 			// this.getContainer().onBeforeTargetHit(this, _target, hitInfo);
 
+			local ratioMult = bodyChance / 100.0;
+
 			// We use hitInfo.BodyPart instead of manually passing ::Const.BodyPart.Body
 			// because something in buildPropertiesForBeingHit might modify the body part e.g. for headless zombies Body may get changed to Head
-			armor += _target.getArmor(hitInfo.BodyPart) * bodyChance / 100.0;
+			armor += _target.getArmor(hitInfo.BodyPart) * ratioMult;
 
 			// These MV functions calculate the accurate damage received based on extraction of the calculations in actor.onDamageReceived
-			armorDamage += _target.MV_calcArmorDamageReceived(this, hitInfo) * bodyChance / 100.0;
-			hitpointDamage += _target.MV_calcHitpointsDamageReceived(this, hitInfo) * bodyChance / 100.0;
+			armorDamage += _target.MV_calcArmorDamageReceived(this, hitInfo) * ratioMult;
+			hitpointDamage += _target.MV_calcHitpointsDamageReceived(this, hitInfo) * ratioMult;
 		}
 
 		if (headshotChance != 0)
@@ -67,9 +69,11 @@
 				hitInfo.BodyDamageMult = 1.0;
 			}
 
-			armor += _target.getArmor(hitInfo.BodyPart) * headshotChance / 100.0;
-			armorDamage += _target.MV_calcArmorDamageReceived(this, hitInfo) * headshotChance / 100.0;
-			hitpointDamage += _target.MV_calcHitpointsDamageReceived(this, hitInfo) * headshotChance / 100.0;
+			local ratioMult = headshotChance / 100.0;
+
+			armor += _target.getArmor(hitInfo.BodyPart) * ratioMult;
+			armorDamage += _target.MV_calcArmorDamageReceived(this, hitInfo) * ratioMult;
+			hitpointDamage += _target.MV_calcHitpointsDamageReceived(this, hitInfo) * ratioMult;
 		}
 
 		/*
