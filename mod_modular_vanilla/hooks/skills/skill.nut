@@ -18,14 +18,9 @@
 		local armorDamage = 0;
 		local hitpointDamage = 0;
 
-		local bodyChance = 100;
 		local headshotChance = p.getHitchance(::Const.BodyPart.Head);
-		if (_target.getCurrentProperties().IsImmuneToCriticals || _target.getCurrentProperties().IsImmuneToHeadshots)
-		{
-			headshotChance = 0;
-		}
-
 		local bodyChance = 100 - headshotChance;
+
 		if (bodyChance != 0)
 		{
 			// The MV_initHitInfo function initializes the hitinfo from the attacker's perspective only i.e. outgoing damage
@@ -59,6 +54,16 @@
 
 			_target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
 			// this.getContainer().onBeforeTargetHit(this, _target, hitInfo);
+
+			// I don't like this but this is to emulate vanilla behavior inside actor.onDamageReceived whereby the hitInfo.BodyDamageMult
+			// is manually set to 1.0 if the target is immune to criticals - Midas.
+			// NOTE: Using `getCurrentProperties()` here has a caveat with split-body enemies i.e. Lindwurm Tail and Lindwurm
+			// whereby when called for Lindwurm Tail this will return the properties of the Lindwurm.
+			if (_target.getCurrentProperties().IsImmuneToCriticals || _target.getCurrentProperties().IsImmuneToHeadshots)
+			{
+				hitInfo.BodyDamageMult = 1.0;
+			}
+
 			armor += _target.getArmor(hitInfo.BodyPart) * headshotChance / 100.0;
 			armorDamage += _target.MV_calcArmorDamageReceived(this, hitInfo) * headshotChance / 100.0;
 			hitpointDamage += _target.MV_calcHitpointsDamageReceived(this, hitInfo) * headshotChance / 100.0;
