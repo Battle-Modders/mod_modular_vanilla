@@ -25,7 +25,7 @@
 		{
 			// The MV_initHitInfo function initializes the hitinfo from the attacker's perspective only i.e. outgoing damage
 			// just like in the vanilla skill.onScheduledTargetHit function
-			local hitInfo = this.MV_initHitInfo(p, _target);
+			local hitInfo = this.MV_initHitInfo(_target, p);
 			hitInfo.BodyPart = ::Const.BodyPart.Body;
 
 			// This will now use the outgoing hitInfo to prepare the correct properties for receiving damage
