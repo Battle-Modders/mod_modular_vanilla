@@ -16,7 +16,14 @@
 		local armorDamage = 0;
 		local hitpointDamage = 0;
 
-		local bodyChance = p.getHitchance(::Const.BodyPart.Body)
+		local bodyChance = 100;
+		local headshotChance = p.getHitchance(::Const.BodyPart.Head);
+		if (_target.getCurrentProperties().IsImmuneToCriticals || _target.getCurrentProperties().IsImmuneToHeadshots)
+		{
+			headshotChance = 0;
+		}
+
+		local bodyChance = 100 - headshotChance;
 		if (bodyChance != 0)
 		{
 			// The MV_initHitInfo function initializes the hitinfo from the attacker's perspective only i.e. outgoing damage
@@ -32,23 +39,24 @@
 			// so we need to find an alternative solution to this.
 			// this.getContainer().onBeforeTargetHit(this, _target, hitInfo);
 
-			armor += _target.getArmor(::Const.BodyPart.Body) * bodyChance / 100.0;
+			// We use hitInfo.BodyPart instead of manually passing ::Const.BodyPart.Body
+			// because something in buildPropertiesForBeingHit might modify the body part e.g. for headless zombies Body may get changed to Head
+			armor += _target.getArmor(hitInfo.BodyPart) * bodyChance / 100.0;
 
 			// These MV functions calculate the accurate damage received based on extraction of the calculations in actor.onDamageReceived
 			armorDamage += _target.MV_calcArmorDamageReceived(this, hitInfo) * bodyChance / 100.0;
 			hitpointDamage += _target.MV_calcHitpointsDamageReceived(this, hitInfo) * bodyChance / 100.0;
 		}
 
-		local headshotChance = p.getHitchance(::Const.BodyPart.Head)
-		if (headshotChance != 0 && !_target.getCurrentProperties().IsImmuneToCriticals && !_target.getCurrentProperties().IsImmuneToHeadshots)
+		if (headshotChance != 0)
 		{
 			// Same process as above but with a new HitInfo object, now with forcing the body part to be Head
-			hitInfo = this.MV_initHitInfo(p, _target);
+			local hitInfo = this.MV_initHitInfo(p, _target);
 			hitInfo.BodyPart = ::Const.BodyPart.Head;
 
 			_target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
 			// this.getContainer().onBeforeTargetHit(this, _target, hitInfo);
-			armor += _target.getArmor(::Const.BodyPart.Head) * headshotChance / 100.0;
+			armor += _target.getArmor(hitInfo.BodyPart) * headshotChance / 100.0;
 			armorDamage += _target.MV_calcArmorDamageReceived(this, hitInfo) * headshotChance / 100.0;
 			hitpointDamage += _target.MV_calcHitpointsDamageReceived(this, hitInfo) * headshotChance / 100.0;
 		}
