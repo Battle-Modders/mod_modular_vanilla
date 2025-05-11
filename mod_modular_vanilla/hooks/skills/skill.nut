@@ -2,6 +2,8 @@
 	// MV: Modularized
 	// VanillaFix: Use buildPropertiesForBeingHit instead of buildPropertiesForDefense (https://steamcommunity.com/app/365360/discussions/1/604154904653626253/)
 	// Also rewrite the logic to be more accurate
+		// - Use MV functions to calculate damage to keep things DRY
+		// - Calculate accurate expected damage for body and head shots
 	q.getExpectedDamage = @() { function getExpectedDamage( _target )
 	{
 		local actor = this.getContainer().getActor();
@@ -607,6 +609,13 @@
 		}
 	}}.attackEntity;
 
+	// MV: Added
+	// Part of skill.onScheduledTargetHit modularization
+	// Similar to the vanilla instantiation and calculation of HitInfo in onScheduledTargetHit,
+	// this is meant to return the HitInfo from the perspective of the attacker i.e. outgoing damage.
+	// We use our MV functions to calculate damage to keep things DRY.
+		// _propertiesForUse parameter is just there so that when called from onScheduledTargetHit we don't have to
+		// calculate the properties again as they are already present in that function.
 	q.MV_initHitInfo <- function( _targetEntity, _propertiesForUse = null )
 	{
 		if (_propertiesForUse == null)
@@ -657,6 +666,7 @@
 			return;
 		}
 
+		// MV: Extracted the initialization and calculation of HitInfo into a new function
 		local hitInfo = this.MV_initHitInfo(_info.TargetEntity, _info.Properties);
 
 		// MV: Added
