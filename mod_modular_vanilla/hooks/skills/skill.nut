@@ -8,6 +8,7 @@
 	{
 		local actor = this.getContainer().getActor();
 		local p = this.getContainer().buildPropertiesForUse(this, _target);
+		local d = _target.getSkills().buildPropertiesForDefense(this.getContainer().getActor(), this);
 
 		// Set the damage in the properties to the average damage so that our MV_getDamageXYZ functions always roll the average damage
 		local damageRegularAvg = ::Math.floor((p.DamageRegularMin + p.DamageRegularMax) * 0.5);
@@ -27,9 +28,10 @@
 			// just like in the vanilla skill.onScheduledTargetHit function
 			local hitInfo = this.MV_initHitInfo(_target, p);
 			hitInfo.BodyPart = ::Const.BodyPart.Body;
+			hitInfo.MV_PropertiesForDefense = d;
 
 			// This will now use the outgoing hitInfo to prepare the correct properties for receiving damage
-			_target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
+			hitInfo.MV_PropertiesForBeingHit = _target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
 
 			// Vanilla changes the HitInfo in certain skills in onBeforeTargetHit e.g. `pound` skill
 			// TODO: We can't call this skill_container event because it will set the skill_container IsUpdating back to false and trigger an update afterward so we need to find an alternative solution to this.
@@ -51,8 +53,9 @@
 			// Same process as above but with a new HitInfo object, now with forcing the body part to be Head
 			local hitInfo = this.MV_initHitInfo(p, _target);
 			hitInfo.BodyPart = ::Const.BodyPart.Head;
+			hitInfo.MV_PropertiesForDefense = d;
 
-			_target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
+			hitInfo.MV_PropertiesForBeingHit = _target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
 			// this.getContainer().onBeforeTargetHit(this, _target, hitInfo);
 
 			// I don't like this but this is to emulate vanilla behavior inside actor.onDamageReceived whereby the hitInfo.BodyDamageMult
