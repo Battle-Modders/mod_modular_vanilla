@@ -35,8 +35,9 @@
 			_target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
 
 			// Vanilla changes the HitInfo in certain skills in onBeforeTargetHit e.g. `pound` skill
-			// TODO: We can't call this skill_container event because it will set the skill_container IsUpdating back to false and trigger an update afterward
-			// so we need to find an alternative solution to this.
+			// TODO: We can't call this skill_container event because it will set the skill_container IsUpdating back to false and trigger an update afterward so we need to find an alternative solution to this.
+			// An idea could be: add a new `container.MV_buildPropertiesForHitting` which calls buildPropertiesForUse and then additionally calls
+			// skill.onBeforeTargetHit and then sets the container IsUpdating back to its value which it had before.
 			// this.getContainer().onBeforeTargetHit(this, _target, hitInfo);
 
 			// We use hitInfo.BodyPart instead of manually passing ::Const.BodyPart.Body
@@ -61,19 +62,26 @@
 			hitpointDamage += _target.MV_calcHitpointsDamageReceived(this, hitInfo) * headshotChance / 100.0;
 		}
 
-		// I have no idea what vanilla was doing with these calculations below. At some level they seem wrong in fact.
-		// the `directDamage` seems to correspond to the hitpoints damage in fact based on how its calculated in actor.onDamageReceived
-		// the `hitpointDamage` here makes no sense to me.
+		/*
+		In vanilla the return has 4 parts:
+			- ArmorDamage is the total amount of damage to armor inflicted
+			- DirectDamage is the damage dealt to HP through armor
+			- HitpointDamage is the additional damage dealt to HP (beyond DirectDamage) if the armor is fully destroyed
+			- TotalDamage is the sum of all the 3 above
+		Therefore the total inflicted HP damage is the sum of `HitpointDamage and DirectDamage`. And this is how it is used
+		in various vanilla places where getExpectedDamage is called.
 
-		// local directDamage = this.Math.max(0, regularDamage * directDamage * critical - (directDamage < 1.0 ? (armor - armorDamage) * this.Const.Combat.ArmorDirectDamageMitigationMult : 0));
-		// local hitpointDamage = this.Math.max(0, regularDamage * critical - directDamage - armorDamage);
+		Because MV_calcHitpointsDamageReceived returns the accurate total damage to hitpoints received, therefore we set the
+		DirectDamage part of the return here to 0. In all places where vanilla uses getExpectedDamage then calculates the
+		total hitpoints damage by doing `expectedDamage.HitpointDamage + expectedDamage.DirectDamage`. Therefore, even with
+		our change of setting DirectDamage to 0, vanilla behavior in those cases will remain as expected.
+		*/
 
-		// What to do with DirectDamage and HitpointDamage exactly?
 		local ret = {
 			ArmorDamage = armorDamage,
-			DirectDamage = hitpointDamage,
+			DirectDamage = 0,
 			HitpointDamage = hitpointDamage,
-			TotalDamage = hitpointDamage + armorDamage + hitpointDamage // last one used to be directDamage in vanilla
+			TotalDamage = hitpointDamage + armorDamage
 		};
 		return ret;
 	}}.getExpectedDamage;
