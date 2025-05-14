@@ -4,6 +4,12 @@
 	{
 		this.removeSelf();
 	}
+
+	// Part of the skill_container.MV_onDisarmed framework
+	q.MV_onDisarmed = @() function()
+	{
+		this.removeSelf();
+	}
 	
 	// MV: Added
 	// Part of modularization of actor.setMoraleState
