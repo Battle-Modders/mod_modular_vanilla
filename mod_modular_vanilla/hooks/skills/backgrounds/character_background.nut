@@ -15,7 +15,7 @@
 		// Return the ID from MV_getIDForEvent during events being set up
 		q.getID  = @(__original) function()
 		{
-			return ::ModularVanilla.__EventIDForBGProxy != null ? this.MV_getIDForEvent(::ModularVanilla.__EventIDForBG) : __original();
+			return ::ModularVanilla.__EventIDForBG != null ? this.MV_getIDForEvent(::ModularVanilla.__EventIDForBG) : __original();
 		}
 	});
 });
