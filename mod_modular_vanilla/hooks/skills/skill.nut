@@ -1,12 +1,5 @@
 ::ModularVanilla.MH.hook("scripts/skills/skill", function (q) {
 	// MV: Added
-	// part of player_party.updateStrength modularization
-	q.MV_getPlayerPartyStrengthMult <- function()
-	{
-		return 1.0;
-	}
-
-	// MV: Added
 	// Part of skill.onScheduledTargetHit modularization.
 	// But useful on its own as well.
 	q.MV_getDamageRegular <- function( _properties, _targetEntity = null )
