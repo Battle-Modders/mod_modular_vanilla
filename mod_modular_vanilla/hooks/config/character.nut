@@ -10,3 +10,8 @@
 	MV_DiversionHitChanceAdd = -15,
 	MV_DiversionDamageMult = 0.75
 });
+
+::MSU.Table.merge(::Const.CharacterProperties, {
+	// Part of modularization of player_party.updateStrength
+	MV_StrengthMult = 1.0
+});

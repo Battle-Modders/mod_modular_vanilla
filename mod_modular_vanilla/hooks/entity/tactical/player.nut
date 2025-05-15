@@ -12,7 +12,7 @@
 	// Returns the actual strength of this character, using raw strength and any multipliers
 	q.MV_getStrength <- function()
 	{
-		return this.MV_getStrengthRaw() * this.getSkills().MV_getPlayerPartyStrengthMult();
+		return this.MV_getStrengthRaw() * this.getCurrentProperties().MV_StrengthMult;
 	}
 
 	// MV: Added

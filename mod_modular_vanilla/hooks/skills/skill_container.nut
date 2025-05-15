@@ -32,24 +32,6 @@
 		}
 		this.m.IsUpdating = wasUpdating;
 	}
-
-	// MV: Added
-	// part of player_party.updateStrength modularization
-	q.MV_getPlayerPartyStrengthMult <- function()
-	{
-		local ret = 1.0;
-
-		local wasUpdating = this.m.IsUpdating;
-		this.m.IsUpdating = true;
-		foreach (s in this.m.Skills)
-		{
-			if (!s.isGarbage())
-				ret *= s.MV_getPlayerPartyStrengthMult();
-		}
-		this.m.IsUpdating = wasUpdating;
-
-		return ret;
-	}
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
