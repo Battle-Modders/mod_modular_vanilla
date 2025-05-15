@@ -1,8 +1,13 @@
+local function addMoraleCheckType( _key )
+{
+	::Const.MoraleCheckType[_key] <- ::Const.MoraleCheckType.len();
+	::Const.CharacterProperties.MoraleCheckBravery.push(0);
+	::Const.CharacterProperties.MoraleCheckBraveryMult.push(1.0);
+}
+
 // Add a new morale check type for being surrounded. Is used during
 // actor.onMovementFinish
-::Const.MoraleCheckType.MV_Surround <- ::Const.MoraleCheckType.len();
-::Const.CharacterProperties.MoraleCheckBravery.push(0);
-::Const.CharacterProperties.MoraleCheckBraveryMult.push(1.0);
+addMoraleCheckType("MV_Surround");
 
 ::MSU.Table.merge(::Const.Combat, {
 	MV_HitChanceMin = 5,
