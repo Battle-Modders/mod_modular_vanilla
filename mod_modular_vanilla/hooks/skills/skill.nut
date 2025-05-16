@@ -201,7 +201,9 @@
 			toHit = ::Math.floor(toHit * (1.0 - this.MV_getDiversionChance(_targetEntity, _propertiesForUse, _propertiesForDefense)));
 		}
 
-		return this.Math.max(::Const.Combat.MV_HitChanceMin, this.Math.min(::Const.Combat.MV_HitChanceMax, toHit));
+		local hitChanceMin = ::Math.max(0, ::Math.min(_propertiesForUse.MV_HitChanceMin, _propertiesForDefense.MV_HitChanceMin));
+		local hitChanceMax = ::Math.min(100, ::Math.max(_propertiesForUse.MV_HitChanceMax, _propertiesForDefense.MV_HitChanceMax));
+		return ::Math.max(hitChanceMin, ::Math.min(hitChanceMax, toHit));
 	}
 
 	// MV: Changed

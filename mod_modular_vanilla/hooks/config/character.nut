@@ -10,3 +10,8 @@
 	MV_DiversionHitChanceAdd = -15,
 	MV_DiversionDamageMult = 0.75
 });
+
+::MSU.Table.merge(::Const.CharacterProperties, {
+	MV_HitChanceMin = ::Const.Combat.MV_HitChanceMin,
+	MV_HitChanceMax = ::Const.Combat.MV_HitChanceMax
+});
