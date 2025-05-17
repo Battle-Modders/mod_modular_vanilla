@@ -10,3 +10,5 @@
 	MV_DiversionHitChanceAdd = -15,
 	MV_DiversionDamageMult = 0.75
 });
+
+::Const.CharacterProperties.MV_IsImmuneToInterrupt <- false;

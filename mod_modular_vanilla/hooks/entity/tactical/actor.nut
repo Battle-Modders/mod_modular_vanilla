@@ -46,6 +46,15 @@
 });
 
 ::ModularVanilla.MH.hook("scripts/entity/tactical/actor", function (q) {
+	// MV: Added
+	// Part of the actor.MV_interrupt framework
+	// Cause an 'Interruption' on this actor. That is a new standardized event, which will remove some temporary skills on the target. In Vanilla those interruptible skills are shieldwall, riposte and spearwall
+	q.MV_interrupt <- function()
+	{
+		if (!this.getCurrentProperties().MV_IsImmuneToInterrupt)
+			this.getSkills().MV_onActorInterrupted();
+	}
+	
 // part of affordability preview system START
 	// MV: Added
 	q.m.MV_IsDoingPreviewUpdate <- false;
