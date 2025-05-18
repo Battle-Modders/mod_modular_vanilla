@@ -224,13 +224,13 @@ Returns the raw strength contribution of this bro to the player party strength. 
 ```squirrel
 <player>.MV_getStrength()
 ```
-Returns the actual strength contribution of this bro to the player party strength. This is the `MV_getStrengthRaw()` along with any multipliers e.g. from each skill's `MV_getPlayerPartyStrengthMult()`.
+Returns the actual strength contribution of this bro to the player party strength. This is the `MV_getStrengthRaw()` along with any multipliers i.e. from `CurrentProperties.MV_StrengthMult`.
 
-#### MV_getPlayerPartyStrengthMult
+#### MV_StrengthMult
 ```squirrel
-<skill>.MV_getPlayerPartyStrengthMult()
+CharacterProperties.MV_StrengthMult
 ```
-Returns a float which is a multiplier used in `<player>.MV_getStrength()`. Allows skills to modify the contribution of a bro to the player party strength.
+Allows skills to modify the contribution of a bro to the player party strength.
 
 #### MV_getPlayerPartyStrengthMult
 ```squirrel
