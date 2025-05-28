@@ -3,21 +3,21 @@
 	// because in vanilla the tail's onDamageReceived calls events on the Body's skill container
 	q.m.__MV_IsDuringOnDamageReceived <- false;
 
-	q.getSkills = @() function()
+	q.getSkills = @() { function getSkills()
 	{
 		return this.m.__MV_IsDuringOnDamageReceived && this.getBody() != null ? this.getBody().getSkills() : this.m.Skills;
-	}
+	}}.getSkills;
 
 	// MV added function in actor.nut
-	q.MV_onInjuryReceived = @(__original) function( _injury )
+	q.MV_onInjuryReceived = @(__original) { function MV_onInjuryReceived( _injury )
 	{
 		this.m.Body.MV_onInjuryReceived(_injury);
-	}
+	}}.MV_onInjuryReceived;
 
 	// MV: Modularized
 	// This is part of the actor.onDamageReceived modularization but vanilla has a custom implementation
 	// for this enemy, so overwrite the function to redirect it to use our modularized actor function
-	q.onDamageReceived = @() function( _attacker, _skill, _hitInfo )
+	q.onDamageReceived = @() { function onDamageReceived( _attacker, _skill, _hitInfo )
 	{
 		_hitInfo.BodyPart = ::Const.BodyPart.Body;
 		_hitInfo.BodyDamageMult = 1.0;
@@ -32,5 +32,5 @@
 		this.m.__MV_IsDuringOnDamageReceived = false;
 
 		return ret;
-	}
+	}}.onDamageReceived;
 });

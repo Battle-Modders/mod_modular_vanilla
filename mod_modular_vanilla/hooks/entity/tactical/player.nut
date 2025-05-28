@@ -3,29 +3,29 @@
 	// part of player_party.updateStrength modularization
 	// The raw function represents this character's strength based on his own features
 	// and does not include any multipliers.
-	q.MV_getStrengthRaw <- function()
+	q.MV_getStrengthRaw <- { function MV_getStrengthRaw()
 	{
 		// Same as vanilla in player_party.updateStrength
 		return 10 + (this.getLevel() - 1) * 2.0;
-	}
+	}}.MV_getStrengthRaw;
 
 	// Returns the actual strength of this character, using raw strength and any multipliers
-	q.MV_getStrength <- function()
+	q.MV_getStrength <- { function MV_getStrength()
 	{
 		return this.MV_getStrengthRaw() * this.getCurrentProperties().MV_StrengthMult;
-	}
+	}}.MV_getStrength;
 
 	// MV: Added
 	// Part of modularization of player.setStartValuesEx
-	q.MV_getMaxStartingTraits <- function()
+	q.MV_getMaxStartingTraits <- { function MV_getMaxStartingTraits()
 	{
 		return ::Math.rand(::Math.rand(0, 1) == 0 ? 0 : 1, 2);
-	}
+	}}.MV_getMaxStartingTraits;
 
 	// MV: Added
 	// Part of modularization of player.setStartValuesEx
 	// Adds new traits to the character up to _amount, properly filtering traits based on existing traits and background.
-	q.MV_addTraits <- function( _amount )
+	q.MV_addTraits <- { function MV_addTraits( _amount )
 	{
 		// MV: Changed
 		// VanillaFix: Vanilla iterates only 10 times and tries to add random traits from ::Const.CharacterTraits
@@ -61,13 +61,13 @@
 		}
 
 		return addedTraits;
-	}
+	}}.MV_addTraits;
 
 	// MV: Modularized
 	// Copy of the vanilla function with the following changes:
 	// Extracted the calculation of max traits to add
 	// Change trait adding logic instead of the vanilla way of max 10 iterations
-	q.setStartValuesEx = @() function( _backgrounds, _addTraits = true )
+	q.setStartValuesEx = @() { function setStartValuesEx( _backgrounds, _addTraits = true )
 	{
 		if (::isSomethingToSee() && ::World.getTime().Days >= 7)
 		{
@@ -108,5 +108,5 @@
 			this.fillTalentValues();
 			this.fillAttributeLevelUpValues(::Const.XP.MaxLevelWithPerkpoints - 1);
 		}
-	}
+	}}.setStartValuesEx;
 });

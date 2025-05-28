@@ -1,5 +1,5 @@
 ::ModularVanilla.MH.hook("scripts/ui/screens/character/character_screen", function(q) {
-	q.helper_isActionAllowed = @(__original) function( _entity, _items, _putIntoBags )
+	q.helper_isActionAllowed = @(__original) { function helper_isActionAllowed( _entity, _items, _putIntoBags )
 	{
 		if (::MSU.Utils.hasState("tactical_state"))
 		{
@@ -30,5 +30,5 @@
 		_putIntoBags = false;
 
 		return __original(_entity, _items, _putIntoBags);
-	}
+	}}.helper_isActionAllowed;
 });

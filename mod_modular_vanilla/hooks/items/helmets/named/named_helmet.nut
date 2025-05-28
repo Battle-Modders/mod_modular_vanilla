@@ -1,6 +1,6 @@
 ::ModularVanilla.MH.hook("scripts/items/helmets/named/named_helmet", function(q) {
 	// MV: Part of framework: base item for named items
-	q.getBaseItemFields = @() function()
+	q.getBaseItemFields = @() { function getBaseItemFields()
 	{
 		return [
 			// The following fields are used in vanilla randomizeValues()
@@ -14,5 +14,5 @@
 			"ArmorMax", // This field is actually redundant and is unused in vanilla
 			"Vision",
 		];
-	}
+	}}.getBaseItemFields;
 });

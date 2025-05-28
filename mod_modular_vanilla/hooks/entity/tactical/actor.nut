@@ -6,41 +6,41 @@
 		// from setting the fields during the skill_container.update() function
 		// during a preview type update -- part of the affordability preview system
 		// Note: Done inside a hookTree because vanilla overwrites these functions for e.g. lindwurm_tail
-		q.setActionPoints = @(__original) function( _a )
+		q.setActionPoints = @(__original) { function setActionPoints( _a )
 		{
 			if (!this.m.MV_IsDoingPreviewUpdate)
 				return __original(_a);
-		}
+		}}.setActionPoints;
 
-		q.setFatigue = @(__original) function( _f )
+		q.setFatigue = @(__original) { function setFatigue( _f )
 		{
 			if (!this.m.MV_IsDoingPreviewUpdate)
 				return __original(_f);
-		}
+		}}.setFatigue;
 
-		q.setHitpointsPct = @(__original) function( _h )
+		q.setHitpointsPct = @(__original) { function setHitpointsPct( _h )
 		{
 			if (!this.m.MV_IsDoingPreviewUpdate)
 				return __original(_h);
-		}
+		}}.setHitpointsPct;
 
-		q.onSkillsUpdated = @(__original) function()
+		q.onSkillsUpdated = @(__original) { function onSkillsUpdated()
 		{
 			if (!this.m.MV_IsDoingPreviewUpdate)
 				return __original();
-		}
+		}}.onSkillsUpdated;
 
-		q.updateOverlay = @(__original) function()
+		q.updateOverlay = @(__original) { function updateOverlay()
 		{
 			if (!this.m.MV_IsDoingPreviewUpdate)
 				return __original();
-		}
+		}}.updateOverlay;
 
-		q.setDirty = @(__original) function( _value )
+		q.setDirty = @(__original) { function setDirty( _value )
 		{
 			if (!this.m.MV_IsDoingPreviewUpdate)
 				return __original(_value);
-		}
+		}}.setDirty;
 	// part of affordability preview system END
 	});
 });
@@ -55,43 +55,43 @@
 	q.m.MV_PreviewMovement <- null;
 
 	// MV: Added
-	q.resetPreview <- function()
+	q.resetPreview <- { function resetPreview()
 	{
 		this.m.MV_IsPreviewing = false;
 		this.m.MV_CostsPreview = null;
 		this.m.MV_PreviewSkill = null;
 		this.m.MV_PreviewMovement = null;
 		this.getSkills().update();
-	}
+	}}.resetPreview;
 
 	// MV: Added
-	q.isPreviewing <- function()
+	q.isPreviewing <- { function isPreviewing()
 	{
 		return this.m.MV_IsPreviewing && (!::MSU.isNull(this.getPreviewSkill()) || !::MSU.isNull(this.getPreviewMovement()));
-	}
+	}}.isPreviewing;
 
 	// MV: Added
-	q.getPreviewSkill <- function()
+	q.getPreviewSkill <- { function getPreviewSkill()
 	{
 		return ::MSU.isNull(this.m.MV_PreviewSkill) ? null : this.m.MV_PreviewSkill.get();
-	}
+	}}.getPreviewSkill;
 
 	// MV: Added
-	q.getPreviewMovement <- function()
+	q.getPreviewMovement <- { function getPreviewMovement()
 	{
 		return this.m.MV_PreviewMovement;
-	}
+	}}.getPreviewMovement;
 
 	// MV: Added
-	q.getCostsPreview <- function()
+	q.getCostsPreview <- { function getCostsPreview()
 	{
 		return this.m.MV_CostsPreview;
-	}
+	}}.getCostsPreview;
 // part of affordability preview system END
 
 	// MV: Added
 	// Extraction of part of vanilla logic from actor.onDamageReceived
-	q.MV_calcArmorDamageReceived <- function( _skill, _hitInfo )
+	q.MV_calcArmorDamageReceived <- { function MV_calcArmorDamageReceived( _skill, _hitInfo )
 	{
 		local p = _hitInfo.MV_PropertiesForBeingHit;
 		local dmgMult = p.DamageReceivedTotalMult;
@@ -114,11 +114,11 @@
 		}
 
 		return _hitInfo.DamageInflictedArmor;
-	}
+	}}.MV_calcArmorDamageReceived;
 
 	// MV: Added
 	// Extraction of part of vanilla logic from actor.onDamageReceived
-	q.MV_calcHitpointsDamageReceived <- function( _skill, _hitInfo )
+	q.MV_calcHitpointsDamageReceived <- { function MV_calcHitpointsDamageReceived( _skill, _hitInfo )
 	{
 		local p = _hitInfo.MV_PropertiesForBeingHit;
 		local dmgMult = p.DamageReceivedTotalMult;
@@ -142,20 +142,20 @@
 		_hitInfo.DamageInflictedHitpoints = this.Math.max(0, this.Math.max(this.Math.round(damage), this.Math.min(this.Math.round(_hitInfo.DamageMinimum), this.Math.round(_hitInfo.DamageMinimum * p.DamageReceivedTotalMult))));
 
 		return _hitInfo.DamageInflictedHitpoints;
-	}
+	}}.MV_calcHitpointsDamageReceived;
 
 	// MV: Added
 	// Extraction of part of vanilla logic from actor.onDamageReceived
-	q.MV_calcFatigueDamageReceived <- function( _skill, _hitInfo )
+	q.MV_calcFatigueDamageReceived <- { function MV_calcFatigueDamageReceived( _skill, _hitInfo )
 	{
 		local p = _hitInfo.MV_PropertiesForBeingHit;
 		_hitInfo.DamageFatigue *= p.FatigueEffectMult;
 		return _hitInfo.DamageFatigue * p.FatigueReceivedPerHitMult * this.getCurrentProperties().FatigueLossOnAnyAttackMult;
-	}
+	}}.MV_calcFatigueDamageReceived;
 
 	// MV: Added
 	// Extraction of part of vanilla logic from actor.onDamageReceived
-	q.MV_getFatalityType <- function( _skill, _hitInfo )
+	q.MV_getFatalityType <- { function MV_getFatalityType( _skill, _hitInfo )
 	{
 		if (_skill != null)
 		{
@@ -174,11 +174,11 @@
 		}
 
 		return this.Const.FatalityType.None;
-	}
+	}}.MV_getFatalityType;
 
 	// MV: Added
 	// Extraction of part of vanilla logic from actor.onDamageReceived
-	q.MV_onInjuryReceived <- function( _injury )
+	q.MV_onInjuryReceived <- { function MV_onInjuryReceived( _injury )
 	{
 		if (this.isPlayerControlled() && this.isKindOf(this, "player"))
 		{
@@ -189,12 +189,12 @@
 				this.World.Statistics.getFlags().increment("OathtakersInjuriesSuffered");
 			}
 		}
-	}
+	}}.MV_onInjuryReceived;
 
 	// MV: Added
 	// Returns the injury if an injury is successfully applied, otherwise returns null
 	// Extraction of part of vanilla logic from actor.onDamageReceived
-	q.MV_applyInjury <- function( _skill, _hitInfo )
+	q.MV_applyInjury <- { function MV_applyInjury( _skill, _hitInfo )
 	{
 		local potentialInjuries = [];
 		local bonus = _hitInfo.BodyPart == this.Const.BodyPart.Head ? 1.25 : 1.0;
@@ -227,13 +227,13 @@
 				potentialInjuries.remove(r);
 			}
 		}
-	}
+	}}.MV_applyInjury;
 
 	// MV: Added
 	// Extraction of part of vanilla logic from actor.onDamageReceived.
 	// The use case seems to be to prevent the actor from dying.
 	// TODO: Instead of this, perhaps this can simply be a skill_container.onBeforeDeath event?
-	q.MV_onBeforeDeathConfirmed <- function( _attacker, _skill, _hitInfo )
+	q.MV_onBeforeDeathConfirmed <- { function MV_onBeforeDeathConfirmed( _attacker, _skill, _hitInfo )
 	{
 		local lorekeeperPotionEffect = this.getSkills().getSkillByID("effects.lorekeeper_potion");
 
@@ -256,11 +256,11 @@
 				this.Tactical.EventLog.logEx(this.Const.UI.getColorizedEntityName(this) + " has nine lives!");
 			}
 		}
-	}
+	}}.MV_onBeforeDeathConfirmed;
 
 	// MV: Added
 	// Extraction of part of vanilla logic from actor.onDamageReceived
-	q.MV_checkMoraleOnDamageReceived <- function( _skill, _attacker, _hitInfo )
+	q.MV_checkMoraleOnDamageReceived <- { function MV_checkMoraleOnDamageReceived( _skill, _attacker, _hitInfo )
 	{
 		if (this.getMoraleState() != this.Const.MoraleState.Ignore && _hitInfo.DamageInflictedHitpoints >= this.Const.Morale.OnHitMinDamage && this.getCurrentProperties().IsAffectedByLosingHitpoints)
 		{
@@ -269,14 +269,14 @@
 				this.checkMorale(-1, this.Const.Morale.OnHitBaseDifficulty * (1.0 - this.getHitpoints() / this.getHitpointsMax()) - (_attacker != null && _attacker.getID() != this.getID() ? _attacker.getCurrentProperties().ThreatOnHit : 0), this.Const.MoraleCheckType.Default, "", true);
 			}
 		}
-	}
+	}}.MV_checkMoraleOnDamageReceived;
 
 	// MV: Modularized
 	// Note: We also hook and redirect lindwurm_tail's custom onDamageReceived implementation
 	// to use this modularized version to keep things DRY
 	// We also use getter/setter functions for properties, attributes etc instead of the vanilla style of .m.CurrentProperties or .m.Hitpoints
 	// so that lindwurm_tail properly accessess the correct fields from the Body instead of itself
-	q.onDamageReceived = @() function( _attacker, _skill, _hitInfo )
+	q.onDamageReceived = @() { function onDamageReceived( _attacker, _skill, _hitInfo )
 	{
 		// MV: Added
 		// To allow the current HitInfo to be globally accessible.
@@ -505,11 +505,11 @@
 		}
 
 		return damage;
-	}
+	}}.onDamageReceived;
 
 	// MV: Added
 	// Extraction of part of vanilla logic from actor.onMovementFinish
-	q.MV_checkMoraleOnMovementFinish <- function( _tile )
+	q.MV_checkMoraleOnMovementFinish <- { function MV_checkMoraleOnMovementFinish( _tile )
 	{
 		local numOfEnemiesAdjacentToMe = _tile.getZoneOfControlCountOtherThan(this.getAlliedFactions());
 
@@ -548,10 +548,10 @@
 				this.checkMorale(-1, difficulty, ::Const.MoraleCheckType.MV_Surround);
 			}
 		}
-	}
+	}}.MV_checkMoraleOnMovementFinish;
 
 	// MV: Modularized
-	q.onMovementFinish = @() function( _tile )
+	q.onMovementFinish = @() { function onMovementFinish( _tile )
 	{
 		this.m.IsMoving = true;
 		this.updateVisibility(_tile, this.getCurrentProperties().getVision(), this.getFaction());
@@ -610,5 +610,5 @@
 		this.getItems().onMovementFinished();
 		this.setDirty(true);
 		this.m.IsMoving = false;
-	}
+	}}.onMovementFinish;
 });

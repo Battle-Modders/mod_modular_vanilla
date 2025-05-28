@@ -2,7 +2,7 @@
 	// MV: Added
 	// Part of skill.onScheduledTargetHit modularization.
 	// But useful on its own as well.
-	q.MV_getDamageRegular <- function( _properties, _targetEntity = null )
+	q.MV_getDamageRegular <- { function MV_getDamageRegular( _properties, _targetEntity = null )
 	{
 		local damage = ::Math.rand(_properties.DamageRegularMin, _properties.DamageRegularMax) * _properties.DamageRegularMult;
 		if (_targetEntity != null && _targetEntity.isPlacedOnMap() && !::MSU.isNull(this.getContainer()) && this.getContainer().getActor().isPlacedOnMap())
@@ -10,12 +10,12 @@
 			damage = ::Math.max(0, damage + this.getContainer().getActor().getTile().getDistanceTo(_targetEntity.getTile()) * _properties.DamageAdditionalWithEachTile);
 		}
 		return damage * _properties.DamageTotalMult * (this.isRanged() ? _properties.RangedDamageMult : _properties.MeleeDamageMult);
-	}
+	}}.MV_getDamageRegular;
 
 	// MV: Added
 	// Part of skill.onScheduledTargetHit modularization.
 	// But useful on its own as well.
-	q.MV_getDamageArmor <- function( _properties, _targetEntity = null )
+	q.MV_getDamageArmor <- { function MV_getDamageArmor( _properties, _targetEntity = null )
 	{
 		local damage = ::Math.rand(_properties.DamageRegularMin, _properties.DamageRegularMax) * _properties.DamageArmorMult;
 		if (_targetEntity != null && _targetEntity.isPlacedOnMap() && !::MSU.isNull(this.getContainer()) && this.getContainer().getActor().isPlacedOnMap())
@@ -23,20 +23,20 @@
 			damage = ::Math.max(0, damage + this.getContainer().getActor().getTile().getDistanceTo(_targetEntity.getTile()) * _properties.DamageAdditionalWithEachTile);
 		}
 		return damage * _properties.DamageTotalMult * (this.isRanged() ? _properties.RangedDamageMult : _properties.MeleeDamageMult);
-	}
+	}}.MV_getDamageArmor;
 
 	// MV: Added
 	// Part of skill.onScheduledTargetHit modularization.
 	// But useful on its own as well.
-	q.MV_getDamageDirect <- function( _properties, _targetEntity = null )
+	q.MV_getDamageDirect <- { function MV_getDamageDirect( _properties, _targetEntity = null )
 	{
 		return ::Math.minf(1.0, _properties.DamageDirectMult * (this.getDirectDamage() + _properties.DamageDirectAdd + (this.isRanged() ? _properties.DamageDirectRangedAdd : _properties.DamageDirectMeleeAdd)));
-	}
+	}}.MV_getDamageDirect;
 
 	// MV: Added
 	// Part of skill.attackEntity modularization.
 	// But useful on its own as well.
-	q.MV_getDiversionChance <- function( _targetEntity, _propertiesForUse = null, _propertiesForDefense = null )
+	q.MV_getDiversionChance <- { function MV_getDiversionChance( _targetEntity, _propertiesForUse = null, _propertiesForDefense = null )
 	{
 		if (!this.m.IsRanged || this.m.MaxRangeBonus <= 1)
 			return 0.0;
@@ -56,11 +56,11 @@
 		}
 
 		return 0.0;
-	}
+	}}.MV_getDiversionChance;
 
 	// MV: Added
 	// Part of skill.attackEntity modularization.
-	q.MV_getDiversionTarget <- function( _user, _targetEntity, _propertiesForUse = null )
+	q.MV_getDiversionTarget <- { function MV_getDiversionTarget( _user, _targetEntity, _propertiesForUse = null )
 	{
 		if (_propertiesForUse == null)
 			_propertiesForUse = this.getContainer().buildPropertiesForUse(this, _targetEntity);
@@ -71,11 +71,11 @@
 		{
 			return blockedTiles[this.Math.rand(0, blockedTiles.len() - 1)].getEntity();
 		}
-	}
+	}}.MV_getDiversionTarget;
 
 	// MV: Added
 	// Part of skill.attackEntity modularization.
-	q.MV_printAttackToLog <- function( _attackInfo )
+	q.MV_printAttackToLog <- { function MV_printAttackToLog( _attackInfo )
 	{
 		this.Tactical.EventLog.log_newline();
 		if (_attackInfo.IsAstray)
@@ -111,12 +111,12 @@
 		{
 			this.Tactical.EventLog.logEx(this.Const.UI.getColorizedEntityName(_attackInfo.User) + " uses " + this.getName() + " and hits " + this.Const.UI.getColorizedEntityName(_attackInfo.Target));
 		}
-	}
+	}}.MV_printAttackToLog;
 
 	// MV: Added
 	// Part of skill.attackEntity modularization.
 	// TODO - this is temporary, will be moved to a modularization of shields
-	q.MV_getShieldBonus <- function( _entity )
+	q.MV_getShieldBonus <- { function MV_getShieldBonus( _entity )
 	{
 		local ret = 0;
 
@@ -132,7 +132,7 @@
 			}
 		}
 		return ret;
-	}
+	}}.MV_getShieldBonus;
 
 	// MV: Added
 	// Part of skill.attackEntity modularization.
@@ -144,7 +144,7 @@
 		// with the main difference being that the diversion chance is not considered.
 		// So we implement our own MV_getHitchance function which has additional parameters for considering diversion
 		// and we redirect the vanilla function to our modular function by default. This keeps things DRY.
-	q.MV_getHitchance <- function( _targetEntity, _considerDiversion = true, _propertiesForUse = null, _propertiesForDefense = null )
+	q.MV_getHitchance <- { function MV_getHitchance( _targetEntity, _considerDiversion = true, _propertiesForUse = null, _propertiesForDefense = null )
 	{
 		if (!_targetEntity.isAttackable())
 		{
@@ -195,18 +195,18 @@
 		}
 
 		return this.Math.max(::Const.Combat.MV_HitChanceMin, this.Math.min(::Const.Combat.MV_HitChanceMax, toHit));
-	}
+	}}.MV_getHitchance;
 
 	// MV: Changed
 	// See comment on MV_getHitchance
-	q.getHitchance = @() function( _targetEntity )
+	q.getHitchance = @() { function getHitchance( _targetEntity )
 	{
 		return this.MV_getHitchance(_targetEntity);
-	}
+	}}.getHitchance;
 
 	// MV: Added
 	// Part of skill.attackEntity modularization.
-	q.MV_onAttackEntityHit <- function( _attackInfo )
+	q.MV_onAttackEntityHit <- { function MV_onAttackEntityHit( _attackInfo )
 	{
 		this.getContainer().setBusy(true);
 		local distanceToTarget = _attackInfo.User.getTile().getDistanceTo(_attackInfo.Target.getTile());
@@ -251,11 +251,11 @@
 
 			this.onScheduledTargetHit(info);
 		}
-	}
+	}}.MV_onAttackEntityHit;
 
 	// MV: Added
 	// Part of skill.attackEntity modularization.
-	q.MV_onAttackEntityMissed <- function( _attackInfo )
+	q.MV_onAttackEntityMissed <- { function MV_onAttackEntityMissed( _attackInfo )
 	{
 		local distanceToTarget = _attackInfo.User.getTile().getDistanceTo(_attackInfo.Target.getTile());
 		local shield = _attackInfo.Target.getItems().getItemAtSlot(::Const.ItemSlot.Offhand);
@@ -350,11 +350,11 @@
 				}
 			}
 		}
-	}
+	}}.MV_onAttackEntityMissed;
 
 	// MV: Added
 	// Part of skill.attackEntity modularization.
-	q.MV_onAttackRolled <- function( _attackInfo )
+	q.MV_onAttackRolled <- { function MV_onAttackRolled( _attackInfo )
 	{
 		if (("Assets" in this.World) && this.World.Assets != null && this.World.Assets.getCombatDifficulty() == 0)
 		{
@@ -367,11 +367,11 @@
 				_attackInfo.Roll = this.Math.min(100, _attackInfo.Roll + 5);
 			}
 		}
-	}
+	}}.MV_onAttackRolled;
 
 	// MV: Added
 	// Part of skill.attackEntity modularization.
-	q.MV_doAttackShake <- function( _attackInfo )
+	q.MV_doAttackShake <- { function MV_doAttackShake( _attackInfo )
 	{
 		if (this.m.IsDoingAttackMove && !_attackInfo.User.isHiddenToPlayer() && !_attackInfo.Target.isHiddenToPlayer())
 		{
@@ -391,12 +391,12 @@
 				}
 			}
 		}
-	}
+	}}.MV_doAttackShake;
 
 	// MV: Modularized
 	// The logic has been extracted into several smaller functions.
 	// A new MV_AttackInfo object is used and passed around to functions to carry and develop information about the attack.
-	q.attackEntity = @() function( _user, _targetEntity, _allowDiversion = true )
+	q.attackEntity = @() { function attackEntity( _user, _targetEntity, _allowDiversion = true )
 	{
 		if (_targetEntity != null && !_targetEntity.isAlive())
 		{
@@ -509,10 +509,10 @@
 			this.MV_onAttackEntityMissed(attackInfo);
 			return false;
 		}
-	}
+	}}.attackEntity;
 
 	// MV: Modularized
-	q.onScheduledTargetHit = @() function( _info )
+	q.onScheduledTargetHit = @() { function onScheduledTargetHit( _info )
 	{
 		_info.Container.setBusy(false);
 
@@ -605,19 +605,19 @@
 				item.setBloodied(true);
 			}
 		}
-	}
+	}}.onScheduledTargetHit;
 
 	// MV: Added
 	// Can be used to modify the result of behavior.queryTargetValue
 	// Must return the new value
-	q.getQueryTargetValueMult <- function( _entity, _target, _skill )
+	q.getQueryTargetValueMult <- { function getQueryTargetValueMult( _entity, _target, _skill )
 	{
 		return 1.0;
-	}
+	}}.getQueryTargetValueMult;
 
-	q.onCostsPreview <- function( _costsPreview )
+	q.onCostsPreview <- { function onCostsPreview( _costsPreview )
 	{
-	}
+	}}.onCostsPreview;
 });
 
 
@@ -625,7 +625,7 @@
 	::ModularVanilla.MH.hook("scripts/skills/skill", function(q) {
 		// MV: Changed
 		// part of affordability preview system
-		q.getCostString = @(__original) function()
+		q.getCostString = @(__original) { function getCostString()
 		{
 			if (!this.getContainer().getActor().isPreviewing() || ::getModSetting("mod_msu", "ExpandedSkillTooltips").getValue() == false)
 				return __original();
@@ -656,6 +656,6 @@
 			// 	ret = ::MSU.String.replace(ret, "after ", "and will [color=" + ::Const.UI.Color.NegativeValue + "]not be usable[/color] after ");
 			// }
 			return ret;
-		}
+		}}.getCostString;
 	});
 });

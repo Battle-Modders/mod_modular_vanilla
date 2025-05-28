@@ -1,10 +1,10 @@
 ::ModularVanilla.MH.hook("scripts/scenarios/world/starting_scenario", function (q) {
 	// MV: Added
 	// part of player_party.updateStrength modularization
-	q.MV_getPlayerPartyStrengthMult <- function()
+	q.MV_getPlayerPartyStrengthMult <- { function MV_getPlayerPartyStrengthMult()
 	{
 		return 1.0;
-	}
+	}}.MV_getPlayerPartyStrengthMult;
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {

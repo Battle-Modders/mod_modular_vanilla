@@ -4,7 +4,7 @@
 	// Extracted the calculation of bro strength.
 	// Sort by strength instead of level.
 	// Added multiplier for Origin.
-	q.updateStrength = @() function()
+	q.updateStrength = @() { function updateStrength()
 	{
 		this.m.Strength = 0.0;
 
@@ -35,12 +35,12 @@
 		{
 			this.m.Strength *= ::World.Assets.getOrigin().MV_getPlayerPartyStrengthMult();
 		}
-	}
+	}}.updateStrength;
 
 	// MV: Added
 	// Part of player_party.updateStrength modularization
-	q.MV_getEmptyBroStrength <- function()
+	q.MV_getEmptyBroStrength <- { function MV_getEmptyBroStrength()
 	{
 		return 10.0;
-	}
+	}}.MV_getEmptyBroStrength;
 });

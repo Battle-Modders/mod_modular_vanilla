@@ -6,7 +6,7 @@
 		// Vanilla calls this function whenever an entity who is visible in the turn sequence bar is pushed back in
 		// the sequence resulting in calling `entity.onTurnResumed` on the currently active actor prematurely.
 		// Our fix is a bandaid which returns early when calling this function on an entity already in the first slot.
-		q.onEntityEntersFirstSlot = @(__original) function( _entityId )
+		q.onEntityEntersFirstSlot = @(__original) { function onEntityEntersFirstSlot( _entityId )
 		{
 			if (_entityId == this.m.__MV_FirstSlotEntityID)
 			{
@@ -18,29 +18,29 @@
 			}
 			this.m.__MV_FirstSlotEntityID = _entityId;
 			return __original(_entityId);
-		}
+		}}.onEntityEntersFirstSlot;
 
-		q.initNextRound = @(__original) function()
+		q.initNextRound = @(__original) { function initNextRound()
 		{
 			this.m.__MV_FirstSlotEntityID = null;
 			__original();
-		}
+		}}.initNextRound;
 
-		q.initNextTurn = @(__original) function( _force = false )
+		q.initNextTurn = @(__original) { function initNextTurn( _force = false )
 		{
 			this.m.__MV_FirstSlotEntityID = null;
 			__original(_force);
-		}
+		}}.initNextTurn;
 
-		q.initNextTurnBecauseOfWait = @(__original) function()
+		q.initNextTurnBecauseOfWait = @(__original) { function initNextTurnBecauseOfWait()
 		{
 			this.m.__MV_FirstSlotEntityID = null;
 			__original();
-		}
+		}}.initNextTurnBecauseOfWait;
 
 		// MV: Changed
 		// part of affordability preview system
-		q.setActiveEntityCostsPreview = @() function( _costsPreview )
+		q.setActiveEntityCostsPreview = @() { function setActiveEntityCostsPreview( _costsPreview )
 		{
 			local activeEntity = this.getActiveEntity();
 			if (activeEntity == null || ::getModSetting("mod_msu", "ExpandedSkillTooltips").getValue() == false)
@@ -108,11 +108,11 @@
 			activeEntity.getSkills().update();
 			activeEntity.m.MV_IsDoingPreviewUpdate = false;
 			activeEntity.m.MV_IsPreviewing = true;
-		}
+		}}.setActiveEntityCostsPreview;
 
 		// MV: Changed
 		// part of affordability preview system
-		q.resetActiveEntityCostsPreview = @(__original) function()
+		q.resetActiveEntityCostsPreview = @(__original) { function resetActiveEntityCostsPreview()
 		{
 			local activeEntity = this.getActiveEntity();
 			if (activeEntity != null)
@@ -123,6 +123,6 @@
 				activeEntity.resetPreview();
 			}
 			__original();
-		}
+		}}.resetActiveEntityCostsPreview;
 	});
 });

@@ -4,13 +4,13 @@
 	q.m.IsUsingBaseItemSkills <- true;
 
 	// MV: Added part of framework: base item for named items
-	q.getBaseItemFields <- function()
+	q.getBaseItemFields <- { function getBaseItemFields()
 	{
 		return [];
-	}
+	}}.getBaseItemFields;
 
 	// MV: Added part of framework: base item for named items
-	q.setValuesBeforeRandomize <- function( _baseItem )
+	q.setValuesBeforeRandomize <- { function setValuesBeforeRandomize( _baseItem )
 	{
 		if (_baseItem != null)
 		{
@@ -19,18 +19,18 @@
 				this.m[field] = _baseItem.m[field];
 			}
 		}
-	}
+	}}.setValuesBeforeRandomize;
 
 	// MV: Added part of framework: base item for named items
-	q.randomizeValues <- function()
+	q.randomizeValues <- { function randomizeValues()
 	{
-	}
+	}}.randomizeValues;
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
 	::ModularVanilla.MH.hookTree("scripts/items/item", function(q) {
 		// MV: Part of framework: base item for named items
-		q.create = @(__original) function()
+		q.create = @(__original) { function create()
 		{
 			// Prevent the vanilla call to this.randomizeValues() within create() from randomizing anything
 			// because we want to set the values from the base item first.
@@ -41,10 +41,10 @@
 
 			this.setValuesBeforeRandomize(this.m.BaseItemScript == null ? null : ::new(this.m.BaseItemScript));
 			this.randomizeValues();
-		}
+		}}.create;
 
 		// MV: Part of framework: base item for named items
-		q.setValuesBeforeRandomize = @(__original) function( _baseItem )
+		q.setValuesBeforeRandomize = @(__original) { function setValuesBeforeRandomize( _baseItem )
 		{
 			if (_baseItem == null)
 			{
@@ -60,7 +60,7 @@
 			{
 				this.m.ItemType = this.m.ItemType | ::Const.Items.ItemType.Named;
 			}
-		}
+		}}.setValuesBeforeRandomize;
 
 		// MV: Part of framework: base item for named items
 		q.onEquip = @(__original) function()

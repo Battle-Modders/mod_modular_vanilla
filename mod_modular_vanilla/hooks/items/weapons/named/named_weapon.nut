@@ -1,6 +1,6 @@
 ::ModularVanilla.MH.hook("scripts/items/weapons/named/named_weapon", function(q) {
 	// MV: Part of framework: base item for named items
-	q.getBaseItemFields = @() function()
+	q.getBaseItemFields = @() { function getBaseItemFields()
 	{
 		return [
 			// The following fields are used in vanilla randomizeValues()
@@ -34,14 +34,14 @@
 			"RangeMax",
 			"RangeIdeal",
 		];
-	}
+	}}.getBaseItemFields;
 
-	q.setValuesBeforeRandomize = @(__original) function( _baseItem )
+	q.setValuesBeforeRandomize = @(__original) { function setValuesBeforeRandomize( _baseItem )
 	{
 		// Part of what setValuesBeforeRandomize does is copying all weapon types over without adjusting the weapontype-string
 		// If a mod changes those weapon types during the create function, then those new type combination won't show up correctly
 		// We fix that by building categories manually for any named weapon after that transfer happened
 		__original(_baseItem);
 		this.buildCategoriesFromWeaponType();
-	}
+	}}.setValuesBeforeRandomize;
 });
