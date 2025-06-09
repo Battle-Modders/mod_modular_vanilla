@@ -22,19 +22,36 @@
 
 		q.initNextRound = @(__original) { function initNextRound()
 		{
-			this.m.__MV_FirstSlotEntityID = null;
+			local tp = this.m.TurnPosition;
 			__original();
+			if (tp != this.m.TurnPosition)
+			{
+				this.m.__MV_FirstSlotEntityID = null;
+			}
 		}}.initNextRound;
 
 		q.initNextTurn = @(__original) { function initNextTurn( _force = false )
 		{
-			this.m.__MV_FirstSlotEntityID = null;
+			// initNextTurn is called from tactical_state.onUpdate multiple times even
+			// after onEntityEntersFirstSlot has been called. Therefore, we need to check
+			// if the call actually resulted in changing the TurnPosition and only
+			// set the __MV_FirstSlotEntityID to null in that case.
+			local tp = this.m.TurnPosition;
 			__original(_force);
+			if (tp != this.m.TurnPosition)
+			{
+				this.m.__MV_FirstSlotEntityID = null;
+			}
 		}}.initNextTurn;
 
 		q.initNextTurnBecauseOfWait = @(__original) { function initNextTurnBecauseOfWait()
 		{
-			this.m.__MV_FirstSlotEntityID = null;
+			local tp = this.m.TurnPosition;
+			__original();
+			if (tp != this.m.TurnPosition)
+			{
+				this.m.__MV_FirstSlotEntityID = null;
+			}
 			__original();
 		}}.initNextTurnBecauseOfWait;
 
