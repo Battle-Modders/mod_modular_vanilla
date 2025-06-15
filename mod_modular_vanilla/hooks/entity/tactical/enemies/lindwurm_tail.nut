@@ -33,4 +33,17 @@
 
 		return ret;
 	}}.onDamageReceived;
+
+	// VanillaFix: Keep a strong reference to the body while the lindwurm_tail is being killed and only
+	// nullify it with a delayed event. Otherwise attempts to call `_targetEntity.getCurrentProperties()`
+	// in things such as `skill.onTargetHit` result in an exception because `m.Body` has become null.
+	// Vanilla gets around this issue by manually checking for `isKindOf(target, "lindwurm_tail")`
+	// in `cleave.nut` which is ugly.
+	q.kill = @(__original) { function kill( _killer = null, _skill = null, _fatalityType = this.Const.FatalityType.None, _silent = false )
+	{
+		local body = this.m.Body.get();
+		__original(_killer, _skill, _fatalityType, _silent);
+		this.m.Body = body;
+		::Time.scheduleEvent(::TimeUnit.Virtual, 1, @(_a) _a.m.Body = null, this);
+	}}.kill;
 });
