@@ -26,9 +26,8 @@
 		{
 			// The MV_initHitInfo function initializes the hitinfo from the attacker's perspective only i.e. outgoing damage
 			// just like in the vanilla skill.onScheduledTargetHit function
-			local hitInfo = this.MV_initHitInfo(_target, p);
+			local hitInfo = ::Const.Tactical.MV_initHitInfo(this, _target, p, d);
 			hitInfo.BodyPart = ::Const.BodyPart.Body;
-			hitInfo.MV_PropertiesForDefense = d;
 
 			// This will now use the outgoing hitInfo to prepare the correct properties for receiving damage
 			hitInfo.MV_PropertiesForBeingHit = _target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
@@ -53,9 +52,8 @@
 		if (headshotChance != 0)
 		{
 			// Same process as above but with a new HitInfo object, now with forcing the body part to be Head
-			local hitInfo = this.MV_initHitInfo(p, _target);
+			local hitInfo = ::Const.Tactical.MV_initHitInfo(this, _target, p, d);
 			hitInfo.BodyPart = ::Const.BodyPart.Head;
-			hitInfo.MV_PropertiesForDefense = d;
 
 			hitInfo.MV_PropertiesForBeingHit = _target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
 			// this.getContainer().onBeforeTargetHit(this, _target, hitInfo);
@@ -621,53 +619,6 @@
 		}
 	}}.attackEntity;
 
-	// MV: Added
-	// Part of skill.onScheduledTargetHit modularization
-	// Similar to the vanilla instantiation and calculation of HitInfo in onScheduledTargetHit,
-	// this is meant to return the HitInfo from the perspective of the attacker i.e. outgoing damage.
-	// We use our MV functions to calculate damage to keep things DRY.
-		// _propertiesForUse parameter is just there so that when called from onScheduledTargetHit we don't have to
-		// calculate the properties again as they are already present in that function.
-	q.MV_initHitInfo <- function( _targetEntity, _propertiesForUse = null )
-	{
-		if (_propertiesForUse == null)
-			_propertiesForUse = this.getContainer().buildPropertiesForUse(this, _targetEntity);
-
-		local bodyPart = ::Math.rand(1, 100) <= _propertiesForUse.getHitchance(::Const.BodyPart.Head) ? ::Const.BodyPart.Head : ::Const.BodyPart.Body;
-		local bodyPartDamageMult = _propertiesForUse.DamageAgainstMult[bodyPart];
-
-		local injuries;
-
-		if (this.m.InjuriesOnBody != null && bodyPart == this.Const.BodyPart.Body)
-		{
-			injuries = this.m.InjuriesOnBody;
-		}
-		else if (this.m.InjuriesOnHead != null && bodyPart == this.Const.BodyPart.Head)
-		{
-			injuries = this.m.InjuriesOnHead;
-		}
-
-		local hitInfo = clone this.Const.Tactical.HitInfo;
-
-		// MV: Added
-		hitInfo.MV_PropertiesForUse = _propertiesForUse;
-
-		// MV: Extracted the calculation of DamageRegular, DamageArmor, DamageDirect
-		hitInfo.DamageRegular = this.MV_getDamageRegular(_propertiesForUse, _targetEntity);
-		hitInfo.DamageArmor = this.MV_getDamageArmor(_propertiesForUse, _targetEntity);
-		hitInfo.DamageDirect = this.MV_getDamageDirect(_propertiesForUse, _targetEntity);
-		hitInfo.DamageFatigue = this.Const.Combat.FatigueReceivedPerHit * _propertiesForUse.FatigueDealtPerHitMult;
-		hitInfo.DamageMinimum = _propertiesForUse.DamageMinimum;
-		hitInfo.BodyPart = bodyPart;
-		hitInfo.BodyDamageMult = bodyPartDamageMult;
-		hitInfo.FatalityChanceMult = _propertiesForUse.FatalityChanceMult;
-		hitInfo.Injuries = injuries;
-		hitInfo.InjuryThresholdMult = _propertiesForUse.ThresholdToInflictInjuryMult;
-		hitInfo.Tile = _targetEntity == null ? null : _targetEntity.getTile();
-
-		return hitInfo;
-	}
-
 	// MV: Modularized
 	q.onScheduledTargetHit = @() { function onScheduledTargetHit( _info )
 	{
@@ -679,10 +630,7 @@
 		}
 
 		// MV: Extracted the initialization and calculation of HitInfo into a new function
-		local hitInfo = this.MV_initHitInfo(_info.TargetEntity, _info.Properties);
-
-		// MV: Added
-		hitInfo.MV_PropertiesForDefense = _info.DefenderProperties;
+		local hitInfo = ::Const.Tactical.MV_initHitInfo(this, _info.TargetEntity, _info.Properties, _info.DefenderProperties);
 
 		_info.Container.onBeforeTargetHit(_info.Skill, _info.TargetEntity, hitInfo);
 		local pos = _info.TargetEntity.getPos();
