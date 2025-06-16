@@ -636,7 +636,7 @@
 
 		_info.Container.onBeforeTargetHit(_info.Skill, _info.TargetEntity, hitInfo);
 		local pos = _info.TargetEntity.getPos();
-		local hasArmorHitSound = _info.TargetEntity.getItems().getAppearance().ImpactSound[bodyPart].len() != 0;
+		local hasArmorHitSound = _info.TargetEntity.getItems().getAppearance().ImpactSound[hitInfo.BodyPart].len() != 0;
 		_info.TargetEntity.onDamageReceived(_info.User, _info.Skill, hitInfo);
 
 		if (hitInfo.DamageInflictedHitpoints >= this.Const.Combat.PlayHitSoundMinDamage)
