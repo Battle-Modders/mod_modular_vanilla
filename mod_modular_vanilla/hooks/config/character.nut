@@ -22,6 +22,7 @@ local original_getClone = ::Const.CharacterProperties.getClone;
 	{
 		local ret = original_getClone();
 		ret.MV_MoraleCheckBraveryCallbacks = clone this.MV_MoraleCheckBraveryCallbacks;
+		ret.MV_ForbiddenMoraleStates = clone this.MV_ForbiddenMoraleStates;
 		return ret;
 	},
 
@@ -42,5 +43,8 @@ local original_getClone = ::Const.CharacterProperties.getClone;
 	// Add is then added to Bravery during actor.checkMorale
 	// whereas Mult is multiplied with the BraveryMult.
 	*/
-	MV_MoraleCheckBraveryCallbacks = []
+	MV_MoraleCheckBraveryCallbacks = [],
+	// During actor.setMoraleState if the passed morale state is found in this
+	// array, the morale state will not be set to that value..
+	MV_ForbiddenMoraleStates = []
 });
