@@ -34,8 +34,10 @@
 			// This will now use the outgoing hitInfo to prepare the correct properties for receiving damage
 			hitInfo.MV_PropertiesForBeingHit = _target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
 
-			// Vanilla changes the HitInfo in certain skills in onBeforeTargetHit e.g. `pound` skill
-			// TODO: Some mods may do some state changes in `onBeforeTargetHit`, so I'm not sure if we can run this safely.
+			// Vanilla changes the HitInfo in certain skills in onBeforeTargetHit e.g. `pound` and `gash_skill`.
+			// Vanilla also spawns icon for `perk_coup_de_grace` in `onBeforeTargetHit`.
+			// Some mods may do some state changes in `onBeforeTargetHit`.
+			// TODO: Therefore I am not sure how we can account for these. Calling this function doesn't seem safe.
 			// local wasUpdating = this.getContainer().m.IsUpdating;
 			// this.getContainer().m.IsUpdating = true;
 			// this.getContainer().onBeforeTargetHit(this, _target, hitInfo);
