@@ -4,6 +4,7 @@
 	// Also rewrite the logic to be more accurate
 		// - Use MV functions to calculate damage to keep things DRY
 		// - Calculate accurate expected damage for body and head shots
+	// TODO: Things like Split Man are not accounted for anywhere. Some kind of framework should be made for them?
 	q.getExpectedDamage = @() { function getExpectedDamage( _target )
 	{
 		local actor = this.getContainer().getActor();
