@@ -32,6 +32,22 @@
 		}
 		this.m.IsUpdating = wasUpdating;
 	}}.onCostsPreview;
+
+	// MV: Added
+	// Part of modularization of actor.setMoraleState
+	q.MV_onMoraleStateChanged <- { function MV_onMoraleStateChanged( _oldState )
+	{
+		local wasUpdating = this.m.IsUpdating;
+		this.m.IsUpdating = true;
+		foreach (s in this.m.Skills)
+		{
+			if (!s.isGarbage())
+				s.MV_onMoraleStateChanged(_oldState);
+		}
+		this.m.IsUpdating = wasUpdating;
+
+		this.update();
+	}}.MV_onMoraleStateChanged;
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
