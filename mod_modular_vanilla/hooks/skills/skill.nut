@@ -35,10 +35,11 @@
 			hitInfo.MV_PropertiesForBeingHit = _target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
 
 			// Vanilla changes the HitInfo in certain skills in onBeforeTargetHit e.g. `pound` skill
-			// TODO: We can't call this skill_container event because it will set the skill_container IsUpdating back to false and trigger an update afterward so we need to find an alternative solution to this.
-			// An idea could be: add a new `container.MV_buildPropertiesForHitting` which calls buildPropertiesForUse and then additionally calls
-			// skill.onBeforeTargetHit and then sets the container IsUpdating back to its value which it had before.
+			// TODO: Some mods may do some state changes in `onBeforeTargetHit`, so I'm not sure if we can run this safely.
+			// local wasUpdating = this.getContainer().m.IsUpdating;
+			// this.getContainer().m.IsUpdating = true;
 			// this.getContainer().onBeforeTargetHit(this, _target, hitInfo);
+			// this.getContainer().m.IsUpdating = wasUpdating;
 
 			local ratioMult = bodyChance / 100.0;
 
@@ -55,7 +56,10 @@
 			local hitInfo = ::Const.Tactical.MV_initHitInfo(this, _target, p, d);
 
 			hitInfo.MV_PropertiesForBeingHit = _target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
+			// local wasUpdating = this.getContainer().m.IsUpdating;
+			// this.getContainer().m.IsUpdating = true;
 			// this.getContainer().onBeforeTargetHit(this, _target, hitInfo);
+			// this.getContainer().m.IsUpdating = wasUpdating;
 
 			// I don't like this but this is to emulate vanilla behavior inside actor.onDamageReceived whereby the hitInfo.BodyDamageMult
 			// is manually set to 1.0 if the target is immune to criticals - Midas.
