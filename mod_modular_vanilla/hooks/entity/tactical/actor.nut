@@ -612,6 +612,60 @@
 		this.m.IsMoving = false;
 	}}.onMovementFinish;
 
+	// MV: Modularized
+	// Extracted the removal of effects into a new skill_container.MV_onMoraleStateChanged event
+	q.setMoraleState = @() { function setMoraleState( _m )
+	{
+		if (this.m.MoraleState == _m)
+		{
+			return;
+		}
+
+		/*
+		This vanilla part is disabled because the removal of these skills is now handled
+		directly within those skills thanks to our new skill_container.MV_onMoraleStateChanged event
+
+		NOTE: return_favor_effect does not exist in vanilla codebase so we have not hooked it!
+
+		if (_m == this.Const.MoraleState.Fleeing)
+		{
+			this.m.Skills.removeByID("effects.shieldwall");
+			this.m.Skills.removeByID("effects.spearwall");
+			this.m.Skills.removeByID("effects.riposte");
+			this.m.Skills.removeByID("effects.return_favor");
+			this.m.Skills.removeByID("effects.indomitable");
+		}
+		*/
+
+		// MV: Added, store oldMoraleState in local var to later pass to skill_container.MV_onMoraleStateChanged
+		local oldMoraleState = this.m.MoraleState;
+
+		this.m.MoraleState = _m;
+		local morale = this.getSprite("morale");
+
+		if (this.Const.MoraleStateBrush[_m].len() != 0)
+		{
+			if (_m == this.Const.MoraleState.Confident)
+			{
+				morale.setBrush(this.m.ConfidentMoraleBrush);
+			}
+			else
+			{
+				morale.setBrush(this.Const.MoraleStateBrush[_m]);
+			}
+
+			morale.Visible = true;
+		}
+		else
+		{
+			morale.Visible = false;
+		}
+
+		// MV: Changed
+		// vanilla does this.m.Skills.update() here but we trigger our new skill container event which calls update after it
+		this.getSkills().MV_onMoraleStateChanged(oldMoraleState);
+	}}.setMoraleState;
+
 	// MV: Extracted
 	// Part of modularization of actor.checkMorale
 	// The logic is the same as the vanilla guard statements at the beginning of that function

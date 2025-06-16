@@ -1,5 +1,11 @@
 ::ModularVanilla.MH.hook("scripts/skills/skill", function (q) {
 	// MV: Added
+	// Part of modularization of actor.setMoraleState
+	q.MV_onMoraleStateChanged <- { function MV_onMoraleStateChanged( _oldState )
+	{
+	}}.MV_onMoraleStateChanged;
+
+	// MV: Added
 	// Part of skill.onScheduledTargetHit modularization.
 	// But useful on its own as well.
 	q.MV_getDamageRegular <- { function MV_getDamageRegular( _properties, _targetEntity = null )
