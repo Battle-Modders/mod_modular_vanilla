@@ -1,4 +1,75 @@
 ::ModularVanilla.MH.hook("scripts/skills/skill", function (q) {
+	// MV: Modularized
+	// VanillaFix: Use buildPropertiesForBeingHit instead of buildPropertiesForDefense (https://steamcommunity.com/app/365360/discussions/1/604154904653626253/)
+	// Also rewrite the logic to be more accurate
+	q.getExpectedDamage = @() { function getExpectedDamage( _target )
+	{
+		local actor = this.getContainer().getActor();
+		local p = this.getContainer().buildPropertiesForUse(this, _target);
+
+		// Set the damage in the properties to the average damage so that our MV_getDamageXYZ functions always roll the average damage
+		local damageRegularAvg = ::Math.floor((p.DamageRegularMin + p.DamageRegularMax) * 0.5);
+		p.DamageRegularMin = damageRegularAvg;
+		p.DamageRegularMax = damageRegularAvg;
+
+		local armor = 0;
+		local armorDamage = 0;
+		local hitpointDamage = 0;
+
+		local bodyChance = p.getHitchance(::Const.BodyPart.Body)
+		if (bodyChance != 0)
+		{
+			// The MV_initHitInfo function initializes the hitinfo from the attacker's perspective only i.e. outgoing damage
+			// just like in the vanilla skill.onScheduledTargetHit function
+			local hitInfo = this.MV_initHitInfo(p, _target);
+			hitInfo.BodyPart = ::Const.BodyPart.Body;
+
+			// This will now use the outgoing hitInfo to prepare the correct properties for receiving damage
+			_target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
+
+			// Vanilla changes the HitInfo in certain skills in onBeforeTargetHit e.g. `pound` skill
+			// TODO: We can't call this skill_container event because it will set the skill_container IsUpdating back to false and trigger an update afterward
+			// so we need to find an alternative solution to this.
+			// this.getContainer().onBeforeTargetHit(this, _target, hitInfo);
+
+			armor += _target.getArmor(::Const.BodyPart.Body) * bodyChance / 100.0;
+
+			// These MV functions calculate the accurate damage received based on extraction of the calculations in actor.onDamageReceived
+			armorDamage += _target.MV_calcArmorDamageReceived(this, hitInfo) * bodyChance / 100.0;
+			hitpointDamage += _target.MV_calcHitpointsDamageReceived(this, hitInfo) * bodyChance / 100.0;
+		}
+
+		local headshotChance = p.getHitchance(::Const.BodyPart.Head)
+		if (headshotChance != 0 && !_target.getCurrentProperties().IsImmuneToCriticals && !_target.getCurrentProperties().IsImmuneToHeadshots)
+		{
+			// Same process as above but with a new HitInfo object, now with forcing the body part to be Head
+			hitInfo = this.MV_initHitInfo(p, _target);
+			hitInfo.BodyPart = ::Const.BodyPart.Head;
+
+			_target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
+			// this.getContainer().onBeforeTargetHit(this, _target, hitInfo);
+			armor += _target.getArmor(::Const.BodyPart.Head) * headshotChance / 100.0;
+			armorDamage += _target.MV_calcArmorDamageReceived(this, hitInfo) * headshotChance / 100.0;
+			hitpointDamage += _target.MV_calcHitpointsDamageReceived(this, hitInfo) * headshotChance / 100.0;
+		}
+
+		// I have no idea what vanilla was doing with these calculations below. At some level they seem wrong in fact.
+		// the `directDamage` seems to correspond to the hitpoints damage in fact based on how its calculated in actor.onDamageReceived
+		// the `hitpointDamage` here makes no sense to me.
+
+		// local directDamage = this.Math.max(0, regularDamage * directDamage * critical - (directDamage < 1.0 ? (armor - armorDamage) * this.Const.Combat.ArmorDirectDamageMitigationMult : 0));
+		// local hitpointDamage = this.Math.max(0, regularDamage * critical - directDamage - armorDamage);
+
+		// What to do with DirectDamage and HitpointDamage exactly?
+		local ret = {
+			ArmorDamage = armorDamage,
+			DirectDamage = hitpointDamage,
+			HitpointDamage = hitpointDamage,
+			TotalDamage = hitpointDamage + armorDamage + hitpointDamage // last one used to be directDamage in vanilla
+		};
+		return ret;
+	}}.getExpectedDamage;
+
 	// MV: Added
 	// Part of skill.onScheduledTargetHit modularization.
 	// But useful on its own as well.
