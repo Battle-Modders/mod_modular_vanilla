@@ -16,7 +16,31 @@ addMoraleCheckType("MV_Surround");
 	MV_DiversionDamageMult = 0.75
 });
 
+local original_getClone = ::Const.CharacterProperties.getClone;
 ::MSU.Table.merge(::Const.CharacterProperties, {
+	function getClone()
+	{
+		local ret = original_getClone();
+		ret.MV_MoraleCheckBraveryCallbacks = clone this.MV_MoraleCheckBraveryCallbacks;
+		return ret;
+	},
+
 	// Part of modularization of player_party.updateStrength
 	MV_StrengthMult = 1.0
+	/*
+	You push functions to this array during `skill.onUpdate` or `skill.onAfterUpdate`.
+	These are then used to modify the Bravery during actor.checkMorale.
+	The functions pushed look like this:
+		function( _change, _type )
+		_change is the _change parameter in `actor.checkMorale`.
+		_type is the _type parameter in `actor.checkMorale`.
+	The functions return a table with this signature:
+	{
+		Add = <integer>
+		Mult = <float>
+	}
+	// Add is then added to Bravery during actor.checkMorale
+	// whereas Mult is multiplied with the BraveryMult.
+	*/
+	MV_MoraleCheckBraveryCallbacks = []
 });

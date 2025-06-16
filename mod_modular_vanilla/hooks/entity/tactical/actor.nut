@@ -694,7 +694,18 @@
 			return false;
 		}
 
-		local bravery = (this.getBravery() + this.getCurrentProperties().MoraleCheckBravery[_type]) * this.getCurrentProperties().MoraleCheckBraveryMult[_type];
+		local bravery = this.getBravery() + this.getCurrentProperties().MoraleCheckBravery[_type];
+		local mult = this.getCurrentProperties().MoraleCheckBraveryMult[_type];
+
+		// MV: Added we have added callbacks to character properties to modify the bravery
+		// via functions based on the _change and _type. These functions are called and applied here.
+		foreach (callback in this.getCurrentProperties().MV_MoraleCheckBraveryCallbacks)
+		{
+			local result = callback(_change, _type);
+			bravery += result.Add;
+			mult *= result.Mult;
+		}
+		bravery *= mult;
 
 		// Weird vanilla edge case - no idea what it is for.
 		if (bravery > 500)
