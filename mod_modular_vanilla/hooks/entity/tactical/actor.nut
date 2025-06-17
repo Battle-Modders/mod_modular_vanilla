@@ -227,6 +227,13 @@
 			case ::Const.MoraleCheckType.MV_FleeEnemy:
 				return 0;
 
+			// Vanilla has these difficulties defined in actor.onMovementFinish
+			case ::Const.MoraleCheckType.MV_Surround:
+				if (_source != this)
+					return ::Math.maxf(10.0, 50 - _source.getXPValue() * 0.1);
+				else
+					return 40.0;
+
 			default:
 				return 0;
 		}
@@ -701,9 +708,14 @@
 
 					if (otherActor.m.MaxEnemiesThisTurn < numEnemies && !otherActor.isAlliedWith(this))
 					{
-						local difficulty = this.Math.maxf(10.0, 50.0 - this.getXPValue() * 0.1);
-						// MV: Changed morale check type to the new added MV_Surround type
-						otherActor.checkMorale(-1, difficulty, ::Const.MoraleCheckType.MV_Surround);
+						// MV: Added check for morale check validity
+						if (otherActor.MV_isMoraleCheckValid(-1, ::Const.MoraleCheckType.MV_Surround, this))
+						{
+							// MV: Extracted the calculation of difficulty
+							local difficulty = otherActor.MV_getMoraleCheckDifficulty(-1, ::Const.MoraleCheckType.MV_Surround, this);
+							// MV: Changed morale check type to the new added MV_Surround type
+							otherActor.checkMorale(-1, difficulty, ::Const.MoraleCheckType.MV_Surround);
+						}
 						otherActor.m.MaxEnemiesThisTurn = numEnemies;
 					}
 				}
@@ -711,9 +723,11 @@
 		}
 		else if (this.m.CurrentMovementType == this.Const.Tactical.MovementType.Involuntary)
 		{
-			if (this.m.MaxEnemiesThisTurn < numOfEnemiesAdjacentToMe)
+			// MV: Added check for morale check validity
+			if (this.m.MaxEnemiesThisTurn < numOfEnemiesAdjacentToMe && this.MV_isMoraleCheckValid(-1, ::Const.MoraleCheckType.MV_Surround, this))
 			{
-				local difficulty = 40.0;
+				// MV: Extracted the calculation of difficulty
+				local difficulty = this.MV_getMoraleCheckDifficulty(-1, ::Const.MoraleCheckType.MV_Surround, this);
 				// MV: Changed morale check type to the new added MV_Surround type
 				this.checkMorale(-1, difficulty, ::Const.MoraleCheckType.MV_Surround);
 			}
