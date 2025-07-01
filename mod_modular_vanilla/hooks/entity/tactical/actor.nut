@@ -616,7 +616,7 @@
 	// Extracted the removal of effects into a new skill_container.MV_onMoraleStateChanged event
 	q.setMoraleState = @() { function setMoraleState( _m )
 	{
-		if (this.m.MoraleState == _m)
+		if (this.m.MoraleState == _m || this.getCurrentProperties().MV_ForbiddenMoraleStates.find(_m) != null)
 		{
 			return;
 		}
