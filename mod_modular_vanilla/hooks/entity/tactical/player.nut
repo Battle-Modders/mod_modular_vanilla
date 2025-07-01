@@ -112,11 +112,6 @@
 
 	q.setMoraleState = @() { function setMoraleState( _m )
 	{
-		if (this.getCurrentProperties().MV_ForbiddenMoraleStates.find(_m) != null)
-		{
-			return;
-		}
-
 	/*
 	This has been implemented in hooks on these skills using the properties.MV_ForbiddenMoraleStates
 
@@ -127,7 +122,7 @@
 	*/
 
 	/*
-	This has been implemented via mv_manager_skill_for_player using the skill.MV_onMoraleStateChanged event
+	This has been implemented via hooks on anatomists_scenario onSpawnPlayer and onHired functions
 
 		if (_m == this.Const.MoraleState.Confident && ("State" in this.World) && this.World.State != null && this.World.Assets.getOrigin().getID() == "scenario.anatomists")
 		{
