@@ -841,6 +841,10 @@
 			return false;
 		}
 
+		// Arriving here means that it was a >0 or <0 morale check that should result
+		// in changing the morale state of the actor. So now further handling needs
+		// to be done such as changing the morale state, icon, triggering events etc.
+
 		local oldMoraleState = this.getMoraleState();
 
 		// MV: Use setMoraleState instead of the vanilla this.m.MoraleState =
