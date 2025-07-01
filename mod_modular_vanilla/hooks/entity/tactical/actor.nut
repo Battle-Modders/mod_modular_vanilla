@@ -730,7 +730,7 @@
 			return 0;
 
 		local self = this;
-		return ::Tactical.Entities.getAdjacentActors(this.getTile()).filter(@(_, _a) _a.isAlliedWith(self)).len() * ::Const.Morale.AlliesAdjacentMult;
+		return ::Tactical.Entities.getAdjacentActors(this.getTile()).filter(@(_, _a) _a.isAlliedWith(self) && _a.getMoraleState() != ::Const.MoraleState.Fleeing).len() * ::Const.Morale.AlliesAdjacentMult;
 	}}.MV_getMoraleCheckSupport;
 
 	// MV: Modularized
