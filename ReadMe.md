@@ -15,6 +15,14 @@ Original bug report: https://steamcommunity.com/app/365360/discussions/1/6041552
 
 Vanilla calls this function whenever an entity who is visible in the turn sequence bar is pushed back in the sequence resulting in calling `entity.onTurnResumed` on the currently active actor prematurely. Our fix is a bandaid which returns early when calling this function on an entity already in the first slot.
 
+### Dislocated Shoulder injury
+Original bug report: https://steamcommunity.com/app/365360/discussions/1/555745444093769921/
+
+Vanilla sets the action points during `onUpdate` which makes changes from other skills to not be properly accounted for. We have moved it to `onAfterUpdate` as it should be.
+
+### Lindwurm Body being null during Tail death
+Keep a strong reference to the body while the lindwurm_tail is being killed and only nullify it with a delayed event. Otherwise attempts to call `_targetEntity.getCurrentProperties()` in things such as `skill.onTargetHit` result in an exception because `m.Body` has become null and lindwurm tail tries to return `m.Body.m.CurrentProperties` in its `getCurrentProperties()`. Vanilla gets around this issue by manually checking for `isKindOf(target, "lindwurm_tail")` in `cleave.nut` which is ugly. With our fix no such workaround is necessary and the properties can be accessed during skill_container events without any crash or error.
+
 ## Const
 ### MV_HireableCharacterBackgrounds
 ```squirrel
