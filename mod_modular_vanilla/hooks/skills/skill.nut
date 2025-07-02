@@ -219,7 +219,7 @@
 			Properties = _attackInfo.PropertiesForUse != null ? _attackInfo.PropertiesForUse : _attackInfo.User.buildPropertiesForUse(this, _attackInfo.Target),
 			DefenderProperties = _attackInfo.PropertiesForDefense != null ? _attackInfo.PropertiesForDefense : _attackInfo.Target.buildPropertiesForDefense(_attackInfo.User, this),
 			DistanceToTarget = distanceToTarget,
-			MV_AttackInfo = _attackInfo // add a ref to it here so that it doesn't get nullified during for the case of a delayed onScheduledTargetHit
+			MV_AttackInfo = _attackInfo // add a ref to it here so that it doesn't get nullified during a delayed onScheduledTargetHit e.g. for ranged attacks.
 		};
 
 		if (this.m.IsShowingProjectile && this.m.ProjectileType != 0 && distanceToTarget >= this.Const.Combat.SpawnProjectileMinDist && (!_attackInfo.User.isHiddenToPlayer() || !_attackInfo.Target.isHiddenToPlayer()))
