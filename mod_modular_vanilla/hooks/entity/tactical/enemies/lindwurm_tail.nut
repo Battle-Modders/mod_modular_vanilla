@@ -39,7 +39,7 @@
 	// in things such as `skill.onTargetHit` result in an exception because `m.Body` has become null.
 	// Vanilla gets around this issue by manually checking for `isKindOf(target, "lindwurm_tail")`
 	// in `cleave.nut` which is ugly.
-	q.kill = @(__original) { function kill( _killer = null, _skill = null, _fatalityType = this.Const.FatalityType.None, _silent = false )
+	q.kill = @(__original) { function kill( _killer = null, _skill = null, _fatalityType = ::Const.FatalityType.None, _silent = false )
 	{
 		local body = this.m.Body.get();
 		__original(_killer, _skill, _fatalityType, _silent);
