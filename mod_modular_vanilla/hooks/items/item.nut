@@ -2,6 +2,10 @@
 	// MV: Added part of framework: base item for named items
 	q.m.BaseItemScript <- null;
 	q.m.IsUsingBaseItemSkills <- true;
+	// MV: Added Part of MV_Variant framework for items
+	// Specifies the chance that upon creation of this item an MV variant
+	// will be applied to that instance.
+	q.m.MV_VariantChance <- 25;
 
 	// MV: Added part of framework: base item for named items
 	q.getBaseItemFields <- { function getBaseItemFields()
@@ -25,6 +29,58 @@
 	q.randomizeValues <- { function randomizeValues()
 	{
 	}}.randomizeValues;
+
+	// MV: Added
+	// Part of MV_Variant framework for items
+	// This function MUST be overwritten by a mod in a child script for which that mod is providing
+	// new variants. This is the function where you	// provide new variants. The function MUST
+	// return an instance of ::MSU.Class.WeightedContainer where each element in the container
+	// is a len 2 array with index 0 being the VariantString and index 1 being the Variant e.g.
+	// ["rf_gambeson", 1]
+	// Multiple mods can hook this function's definition in an item and add their variants to it.
+	q.MV_getVariants <- { function MV_getVariants()
+	{
+		return ::MSU.Class.WeightedContainer();
+	}}.MV_getVariants;
+
+	// MV: Added
+	// Part of MV_Variant framework for items
+	// This function has custom implementations in the different child classes
+	// i.e. weapon, armor, helmet, shield. Mods should not change these implementations.
+	q.MV_updateVariant <- { function MV_updateVariant()
+	{
+	}}.MV_updateVariant;
+
+	// MV: Added
+	// Part of MV_Variant framework for items
+	// Sets the MV_Variant and MV_VariantString flags in the flag container
+	// based on the _info. The _info is what you get from MV_getVariants.
+	q.__MV_setVariant <- { function __MV_setVariant( _info, _updateVariant = true )
+	{
+		this.getFlags().set("MV_VariantString", _info[0]);
+		this.getFlags().set("MV_Variant", _info[1]);
+		if (_updateVariant)
+			this.MV_updateVariant();
+	}}.__MV_setVariant;
+
+	// MV: Added
+	// Part of MV_Variant framework for items
+	// Checks for the existing of a variant. This has custom implementations
+	// in the different child classes of item. Usually the check is done via
+	// checking ::doesBrushExist against an expected formatted string for MV variants.
+	q.__MV_isVariantInstalled <- { function __MV_isVariantInstalled()
+	{
+		return false;
+	}}.__MV_isVariantInstalled;
+
+	// MV: Added
+	// Part of MV_Variant framework for items
+	// Creates a standardized string using the MV variant and variant string.
+	q.__MV_getFormattedVariantString <- { function __MV_getFormattedVariantString()
+	{
+		local variant = this.getFlags().get("MV_Variant");
+		return format("%s_%s%i", this.getFlags().get("MV_VariantString"), (variant > 9 ? "" : "0"), variant);
+	}}.__MV_getFormattedVariantString;
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
@@ -41,6 +97,15 @@
 
 			this.setValuesBeforeRandomize(this.m.BaseItemScript == null ? null : ::new(this.m.BaseItemScript));
 			this.randomizeValues();
+
+			if (!::MSU.Serialization.isLoading() && ::Math.rand(1, 100) <= this.m.MV_VariantChance)
+			{
+				local variant = this.MV_getVariants().roll();
+				if (variant != null)
+				{
+					this.__MV_setVariant(variant);
+				}
+			}
 		}}.create;
 
 		// MV: Part of framework: base item for named items
@@ -126,5 +191,19 @@
 				delete this[p];
 			}
 		}
+
+		// MV: Part of MV_Variant framework for items
+		// We need a hookTree because various children of item.nut call their own
+		// updateVariant at the end of their own onDeserialize.
+		q.onDeserialize = @(__original) { function onDeserialize( _in )
+		{
+			__original(_in);
+			// We only apply our variant during deserialization if it is installed
+			// otherwise we let the original variant remain.
+			if (this.getFlags().has("MV_Variant") && this.__MV_isVariantInstalled())
+			{
+				this.MV_updateVariant();
+			}
+		}}.onDeserialize;
 	});
 });
