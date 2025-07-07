@@ -23,6 +23,46 @@ Vanilla sets the action points during `onUpdate` which makes changes from other 
 ### Lindwurm Body being null during Tail death
 Keep a strong reference to the body while the lindwurm_tail is being killed and only nullify it with a delayed event. Otherwise attempts to call `_targetEntity.getCurrentProperties()` in things such as `skill.onTargetHit` result in an exception because `m.Body` has become null and lindwurm tail tries to return `m.Body.m.CurrentProperties` in its `getCurrentProperties()`. Vanilla gets around this issue by manually checking for `isKindOf(target, "lindwurm_tail")` in `cleave.nut` which is ugly. With our fix no such workaround is necessary and the properties can be accessed during skill_container events without any crash or error.
 
+## Item Variants
+Modular Vanilla provides a compatible way for mods to add variants of any item. This system is save-game safe even when the mod providing the variant is removed.
+
+Providing a variant has 3 parts:
+- Use the `MV_getVariants` function of that item and add your variants to its weighted container. The weighted container allows you to control the rarity of appearance of a variant. Each variant is added as a len 2 array where index 0 is a string known as the VariantString and index 1 is an integer known as the Variant. The `Variant` is always a positive integer. The `VariantString` is always a string without any `/` in it.
+- Specify `m.MV_VariantChance` as an integer from 1 to 100. A chance of 0 means the MV variants will never be applied.
+- Provide the gfx and brush sprites with correctly formatted names (see below).
+
+### Formatting names of gfx files and brush sprites
+Below are instructions on how to properly format and name your files for the variants to work properly with this framework. Note that all the VariantStrings have been prefixed with `rf_` as a good practice to avoid naming collisions with other mods. This is the prefix used by the Reforged mod. You should choose a reasonable prefix for your own mod.
+
+#### Weapon
+Note: GFX files must be in the same directory path as the original item's GFX files.
+- One large GFX file. Filename: `variantString_variant.png` e.g. `rf_falchion_01.png`
+- One small GFX file. Filename: `variantString_variant_70x70.png` e.g. `rf_falchion_01_70x70.png`.
+- One brush sprite as `icon_variantString_variant` e.g. `icon_rf_falchion_01`.
+
+#### Armor
+Note: GFX files must be in the same directory path as the original item's GFX files.
+- One large GFX file. Filename: `inventory_variantString_armor_variant.png` e.g. `inventory_rf_gambeson_armor_01.png`.
+- One small GFX file. Filename: `icon_variantString_armor_variant.png` e.g. `icon_rf_gambeson_armor_01.png`.
+- One brush sprite as `bust_variantString_variant` e.g. `bust_rf_gambeson_01.png`.
+- One brush sprite as `bust_variantString_variant_damaged` e.g. `bust_rf_gambeson_01_damaged`.
+- One brush sprite as `bust_variantString_variant_dead` e.g. `bust_rf_gambeson_01_dead`.
+
+#### Helmet
+Note: GFX files must be in the same directory path as the original item's GFX files.
+- One GFX file. Filename: `inventory_variantString_variant.png` e.g. `inventory_rf_nasal_helmet_01.png`.
+- One brush sprite as `bust_variantString_variant` e.g. `bust_rf_nasal_helmet_01`.
+- One brush sprite as `bust_variantString_variant_damaged` e.g. `bust_rf_nasal_helmet_01_damaged`.
+- One brush sprite as `bust_variantString_variant_dead` e.g. `bust_rf_nasal_helmet_01_dead`.
+
+#### Shield
+Note: GFX files must be in the same directory path as the original item's GFX files.
+- One large GFX file. Filename: `inventory_variantString_variant.png` e.g. `inventory_rf_round_shield_01.png`.
+- One small GFX file. Filename: `icon_variantString_armor_variant.png` e.g. `icon_rf_round_shield_01.png`.
+- One brush sprite as `variantString_variant` e.g. `rf_round_shield_01`.
+- One brush sprite as `variantString_variant_damaged` e.g. `rf_round_shield_01_damaged`.
+- One brush sprite as `variantString_variant_destroyed` e.g. `rf_round_shield_01_destroyed`.
+
 ## Const
 ### MV_HireableCharacterBackgrounds
 ```squirrel
