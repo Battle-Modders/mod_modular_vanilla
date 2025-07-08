@@ -128,6 +128,7 @@
 					if (variant != null)
 					{
 						this.__MV_setVariant(variant);
+						this.updateAppearance();
 					}
 				}
 			}}.onPaint;
