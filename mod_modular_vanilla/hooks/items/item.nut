@@ -99,6 +99,9 @@
 			this.setValuesBeforeRandomize(this.m.BaseItemScript == null ? null : ::new(this.m.BaseItemScript));
 			this.randomizeValues();
 
+			// MV: Added
+			// Part of MV_Variant framework for items.
+			// Roll a chance for using one of the variants provided using the MV framework.
 			if (!::MSU.Serialization.isLoading() && ::Math.rand(1, 100) <= this.m.MV_VariantChance)
 			{
 				local variant = this.MV_getVariants().roll();
