@@ -31,7 +31,7 @@
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
-	::ModularVanilla.MH.hook("scripts/items/helmets/helmet", function(q) {
+	::ModularVanilla.MH.hookTree("scripts/items/helmets/helmet", function(q) {
 		// MV: Changed
 		// Part of MV_Variant framework for items
 		// We remove our custom variant from the flag container when setting
