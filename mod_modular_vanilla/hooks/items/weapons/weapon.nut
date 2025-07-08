@@ -17,10 +17,10 @@
 
 		local arr = split(this.m.IconLarge, "/");
 		arr.pop();
-		local iconStr = arr.reduce(@(_a, _b) _a + "/" + _b) + "/";
+		local iconPath = arr.reduce(@(_a, _b) _a + "/" + _b) + "/";
 
-		this.m.IconLarge = iconStr + str + ".png";
-		this.m.Icon = iconStr + str + "_70x70.png";
+		this.m.IconLarge = iconPath + str + ".png";
+		this.m.Icon = iconPath + str + "_70x70.png";
 		this.m.ArmamentIcon = "icon_" + str;
 	}}.MV_updateVariant;
 

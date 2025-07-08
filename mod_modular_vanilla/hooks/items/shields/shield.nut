@@ -18,13 +18,13 @@
 
 		local arr = split(this.m.IconLarge, "/");
 		arr.pop();
-		local iconStr = arr.reduce(@(_a, _b) _a + "/" + _b);
+		local iconPath = arr.reduce(@(_a, _b) _a + "/" + _b);
 
 		this.m.Sprite = str;
 		this.m.SpriteDamaged = str + "_damaged";
 		this.m.ShieldDecal = str + "_destroyed";
-		this.m.IconLarge = iconStr + "/inventory_" + str + ".png";
-		this.m.Icon = iconStr + "/icon_" + str + ".png";
+		this.m.IconLarge = iconPath + "/inventory_" + str + ".png";
+		this.m.Icon = iconPath + "/icon_" + str + ".png";
 	}}.MV_updateVariant;
 
 	// MV: Custom implementation of the function added in item.nut
