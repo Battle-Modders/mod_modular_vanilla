@@ -38,7 +38,8 @@
 	// is a len 2 array with index 0 being the VariantString and index 1 being the Variant e.g.
 	// ["rf_gambeson", 1]
 	// Multiple mods can hook this function's definition in an item and add their variants to it.
-	q.MV_getVariants <- { function MV_getVariants()
+	// Optional parameter _color must be an entry from the Const.Items.Paint table.
+	q.MV_getVariants <- { function MV_getVariants( _color = null )
 	{
 		return ::MSU.Class.WeightedContainer();
 	}}.MV_getVariants;
@@ -107,6 +108,27 @@
 				}
 			}
 		}}.create;
+
+		// Part of MV_Variant framework for items
+		// Add chance for painted variants to roll from the MV variants
+		// Note: In vanilla the `onPaint` function only exists in certain helmets
+		// but we use hookTree on it from item class to fully encompass the possibility
+		// of mods adding this function to other child classes of item.nut
+		if (q.contains("onPaint"))
+		{
+			q.onPaint = @(__original) { function onPaint( _color )
+			{
+				__original(_color);
+				if (::Math.rand(1, 100) <= this.m.MV_VariantChance)
+				{
+					local variant = this.MV_getVariants(_color).roll();
+					if (variant != null)
+					{
+						this.__MV_setVariant(variant);
+					}
+				}
+			}}.onPaint;
+		}
 
 		// MV: Part of framework: base item for named items
 		q.setValuesBeforeRandomize = @(__original) { function setValuesBeforeRandomize( _baseItem )
