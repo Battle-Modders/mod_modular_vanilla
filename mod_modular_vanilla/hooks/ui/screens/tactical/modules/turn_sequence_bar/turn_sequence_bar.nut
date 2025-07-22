@@ -57,11 +57,11 @@
 
 		// MV: Changed
 		// part of affordability preview system
-		q.setActiveEntityCostsPreview = @() { function setActiveEntityCostsPreview( _costsPreview )
+		q.setActiveEntityCostsPreview = @(__original) { function setActiveEntityCostsPreview( _costsPreview )
 		{
 			local activeEntity = this.getActiveEntity();
 			if (activeEntity == null || ::getModSetting("mod_msu", "ExpandedSkillTooltips").getValue() == false)
-				return;
+				return __original(_costsPreview);
 
 			if (this.m.ActiveEntityCostsPreview == null)
 				this.m.ActiveEntityCostsPreview = {};
