@@ -42,6 +42,73 @@
 				return __original(_value);
 		}}.setDirty;
 	// part of affordability preview system END
+
+		// MV: Modularized
+		// Part of actor.onOtherActorDeath modularization
+		// hookTree because vanilla overwrites this function in child classes for slave death - we hook slave directly to prevent it from causing morale checks
+		// - Added functions to check if a dying actor causes morale checks.
+		// NOTE: _killer and _skill can be null in certain cases.
+		q.onOtherActorDeath = @() { function onOtherActorDeath( _killer, _victim, _skill )
+		{
+			// Changed to use functions for isAlive and isDying instead of m.IsAlive and m.IsDying
+			// vanilla chcecks for _victim.getXPValue() <= 1
+			if (!this.isAlive() || this.isDying() || _victim.getXPValue() <= ::Const.MV_NoMoraleCheckOnDeathXP)
+			{
+				return;
+			}
+
+			local change, type;
+			if (_victim.isAlliedWith(this))
+			{
+				change = -1;
+				type = ::Const.MoraleCheckType.MV_DeathAlly;
+			}
+			else
+			{
+				change = 1;
+				type = ::Const.MoraleCheckType.MV_DeathEnemy;
+			}
+
+			local info = {
+				Killer = _killer,
+				Skill = _skill
+			};
+
+			if (this.MV_isMoraleCheckValid(change, type, _victim, info))
+			{
+				this.checkMorale(change, this.MV_getMoraleCheckDifficulty(change, type, _victim, info), type);
+			}
+		}}.onOtherActorDeath;
+
+		// MV: Modularized
+		// Part of actor.onOtherActorFleeing modularization
+		// hookTree because vanilla overwrites this function in child classes for slave fleeing - we hook slave directly to prevent it from causing morale checks
+		// - Added new functions to check if a fleeing actor can trigger morale checks
+		q.onOtherActorFleeing = @() { function onOtherActorFleeing( _actor )
+		{
+			// use functions instead of .m.
+			if (!this.isAlive() || this.IsDying())
+			{
+				return;
+			}
+
+			local change, type;
+			if (_victim.isAlliedWith(this))
+			{
+				change = -1;
+				type = ::Const.MoraleCheckType.MV_FleeAlly;
+			}
+			else
+			{
+				change = 1;
+				type = ::Const.MoraleCheckType.MV_FleeEnemy;
+			}
+
+			if (this.MV_isMoraleCheckValid(change, type, _actor))
+			{
+				this.checkMorale(change, this.MV_getMoraleCheckDifficulty(change, type, _actor), type);
+			}
+		}}.onOtherActorFleeing;
 	});
 });
 
@@ -88,6 +155,116 @@
 		return this.m.MV_CostsPreview;
 	}}.getCostsPreview;
 // part of affordability preview system END
+
+	// MV: Added
+	// Part of morale checks framework.
+	// The logic of vanilla conditions for morale checks on onOtherActorDeath adn onOtherActorFleeing
+	// has been extracted here.
+	// Can be used to add/modify conditions of various morale checks.
+		// _source is the cause of the morale check, this is usually another actor e.g. someone who died
+		// someone who is fleeing or someone who triggered a surround.
+		// _info is a table which contains key/value pairs necessary for certain morale checks e.g. the
+		// Killer in the MV_DeathEnemy morale check type.
+	q.MV_isMoraleCheckValid <- { function MV_isMoraleCheckValid( _change, _type, _source, _info = null )
+	{
+		switch (_type)
+		{
+			case ::Const.MoraleCheckType.MV_DeathAlly:
+				return this.getFaction() == _source.getFaction() && _source.getCurrentProperties().TargetAttractionMult >= ::Const.Morale.MV_DeathAllyMinTargetAttractionMult;
+
+			case ::Const.MoraleCheckType.MV_DeathEnemy:
+				return true;
+
+			case ::Const.MoraleCheckType.MV_FleeAlly:
+				return this.getFaction() == _source.getFaction();
+
+			case ::Const.MoraleCheckType.MV_FleeEnemy:
+				return false;
+
+			default:
+				return true;
+		}
+	}}.MV_isMoraleCheckValid;
+
+	// MV: Added
+	// Part of morale checks framework.
+	// The logic of vanilla conditions for morale checks on onOtherActorDeath adn onOtherActorFleeing
+	// has been extracted here.
+	// Can be used to add/modify conditions of various morale checks.
+		// _source is the cause of the morale check, this is usually another actor e.g. someone who died
+		// someone who is fleeing or someone who triggered a surround.
+		// _info is a table which contains key/value pairs necessary for certain morale checks e.g. the
+		// Killer in the MV_DeathEnemy morale check type.
+	q.MV_getMoraleCheckDifficulty <- { function MV_getMoraleCheckDifficulty( _change, _type, _source, _info = null )
+	{
+		switch (_type)
+		{
+			case ::Const.MoraleCheckType.MV_DeathAlly:
+				if (this.getFaction() == _source.getFaction())
+				{
+					return this.Const.Morale.AllyKilledBaseDifficulty - _source.getXPValue() * this.Const.Morale.AllyKilledXPMult + this.Math.pow(_source.getTile().getDistanceTo(this.getTile()), this.Const.Morale.AllyKilledDistancePow);
+				}
+				return 0;
+
+			// _info = { Killer = <actor>, Skill = <skill> }
+			case ::Const.MoraleCheckType.MV_DeathEnemy:
+				local ret = this.Const.Morale.EnemyKilledBaseDifficulty + _source.getXPValue() * this.Const.Morale.EnemyKilledXPMult - this.Math.pow(_source.getTile().getDistanceTo(this.getTile()), this.Const.Morale.EnemyKilledDistancePow);
+
+				local killer = _info.Killer;
+				if (killer != null && killer.isAlive() && killer.getID() == this.getID())
+				{
+					ret += this.Const.Morale.EnemyKilledSelfBonus;
+				}
+				return ret;
+
+			case ::Const.MoraleCheckType.MV_FleeAlly:
+				if (this.getFaction() == _source.getFaction())
+				{
+					return this.Const.Morale.AllyFleeingBaseDifficulty - _source.getXPValue() * this.Const.Morale.AllyFleeingXPMult + this.Math.pow(_source.getTile().getDistanceTo(this.getTile()), this.Const.Morale.AllyFleeingDistancePow);
+				}
+				return 0;
+
+			case ::Const.MoraleCheckType.MV_FleeEnemy:
+				return 0;
+
+			// Vanilla has these difficulties defined in actor.onMovementFinish
+			case ::Const.MoraleCheckType.MV_Surround:
+				if (_source != this)
+					return ::Math.maxf(10.0, 50 - _source.getXPValue() * 0.1);
+				else
+					return 40.0;
+
+			default:
+				return 0;
+		}
+	}}.MV_getMoraleCheckDifficulty;
+
+	// MV: Changed
+	// Part of actor.onOtherActorFleeing modularization
+	// add call to actor.onOtherActorFleeing for all other factions (vanilla has only for same faction allies)
+	q.checkMorale = @(__original) function( _change, _difficulty, _type = this.Const.MoraleCheckType.Default, _showIconBeforeMoraleIcon = "", _noNewLine = false )
+	{
+		local ret = __original(_change, _difficulty, _type, _showIconBeforeMoraleIcon, _noNewLine);
+
+		// negative morale check dropped this character to fleeing
+		if (_change < 0 && ret && this.getMoraleState() == ::Const.MoraleState.Fleeing)
+		{
+			// vanilla only calls this for allies from the same faction
+			// but in MV we call it for all entities of other factions too
+			foreach (i, faction in ::Tactical.Entities.getAllInstances())
+			{
+				if (this.getFaction() == i)
+					continue;
+
+				foreach (actor in faction)
+				{
+					actor.onOtherActorFleeing(this);
+				}
+			}
+		}
+
+		return ret;
+	}
 
 	// MV: Added
 	// Extraction of part of vanilla logic from actor.onDamageReceived
@@ -531,9 +708,14 @@
 
 					if (otherActor.m.MaxEnemiesThisTurn < numEnemies && !otherActor.isAlliedWith(this))
 					{
-						local difficulty = this.Math.maxf(10.0, 50.0 - this.getXPValue() * 0.1);
-						// MV: Changed morale check type to the new added MV_Surround type
-						otherActor.checkMorale(-1, difficulty, ::Const.MoraleCheckType.MV_Surround);
+						// MV: Added check for morale check validity
+						if (otherActor.MV_isMoraleCheckValid(-1, ::Const.MoraleCheckType.MV_Surround, this))
+						{
+							// MV: Extracted the calculation of difficulty
+							local difficulty = otherActor.MV_getMoraleCheckDifficulty(-1, ::Const.MoraleCheckType.MV_Surround, this);
+							// MV: Changed morale check type to the new added MV_Surround type
+							otherActor.checkMorale(-1, difficulty, ::Const.MoraleCheckType.MV_Surround);
+						}
 						otherActor.m.MaxEnemiesThisTurn = numEnemies;
 					}
 				}
@@ -541,9 +723,11 @@
 		}
 		else if (this.m.CurrentMovementType == this.Const.Tactical.MovementType.Involuntary)
 		{
-			if (this.m.MaxEnemiesThisTurn < numOfEnemiesAdjacentToMe)
+			// MV: Added check for morale check validity
+			if (this.m.MaxEnemiesThisTurn < numOfEnemiesAdjacentToMe && this.MV_isMoraleCheckValid(-1, ::Const.MoraleCheckType.MV_Surround, this))
 			{
-				local difficulty = 40.0;
+				// MV: Extracted the calculation of difficulty
+				local difficulty = this.MV_getMoraleCheckDifficulty(-1, ::Const.MoraleCheckType.MV_Surround, this);
 				// MV: Changed morale check type to the new added MV_Surround type
 				this.checkMorale(-1, difficulty, ::Const.MoraleCheckType.MV_Surround);
 			}
