@@ -43,6 +43,11 @@ Bug report: https://steamcommunity.com/app/365360/discussions/1/6525851808669215
 
 Vanilla is missing a null check for `_targetEntity` in this function before attempting to do `_targetEntity.getSkills()`. This does not cause any issues in vanilla but can lead to exceptions in mods in certain cases. We have added a null check.
 
+### slash_lightning missing null check for active entity in onUse
+Original bug report: https://steamcommunity.com/app/365360/discussions/1/604158579076817361/
+
+This causes an exception in the log when someone with the `slash_lightning` skill kills someone via Riposte or attack of opportunity. We have fixed this by copying the vanilla `onUse` function and adding a proper null check.
+
 ## Const
 ### MV_HireableCharacterBackgrounds
 ```squirrel
