@@ -6,3 +6,5 @@ gfx/mods/brushes/
 *.zip
 .utils/
 .bbbuilder/
+gfx/*.png
+!gfx/*/.png
