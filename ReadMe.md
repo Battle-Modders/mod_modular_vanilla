@@ -33,6 +33,11 @@ Bug report: https://steamcommunity.com/app/365360/discussions/1/6041698560127365
 
 For skills, vanilla does not update the `m.HitChanceBonus` with respect to the actual MeleeSkill modifier in `onAnySkillUsed`, leading to wrong information in the Hitfactors tooltip if the actual value of the `HitChanceBonus` were to be shown (done by some mods). We set `HitChanceBonus` always to 0 as base value for all skills. Then set it to the correct value at the end of the `onAnySkillUsed` function based on the total `MeleeSkill` modifier applied by the used skill's `onAnySkillUsed`.
 
+### Misnamed sprite for greater flesh golem dead arrows
+Bug report: https://steamcommunity.com/app/365360/discussions/1/604169491195275530/
+
+This is caused by a vanilla error in one of the sprite files. The sprite `bust_greater_flesh_golem_body_02_arrows` should be named `bust_greater_flesh_golem_body_02_dead_arrows`. This leads to an exception in the log when a greater flesh golem is killed with arrows. We have added the sprite with the correct name in Modular Vanilla.
+
 ## Const
 ### MV_HireableCharacterBackgrounds
 ```squirrel
