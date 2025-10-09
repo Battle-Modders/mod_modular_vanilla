@@ -1,0 +1,5 @@
+<brush name="gfx/mv_entity.png" version="17">
+	<!-- VanillaFix: https://steamcommunity.com/app/365360/discussions/1/604169491195275530/ -->
+	<!-- Correction of misnamed vanilla sprite -->
+	<sprite id="bust_greater_flesh_golem_body_02_dead_arrows" offsetY="30" f="64FB" ic="FF444B4F" width="169" height="139" img="entity\flesh_golems\bust_greater_flesh_golem_body_02_dead_arrows.png" left="-19" right="53" top="-19" bottom="37" />
+</brush>
