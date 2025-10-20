@@ -1,26 +1,9 @@
 // List of all backgrounds that are hireable in towns.
-// Is populated automatically AfterHooks so backgrounds from mods are also covered.
-// Mods can still add to this array manually.
+// Is populated automatically during FirstWorldInit so backgrounds from mods are also covered.
+// Mods can still add to this array manually, but ideally should do so before FirstWorldInit.
 ::Const.MV_HireableCharacterBackgrounds <- [];
 
-::ModularVanilla.QueueBucket.AfterHooks.push(function() {
-	// This is required in vanilla in the create function of settlements as that function calls
-	// getRandomName() which tries to access this. So we instantiate it temporarily.
-	::World.EntityManager <- ::new("scripts/entity/world/entity_manager");
-
-	// We instantiate all the other things which are usually instantiated in world_state.onInit
-	// as some settlements etc. (from mods) may try to access them during their create function.
-	::World.Factions <- ::new("scripts/factions/faction_manager");
-	::World.Combat <- ::new("scripts/entity/world/combat_manager");
-	::World.Contracts <- ::new("scripts/contracts/contract_manager");
-	::World.Events <- ::new("scripts/events/event_manager");
-	::World.Ambitions <- ::new("scripts/ambitions/ambition_manager");
-	::World.Retinue <- ::new("scripts/retinue/retinue_manager");
-	::World.Crafting <- ::new("scripts/crafting/crafting_manager");
-	::World.Statistics <- ::new("scripts/statistics/statistics_manager");
-	::World.Flags <- ::new("scripts/tools/tag_collection");
-	::World.Assets <- ::new("scripts/states/world/asset_manager");
-
+::ModularVanilla.QueueBucket.FirstWorldInit.push(function() {
 	foreach (script in ::IO.enumerateFiles("scripts/entity/world"))
 	{
 		local obj = ::new(script);
@@ -45,18 +28,6 @@
 			}
 		}
 	}
-
-	delete ::World.EntityManager;
-	delete ::World.Factions;
-	delete ::World.Combat;
-	delete ::World.Contracts;
-	delete ::World.Events;
-	delete ::World.Ambitions;
-	delete ::World.Retinue;
-	delete ::World.Crafting;
-	delete ::World.Statistics;
-	delete ::World.Flags;
-	delete ::World.Assets;
 
 	::Const.MV_HireableCharacterBackgrounds = ::MSU.Array.uniques(::Const.MV_HireableCharacterBackgrounds);
 });

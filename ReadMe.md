@@ -28,7 +28,7 @@ Keep a strong reference to the body while the lindwurm_tail is being killed and 
 ```squirrel
 :Const.MV_HireableCharacterBackgrounds
 ```
-Modular Vanilla adds this array that is populated with the filenames of all backgrounds which are hireable from settlements. This list is populated during the `AfterHooks` queue bucket automatically by iterating over all `settlement` with their `.m.DraftList` and `attached_location`, `building` and `situation` with their `onUpdateDraftList` functions. You can also push manual entries to this list, but this should be done before `AfterHooks`.
+Modular Vanilla adds this array that is populated with the filenames of all backgrounds which are hireable from settlements. This list is populated during the `FirstWorldInit` queue bucket automatically by iterating over all `settlement` with their `.m.DraftList` and `attached_location`, `building` and `situation` with their `onUpdateDraftList` functions. You can also push manual entries to this list, but this should be done before `FirstWorldInit`.
 
 ## Const.MoraleCheckType
 MV adds the following new morale check types. Naturally, each morale check type can also be used in the `properties.MoraleCheckBravery` and `properties.MoraleCheckBraveryMult` arrays.
