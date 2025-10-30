@@ -38,6 +38,11 @@ Bug report: https://steamcommunity.com/app/365360/discussions/1/6041694911952755
 
 This is caused by a vanilla error in one of the sprite files. The sprite `bust_greater_flesh_golem_body_02_arrows` should be named `bust_greater_flesh_golem_body_02_dead_arrows`. This leads to an exception in the log when a greater flesh golem is killed with arrows. We have added the sprite with the correct name in Modular Vanilla.
 
+### Null check for `_targetEntity` in `spider_racial.onAnySkillUsed`
+Bug report: https://steamcommunity.com/app/365360/discussions/1/652585180866921562/
+
+Vanilla is missing a null check for `_targetEntity` in this function before attempting to do `_targetEntity.getSkills()`. This does not cause any issues in vanilla but can lead to exceptions in mods in certain cases. We have added a null check.
+
 ## Const
 ### MV_HireableCharacterBackgrounds
 ```squirrel
