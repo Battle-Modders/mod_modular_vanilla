@@ -619,6 +619,15 @@
 	q.onCostsPreview <- { function onCostsPreview( _costsPreview )
 	{
 	}}.onCostsPreview;
+
+	// MV: Added
+	// part of MV_onBeforeAnySkillAdded skill_container event.
+	// Return true: allow _skill to be added to the container.
+	// Return false: don't allow _skill to be added to the container.
+	q.MV_onBeforeAnySkillAdded <- { function MV_onBeforeAnySkillAdded( _skill )
+	{
+		return true;
+	}}.MV_onBeforeAnySkillAdded;
 });
 
 
