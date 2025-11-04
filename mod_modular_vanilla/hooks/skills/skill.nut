@@ -628,10 +628,27 @@
 	{
 		return true;
 	}}.MV_onBeforeAnySkillAdded;
+
+	q.MV_onAnySkillAdded <- { function MV_onAnySkillAdded( _skill )
+	{
+	}}.MV_onAnySkillAdded;
 });
 
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
+	::ModularVanilla.MH.hookTree("scripts/skills/skill", function(q) {
+		// MV: Changed
+		// part of MV_onAnySkillAdded skill_container event
+		q.onAdded = @(__original) { function onAdded()
+		{
+			__original();
+			// Ensure that the skill didn't remove itself during its addition.
+			if (!this.isGarbage())
+			{
+				this.getContainer().MV_onAnySkillAdded(this);
+			}
+		}}.onAdded;
+	});
 	::ModularVanilla.MH.hook("scripts/skills/skill", function(q) {
 		// MV: Changed
 		// part of affordability preview system

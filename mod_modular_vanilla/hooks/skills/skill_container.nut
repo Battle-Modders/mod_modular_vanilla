@@ -56,6 +56,24 @@
 		this.m.IsUpdating = wasUpdating;
 		return ret;
 	}}.MV_onBeforeAnySkillAdded;
+
+	// MV: Added
+	// part of MV_onAnySkillAdded skill_container event
+	// Is called via a hookTree on skill.onAdded
+	q.MV_onAnySkillAdded <- { function MV_onAnySkillAdded( _skill )
+	{
+		local wasUpdating = this.m.IsUpdating;
+		this.m.IsUpdating = true;
+		foreach (skill in this.m.Skills)
+		{
+			if (!skill.isGarbage())
+			{
+				skill.MV_onAnySkillAdded(_skill)
+			}
+		}
+		this.m.IsUpdating = wasUpdating;
+		this.update();
+	}}.MV_onAnySkillAdded;
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
