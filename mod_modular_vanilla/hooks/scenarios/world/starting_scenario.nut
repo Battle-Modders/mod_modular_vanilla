@@ -6,14 +6,23 @@
 		return 1.0;
 	}}.MV_getPlayerPartyStrengthMult;
 
+	// MV: Added
+	// Part of starting_scenario.MV_onWorldEntitySpawned event
+	// Called from ::World.spawnEntity and ::World.spawnLocation
 	q.MV_onWorldEntitySpawned <- { function MV_onWorldEntitySpawned( _entity )
 	{
 	}}.MV_onWorldEntitySpawned;
 
+	// MV: Added
+	// Part of starting_scenario.MV_onLocationCreateDefenders event
+	// Called from location.createDefenders
 	q.MV_onLocationCreateDefenders <- { function MV_onLocationCreateDefenders( _location )
 	{
 	}}.MV_onLocationCreateDefenders;
 
+	// MV: Added
+	// Part of starting_scenario.MV_onLocationEntered event
+	// Called from location.onEnter
 	q.MV_onLocationEntered <- { function MV_onLocationEntered( _location )
 	{
 	}}.MV_onLocationEntered;

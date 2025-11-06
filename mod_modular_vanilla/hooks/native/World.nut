@@ -3,6 +3,8 @@ local function worldEntitySpawnedCallback( _entity )
 	::World.Assets.getOrigin().MV_onWorldEntitySpawned(_entity);
 }
 
+// MV: Changed
+// Part of starting_scenario.MV_onWorldEntitySpawned event
 local spawnEntity = ::World.spawnEntity;
 ::World.spawnEntity <- { function spawnEntity( ... )
 {
@@ -23,6 +25,8 @@ local spawnEntity = ::World.spawnEntity;
 	return ret;
 }}.spawnEntity;
 
+// MV: Changed
+// Part of starting_scenario.MV_onWorldEntitySpawned event
 local spawnLocation = ::World.spawnLocation;
 ::World.spawnLocation <- { function spawnLocation( ... )
 {
