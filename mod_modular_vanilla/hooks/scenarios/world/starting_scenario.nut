@@ -5,6 +5,18 @@
 	{
 		return 1.0;
 	}}.MV_getPlayerPartyStrengthMult;
+
+	q.MV_onWorldEntitySpawned <- { function MV_onWorldEntitySpawned( _entity )
+	{
+	}}.MV_onWorldEntitySpawned;
+
+	q.MV_onLocationCreateDefenders <- { function MV_onLocationCreateDefenders( _location )
+	{
+	}}.MV_onLocationCreateDefenders;
+
+	q.MV_onLocationEntered <- { function MV_onLocationEntered( _location )
+	{
+	}}.MV_onLocationEntered;
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
