@@ -22,12 +22,12 @@
 					return;
 				}
 
-				local mskill = _properties.MeleeSkill;
-				local bonus = this.m.HitChanceBonus;
+				local old_MeleeSkill = _properties.MeleeSkill;
+				local old_HitChanceBonus = this.m.HitChanceBonus;
 
 				__original(_skill, _targetEntity, _properties);
 
-				this.m.HitChanceBonus = bonus - mskill + _properties.MeleeSkill;
+				this.m.HitChanceBonus = old_HitChanceBonus + _properties.MeleeSkill - old_MeleeSkill;
 			}}.onAnySkillUsed;
 		}
 	});
