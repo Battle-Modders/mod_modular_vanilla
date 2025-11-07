@@ -1,6 +1,6 @@
 ::ModularVanilla.MH.hook("scripts/skills/effects/spearwall_effect", function(q) {
-	// Part of the actor.MV_interrupt framework
-	q.MV_onActorInterrupted = @() function()
+	// Part of the actor.MV_interruptSkills framework
+	q.MV_onSkillsInterrupted = @() function()
 	{
 		this.removeSelf();
 	}

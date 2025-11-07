@@ -11,4 +11,4 @@
 	MV_DiversionDamageMult = 0.75
 });
 
-::Const.CharacterProperties.MV_IsImmuneToInterrupt <- false;
+::Const.CharacterProperties.MV_IsImmuneToSkillsInterruption <- false;
