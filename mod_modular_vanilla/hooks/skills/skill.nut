@@ -62,8 +62,8 @@
 	}}.MV_onMoraleStateChanged;
 
 	// MV: Added
-	// Part of the actor.MV_interrupt framework
-	q.MV_onActorInterrupted <- function()
+	// Part of the actor.MV_interruptSkills framework
+	q.MV_onSkillsInterrupted <- function()
 	{
 	}
 

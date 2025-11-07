@@ -49,5 +49,5 @@ local original_getClone = ::Const.CharacterProperties.getClone;
 	// array, the morale state will not be set to that value..
 	MV_ForbiddenMoraleStates = [],
 
-	MV_IsImmuneToInterrupt = false
+	MV_IsImmuneToSkillsInterruption = false
 });

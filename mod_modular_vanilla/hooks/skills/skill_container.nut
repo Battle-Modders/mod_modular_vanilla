@@ -91,8 +91,8 @@
 	}}.MV_onMoraleStateChanged;
 
 	// MV: Added
-	// Part of the actor.MV_interrupt framework
-	q.MV_onActorInterrupted <- function()
+	// Part of the actor.MV_interruptSkills framework
+	q.MV_onSkillsInterrupted <- function()
 	{
 		local wasUpdating = this.m.IsUpdating;
 		this.m.IsUpdating = true;
@@ -100,7 +100,7 @@
 		foreach (s in this.m.Skills)
 		{
 			if (!s.isGarbage())
-				s.MV_onActorInterrupted();
+				s.MV_onSkillsInterrupted();
 		}
 
 		this.m.IsUpdating = wasUpdating;
@@ -128,10 +128,10 @@
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
 	::ModularVanilla.MH.hook("scripts/skills/skill_container", function (q) {
-		q.m.__MV_InterruptionFrame <- 0; // Part of the actor.MV_interrupt framework
-		q.m.__MV_InterruptionCount <- 0; // Part of the actor.MV_interrupt framework
+		q.m.__MV_InterruptionFrame <- 0; // Part of the actor.MV_interruptSkills framework
+		q.m.__MV_InterruptionCount <- 0; // Part of the actor.MV_interruptSkills framework
 
-		// Part of actor.MV_interrupt framework
+		// Part of actor.MV_interruptSkills framework
 		// In vanilla skills which "interrupt" a character remove: effects.shieldwall, effects.spearwall, effects.riposte
 		// immediately one after the other i.e. it happens within a single frame. So we check if all 3 effects were
 		// removed in a single frame and assume that the vanilla intention is to trigger an interruption of the actor.
@@ -164,7 +164,7 @@
 			if (this.m.__MV_InterruptionCount == 3)
 			{
 				this.m.__MV_InterruptionCount = 0;
-				this.getActor().MV_interrupt();
+				this.getActor().MV_interruptSkills();
 			}
 		}
 
