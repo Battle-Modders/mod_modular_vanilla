@@ -6,7 +6,7 @@
 	{
 		::Sound.play(::MSU.Array.rand(this.m.SoundOnHit), 1.0, _targetTile.Pos);
 		::Tactical.EventLog.log(::Const.UI.getColorizedEntityName(_user) + " unleashes a flurry of blows around it");
-		local ownTile = user.getTile();
+		local ownTile = _user.getTile();
 		local numAttacks = 6;
 		local targetTiles = ::MSU.Tile.getNeighbors(ownTile);
 		local attackDelay = 0;
