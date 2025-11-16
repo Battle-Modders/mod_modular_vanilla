@@ -35,7 +35,7 @@
 
 	// MV: Added
 	// Part of skill_conatiner.MV_onTurnPushedBack event. Called from turn_sequence_bar.pushEntityBack.
-	q.MV_onTurnPushedBack <- { function MV_onTurnPushedBack()
+	q.MV_onTurnPushedBack <- { function MV_onTurnPushedBack( _wasActiveEntity )
 	{
 		local wasUpdating = this.m.IsUpdating;
 		this.m.IsUpdating = true;
@@ -43,7 +43,7 @@
 		{
 			if (!skill.isGarbage())
 			{
-				skill.MV_onTurnPushedBack();
+				skill.MV_onTurnPushedBack(_wasActiveEntity);
 			}
 		}
 		this.m.IsUpdating = wasUpdating;
