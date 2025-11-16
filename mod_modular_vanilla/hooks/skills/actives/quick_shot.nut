@@ -9,19 +9,13 @@
 			this.m.FatigueCostMult *= ::Const.Combat.WeaponSpecFatigueMult;
 		}
 	}}.onAfterUpdate;
-});
 
-::ModularVanilla.QueueBucket.VeryLate.push(function() {
-	::ModularVanilla.MH.hook("scripts/skills/actives/quick_shot", function(q) {
-		q.onAdded = @(__original) { function onAdded()
-		{
-			local weapon = this.getItem();
-			if (!::MSU.isNull(weapon))
-			{
-				this.setBaseValue("MaxRange", weapon.getRangeMax() - 1);
-			}
-
-			__original();
-		}}.onAdded;
-	});
+	// Vanilla sets the range during onAfterUpdate which breaks the ability to do incremental changes.
+	// We use the vanilla onItemSet function to accomplish this instead. This is similarly used by vanilla in
+	// certain skills e.g. fire_handgonne_skill to set the MaxRange of the skill to that of the item.
+	q.onItemSet = @(__original) { function onItemSet()
+	{
+		this.m.MaxRange = this.getItem().getRangeMax();
+		__original();
+	}}.onItemSet;
 });
