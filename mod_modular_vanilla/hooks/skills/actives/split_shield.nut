@@ -7,19 +7,16 @@
 			this.m.FatigueCostMult *= ::Const.Combat.WeaponSpecFatigueMult;
 		}
 	}}.onAfterUpdate;
-});
 
-::ModularVanilla.QueueBucket.VeryLate.push(function() {
-	::ModularVanilla.MH.hook("scripts/skills/actives/split_shield", function(q) {
-		q.onAdded = @(__original) { function onAdded()
+	// Vanilla sets the AP cost to 6 during onAfterUpdate which breaks the ability to do incremental changes.
+	// We use the vanilla onItemSet function to accomplish this instead. This is similarly used by vanilla in
+	// certain skills e.g. fire_handgonne_skill to set the MaxRange of the skill to that of the item.
+	q.onItemSet = @(__original) { function onItemSet()
+	{
+		if (this.getItem().getBlockedSlotType() != null)
 		{
-			local weapon = this.getContainer().getActor().getMainhandItem();
-			if (weapon != null && weapon.getBlockedSlotType() != null)
-			{
-				this.setBaseValue("ActionPointCost", 6);
-			}
-
-			__original();
-		}}.onAdded;
-	});
+			this.m.ActionPointCost = 6;
+		}
+		__original();
+	}}.onItemSet;
 });
