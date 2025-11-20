@@ -141,7 +141,13 @@ Is called in the modularization of `actor.onDamageReceived` when the character t
 ```squirrel
 actor.MV_applyInjury( _skill, _hitInfo )
 ```
-Extraction of the injury application logic from `actor.onDamageReceived`. Selects a valid applicable injury from `_hitInfo.Injuries` and applies to the character. Then calls `actor.MV_onInjuryReceived` if an injury was applied.
+Extraction of the injury application logic from `actor.onDamageReceived`. Calls `MV_selectInjury` to select a valid applicable injury and applies to the character. Then calls `actor.MV_onInjuryReceived` if an injury was applied. Returns the injury that was applied, null otherwise.
+
+#### MV_selectInjury
+```squirrel
+actor.MV_selectInjury( _skill, _hitInfo )
+```
+Extraction of the injury selection logic from `actor.onDamageReceived`. Selects a valid applicable injury from `_hitInfo.Injuries` and returns it.
 
 #### MV_onBeforeDeathConfirmed
 Documentation pending.

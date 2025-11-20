@@ -192,16 +192,18 @@
 	}}.MV_onInjuryReceived;
 
 	// MV: Added
-	// Returns the injury if an injury is successfully applied, otherwise returns null
 	// Extraction of part of vanilla logic from actor.onDamageReceived
-	q.MV_applyInjury <- { function MV_applyInjury( _skill, _hitInfo )
+	// Returns a rolled injury from _hitInfo.Injuries. Returns null if no valid injury found.
+	q.MV_selectInjury <- { function MV_selectInjury( _skill, _hitInfo )
 	{
 		local potentialInjuries = [];
-		local bonus = _hitInfo.BodyPart == this.Const.BodyPart.Head ? 1.25 : 1.0;
+		local bonus = _hitInfo.BodyPart == ::Const.BodyPart.Head ? 1.25 : 1.0;
+		local mult = _hitInfo.InjuryThresholdMult * ::Const.Combat.InjuryThresholdMult * this.getCurrentProperties().ThresholdToReceiveInjuryMult * bonus;
+		local threshold = _hitInfo.DamageInflictedHitpoints / (this.getHitpointsMax() * 1.0);
 
-		foreach( inj in _hitInfo.Injuries )
+		foreach (inj in _hitInfo.Injuries)
 		{
-			if (inj.Threshold * _hitInfo.InjuryThresholdMult * this.Const.Combat.InjuryThresholdMult * this.getCurrentProperties().ThresholdToReceiveInjuryMult * bonus <= _hitInfo.DamageInflictedHitpoints / (this.getHitpointsMax() * 1.0))
+			if (inj.Threshold * mult <= threshold)
 			{
 				// vanilla lindwurm_tail is missing the this.m.ExcludedInjuries check here
 				if (!this.getSkills().hasSkill(inj.ID) && this.m.ExcludedInjuries.find(inj.ID) == null)
@@ -213,20 +215,28 @@
 
 		while (potentialInjuries.len() != 0)
 		{
-			local r = this.Math.rand(0, potentialInjuries.len() - 1);
-			local injury = this.new("scripts/skills/" + potentialInjuries[r]);
+			local r = ::Math.rand(0, potentialInjuries.len() - 1);
+			local injury = ::new("scripts/skills/" + potentialInjuries[r]);
 
 			if (injury.isValid(this))
-			{
-				this.getSkills().add(injury);
-				this.MV_onInjuryReceived(injury);
 				return injury;
-			}
-			else
-			{
-				potentialInjuries.remove(r);
-			}
+
+			potentialInjuries.remove(r);
 		}
+	}}.MV_selectInjury;
+
+	// MV: Added
+	// Returns the injury if an injury is successfully applied, otherwise returns null
+	// Extraction of part of vanilla logic from actor.onDamageReceived
+	q.MV_applyInjury <- { function MV_applyInjury( _skill, _hitInfo )
+	{
+		local injury = this.MV_selectInjury(_skill, _hitInfo);
+		if (injury != null)
+		{
+			this.getSkills().add(injury);
+			this.MV_onInjuryReceived(injury);
+		}
+		return injury;
 	}}.MV_applyInjury;
 
 	// MV: Added
