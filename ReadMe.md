@@ -95,6 +95,11 @@ This is the modifier to the hitchance for a diverted ranged attack. It defaults 
 ```
 This is a multiplier to the damage for a diverted ranged attack. It defaults to the vanilla 0.75 and is used in the modularization of `skill.attackEntity`.
 
+```squirrel
+::Const.Combat.MV_HeadshotInjuryThresholdMult = 1.25
+```
+This multiplier is used to increase the injury threshold for hits to the head. The value is the same as in vanilla and is used in the modularization of `actor.onDamageReceived`.
+
 ## ACTOR
 ### Modularization of actor.onDamageReceived
 The `actor.onDamageReceived` function is a large monolithic function in vanilla that does many things. It also is completely overwritten and has a custom implementation for `lindwurm_tail`. We have modularized this function and have also adjusted `lindwurm_tail` code to now use this standard function from `actor`. This keeps things DRY.

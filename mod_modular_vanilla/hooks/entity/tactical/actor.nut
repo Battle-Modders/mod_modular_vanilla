@@ -197,7 +197,8 @@
 	q.MV_selectInjury <- { function MV_selectInjury( _skill, _hitInfo )
 	{
 		local potentialInjuries = [];
-		local bonus = _hitInfo.BodyPart == ::Const.BodyPart.Head ? 1.25 : 1.0;
+		// Instead of using hard-coded 1.25 as in vanilla, we use MV_HeadshotInjuryThresholdMult.
+		local bonus = _hitInfo.BodyPart == ::Const.BodyPart.Head ? ::Const.Combat.MV_HeadshotInjuryThresholdMult : 1.0;
 		local mult = _hitInfo.InjuryThresholdMult * ::Const.Combat.InjuryThresholdMult * this.getCurrentProperties().ThresholdToReceiveInjuryMult * bonus;
 		local threshold = _hitInfo.DamageInflictedHitpoints / (this.getHitpointsMax() * 1.0);
 
