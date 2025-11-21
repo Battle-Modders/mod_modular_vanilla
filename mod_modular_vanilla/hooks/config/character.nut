@@ -5,6 +5,7 @@
 ::Const.CharacterProperties.MoraleCheckBraveryMult.push(1.0);
 
 ::MSU.Table.merge(::Const.Combat, {
+	MV_HeadshotInjuryThresholdMult = 1.25, // Part of actor.onDamageReceived modularization (injury application)
 	MV_HitChanceMin = 5,
 	MV_HitChanceMax = 95,
 	MV_DiversionHitChanceAdd = -15,
