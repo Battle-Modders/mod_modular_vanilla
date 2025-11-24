@@ -23,6 +23,11 @@ Vanilla sets the action points during `onUpdate` which makes changes from other 
 ### Lindwurm Body being null during Tail death
 Keep a strong reference to the body while the lindwurm_tail is being killed and only nullify it with a delayed event. Otherwise attempts to call `_targetEntity.getCurrentProperties()` in things such as `skill.onTargetHit` result in an exception because `m.Body` has become null and lindwurm tail tries to return `m.Body.m.CurrentProperties` in its `getCurrentProperties()`. Vanilla gets around this issue by manually checking for `isKindOf(target, "lindwurm_tail")` in `cleave.nut` which is ugly. With our fix no such workaround is necessary and the properties can be accessed during skill_container events without any crash or error.
 
+### Crash in flurry_skill if user dies due to Riposte
+Bug report: https://steamcommunity.com/app/365360/discussions/1/652585529159895032/
+
+The `flurry_skill` schedules multiple attacks in its `onUse` function. If the user dies to a Riposte, then the subsequent scheduled attacks will crash because `_skill.attackEntity` will crash as the user is no longer present on a tile. In vanilla, the scheduled event for the attacks is missing an `isAlive` check for the user, which we have added in Modular Vanilla.
+
 ## Const
 ### MV_HireableCharacterBackgrounds
 ```squirrel
