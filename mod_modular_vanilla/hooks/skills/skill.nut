@@ -1,3 +1,38 @@
+::ModularVanilla.QueueBucket.VeryLate.push(function() {
+	::ModularVanilla.MH.hookTree("scripts/skills/skill", function(q) {
+		// This check exists because `skill` does not contain a `create` function.
+		if (q.ClassName != "skill")
+		{
+			// VanillaFix: https://steamcommunity.com/app/365360/discussions/1/604169856012736554/
+			// Vanilla does not update the `m.HitChanceBonus` with respect to the actual MeleeSkill modifier
+			// leading to wrong information in the Hitfactors tooltip.
+			// We set HitChanceBonus always to 0 as base value. Then set it to the correct value at the end
+			// of the onAnySkillUsed function.
+			q.create = @(__original) { function create()
+			{
+				__original();
+				this.m.HitChanceBonus = 0;
+			}}.create;
+
+			q.onAnySkillUsed = @(__original) { function onAnySkillUsed( _skill, _targetEntity, _properties )
+			{
+				if (_skill != this)
+				{
+					__original(_skill, _targetEntity, _properties);
+					return;
+				}
+
+				local old_MeleeSkill = _properties.MeleeSkill;
+				local old_HitChanceBonus = this.m.HitChanceBonus;
+
+				__original(_skill, _targetEntity, _properties);
+
+				this.m.HitChanceBonus = old_HitChanceBonus + _properties.MeleeSkill - old_MeleeSkill;
+			}}.onAnySkillUsed;
+		}
+	});
+});
+
 ::ModularVanilla.MH.hook("scripts/skills/skill", function (q) {
 	// MV: Added
 	// Part of skill.onScheduledTargetHit modularization.

@@ -28,6 +28,11 @@ Bug report: https://steamcommunity.com/app/365360/discussions/1/6525855291598950
 
 The `flurry_skill` schedules multiple attacks in its `onUse` function. If the user dies to a Riposte, then the subsequent scheduled attacks will crash because `_skill.attackEntity` will crash as the user is no longer present on a tile. In vanilla, the scheduled event for the attacks is missing an `isAlive` check for the user, which we have added in Modular Vanilla.
 
+### HitChanceBonus
+Bug report: https://steamcommunity.com/app/365360/discussions/1/604169856012736554/
+
+For skills, vanilla does not update the `m.HitChanceBonus` with respect to the actual MeleeSkill modifier in `onAnySkillUsed`, leading to wrong information in the Hitfactors tooltip if the actual value of the `HitChanceBonus` were to be shown (done by some mods). We set `HitChanceBonus` always to 0 as base value for all skills. Then set it to the correct value at the end of the `onAnySkillUsed` function based on the total `MeleeSkill` modifier applied by the used skill's `onAnySkillUsed`.
+
 ## Const
 ### MV_HireableCharacterBackgrounds
 ```squirrel
