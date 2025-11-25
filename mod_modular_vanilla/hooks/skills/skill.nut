@@ -28,7 +28,9 @@
 			// The MV_initHitInfo function initializes the hitinfo from the attacker's perspective only i.e. outgoing damage
 			// just like in the vanilla skill.onScheduledTargetHit function
 			p.HitChance[::Const.BodyPart.Head] = 0;
+			p.HitChanceMult[::Const.BodyPart.Head] = 0.0;
 			p.HitChance[::Const.BodyPart.Body] = 100;
+			p.HitChanceMult[::Const.BodyPart.Body] = 1.0;
 			local hitInfo = ::Const.Tactical.MV_initHitInfo(this, _target, p, d);
 
 			// This will now use the outgoing hitInfo to prepare the correct properties for receiving damage
@@ -54,7 +56,9 @@
 		{
 			// Same process as above but with a new HitInfo object, now with forcing the body part to be Head
 			p.HitChance[::Const.BodyPart.Head] = 100;
+			p.HitChanceMult[::Const.BodyPart.Head] = 1.0;
 			p.HitChance[::Const.BodyPart.Body] = 0;
+			p.HitChanceMult[::Const.BodyPart.Body] = 0.0;
 			local hitInfo = ::Const.Tactical.MV_initHitInfo(this, _target, p, d);
 
 			hitInfo.MV_PropertiesForBeingHit = _target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
