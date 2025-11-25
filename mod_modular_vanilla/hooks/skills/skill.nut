@@ -12,7 +12,7 @@
 		local d = _target.getSkills().buildPropertiesForDefense(this.getContainer().getActor(), this);
 
 		// Set the damage in the properties to the average damage so that our MV_getDamageXYZ functions always roll the average damage
-		local damageRegularAvg = ::Math.floor((p.DamageRegularMin + p.DamageRegularMax) * 0.5);
+		local damageRegularAvg = ::Math.floor((p.DamageRegularMin + p.DamageRegularMax * p.DamageTooltipMaxMult) * 0.5);
 		p.DamageRegularMin = damageRegularAvg;
 		p.DamageRegularMax = damageRegularAvg;
 
