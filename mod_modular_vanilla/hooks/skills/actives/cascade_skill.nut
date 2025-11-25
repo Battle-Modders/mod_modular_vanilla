@@ -48,12 +48,12 @@
 		}
 		else
 		{
-			if (target.isAlive())
+			if (target.isAlive() && _user.isAlive())
 			{
 				ret = this.attackEntity(_user, target) || ret;
 			}
 
-			if (target.isAlive())
+			if (target.isAlive() && _user.isAlive())
 			{
 				ret = this.attackEntity(_user, target) || ret;
 			}
