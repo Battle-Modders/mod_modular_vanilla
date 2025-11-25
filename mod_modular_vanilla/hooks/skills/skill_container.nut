@@ -32,6 +32,48 @@
 		}
 		this.m.IsUpdating = wasUpdating;
 	}}.onCostsPreview;
+
+	// MV: Added
+	// part of MV_onBeforeAnySkillAdded skill_container event.
+	// The event is triggered via skill_container.add BEFORE the skill is added.
+	// If any existing skill returns `false`, then the skill will not be added to the container.
+	q.MV_onBeforeAnySkillAdded <- { function MV_onBeforeAnySkillAdded( _skill )
+	{
+		local wasUpdating = this.m.IsUpdating;
+		this.m.IsUpdating = true;
+		local ret = true;
+		foreach (skill in this.m.Skills)
+		{
+			if (!skill.isGarbage())
+			{
+				if (!skill.MV_onBeforeAnySkillAdded(_skill))
+				{
+					ret = false;
+					break;
+				}
+			}
+		}
+		this.m.IsUpdating = wasUpdating;
+		return ret;
+	}}.MV_onBeforeAnySkillAdded;
+
+	// MV: Added
+	// part of MV_onAnySkillAdded skill_container event
+	// Is called via a hookTree on skill.onAdded
+	q.MV_onAnySkillAdded <- { function MV_onAnySkillAdded( _skill )
+	{
+		local wasUpdating = this.m.IsUpdating;
+		this.m.IsUpdating = true;
+		foreach (skill in this.m.Skills)
+		{
+			if (!skill.isGarbage())
+			{
+				skill.MV_onAnySkillAdded(_skill)
+			}
+		}
+		this.m.IsUpdating = wasUpdating;
+		this.update();
+	}}.MV_onAnySkillAdded;
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
@@ -68,5 +110,15 @@
 			this.getActor().resetPreview();
 			return __original();
 		}}.onCombatFinished;
+
+		// MV: Changed
+		// part of MV_onBeforeAnySkillAdded skill_container event.
+		q.add = @(__original) { function add( _skill, _order = 0 )
+		{
+			if (this.MV_onBeforeAnySkillAdded(_skill))
+			{
+				__original(_skill, _order);
+			}
+		}}.add;
 	});
 });
