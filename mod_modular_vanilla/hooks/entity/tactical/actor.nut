@@ -51,7 +51,7 @@
 			local ret = __original(_tile, _fatalityType, _killer);
 			if (ret.Faction == ::Const.Corpse.Faction)
 			{
-				corpse.Faction = this.getFaction();
+				ret.Faction = this.getFaction();
 			}
 			return ret;
 		}}.generateCorpse;
