@@ -635,4 +635,355 @@
 		this.setDirty(true);
 		this.m.IsMoving = false;
 	}}.onMovementFinish;
+
+	// MV: Modularized
+	// Extracted the removal of effects into a new skill_container.MV_onMoraleStateChanged event
+	q.setMoraleState = @() { function setMoraleState( _m )
+	{
+		if (this.m.MoraleState == _m || this.getCurrentProperties().MV_ForbiddenMoraleStates.find(_m) != null)
+		{
+			return;
+		}
+
+		/*
+		This vanilla part is disabled because the removal of these skills is now handled
+		directly within those skills thanks to our new skill_container.MV_onMoraleStateChanged event
+
+		NOTE: return_favor_effect does not exist in vanilla codebase so we have not hooked it!
+
+		if (_m == this.Const.MoraleState.Fleeing)
+		{
+			this.m.Skills.removeByID("effects.shieldwall");
+			this.m.Skills.removeByID("effects.spearwall");
+			this.m.Skills.removeByID("effects.riposte");
+			this.m.Skills.removeByID("effects.return_favor");
+			this.m.Skills.removeByID("effects.indomitable");
+		}
+		*/
+
+		// MV: Added, store oldMoraleState in local var to later pass to skill_container.MV_onMoraleStateChanged
+		local oldMoraleState = this.m.MoraleState;
+
+		this.m.MoraleState = _m;
+		local morale = this.getSprite("morale");
+
+		if (this.Const.MoraleStateBrush[_m].len() != 0)
+		{
+			if (_m == this.Const.MoraleState.Confident)
+			{
+				morale.setBrush(this.m.ConfidentMoraleBrush);
+			}
+			else
+			{
+				morale.setBrush(this.Const.MoraleStateBrush[_m]);
+			}
+
+			morale.Visible = true;
+		}
+		else
+		{
+			morale.Visible = false;
+		}
+
+		// MV: Changed
+		// vanilla does this.m.Skills.update() here but we trigger our new skill container event which calls update after it
+		this.getSkills().MV_onMoraleStateChanged(oldMoraleState);
+	}}.setMoraleState;
+
+	// MV: Extracted
+	// Part of modularization of actor.checkMorale
+	// The logic is the same as the vanilla guard statements at the beginning of that function
+	// but we have rewritten the code to be more optimized.
+	q.MV_isMoraleCheckValid <- { function MV_isMoraleCheckValid( _change, _type )
+	{
+		if (this.getMoraleState() == this.Const.MoraleState.Ignore)
+		{
+			return false;
+		}
+
+		if (_change > 0)
+		{
+			// actor.getMaxMoraleState is an MSU-added function
+			if (this.getMoraleState() == this.Const.MoraleState.Confident || this.getMoraleState() >= this.getMaxMoraleState())
+			{
+				return false;
+			}
+
+			if (this.isPlayerControlled())
+			{
+				local myTile = this.getTile();
+				if (myTile.SquareCoords.X == 0 || myTile.SquareCoords.Y == 0 || myTile.SquareCoords.X == 31 || myTile.SquareCoords.Y == 31)
+				{
+					return false;
+				}
+			}
+		}
+		else if (_change < 0 || _change == 1)
+		{
+			return this.getMoraleState() != this.Const.MoraleState.Fleeing;
+		}
+
+		return true;
+	}}.MV_isMoraleCheckValid;
+
+	// MV: Extracted
+	// Part of modularization of actor.checkMorale
+	// The logic is the same as in vanilla to adjust the difficulty of the morale check
+	// using the number of adjacent enemies and their Threat.
+	q.MV_getMoraleCheckThreat <- { function MV_getMoraleCheckThreat( _change, _type )
+	{
+		local self = this;
+		local adjacentOpponents = ::Tactical.Entities.getAdjacentActors(this.getTile()).filter(@(_, _a) !_a.isAlliedWith(self) && _a.getMoraleState() != ::Const.MoraleState.Fleeing);
+
+		local threatBonus = 0;
+		foreach (o in adjacentOpponents)
+		{
+			threatBonus += o.getCurrentProperties().Threat;
+		}
+
+		return adjacentOpponents.len() * ::Const.Morale.OpponentsAdjacentMult + threatBonus;
+	}}.MV_getMoraleCheckThreat;
+
+	// MV: Extracted
+	// Part of modularization of actor.checkMorale
+	// The logic is the same as in vanilla to adjust the difficulty of the morale check
+	// using the number of adjacent allies.
+	q.MV_getMoraleCheckSupport <- { function MV_getMoraleCheckSupport( _change, _type )
+	{
+		if (_change > 0)
+			return 0;
+
+		local self = this;
+		return ::Tactical.Entities.getAdjacentActors(this.getTile()).filter(@(_, _a) _a.isAlliedWith(self) && _a.getMoraleState() != ::Const.MoraleState.Fleeing).len() * ::Const.Morale.AlliesAdjacentMult;
+	}}.MV_getMoraleCheckSupport;
+
+	// MV: Modularized
+	q.checkMorale = @() { function checkMorale( _change, _difficulty, _type = this.Const.MoraleCheckType.Default, _showIconBeforeMoraleIcon = "", _noNewLine = false )
+	{
+		if (!this.isAlive() || this.isDying())
+		{
+			return false;
+		}
+
+		// MV: Extracted
+		// All the various vanilla guard statements have been pulled into this extracted function
+		if (!this.MV_isMoraleCheckValid(_change, _type))
+		{
+			return false;
+		}
+
+		local bravery = this.getBravery() + this.getCurrentProperties().MoraleCheckBravery[_type];
+		local mult = this.getCurrentProperties().MoraleCheckBraveryMult[_type];
+
+		// MV: Added we have added callbacks to character properties to modify the bravery
+		// via functions based on the _change and _type. These functions are called and applied here.
+		foreach (callback in this.getCurrentProperties().MV_MoraleCheckBraveryCallbacks)
+		{
+			local result = callback(_change, _type);
+			bravery += result.Add;
+			mult *= result.Mult;
+		}
+		bravery *= mult;
+
+		// Weird vanilla edge case - no idea what it is for.
+		if (bravery > 500)
+		{
+			if (_change != 0)
+				return false;
+			else
+				return true;
+		}
+
+		/*
+		This part has been extracted into MV_getMoraleCheckThreat and MV_getMoraleCheckSupport functions
+
+		local myTile = this.getTile();
+		local numOpponentsAdjacent = 0;
+		local numAlliesAdjacent = 0;
+		local threatBonus = 0;
+
+		for( local i = 0; i != 6; i++ )
+		{
+			if (!myTile.hasNextTile(i))
+				continue;
+
+			local tile = myTile.getNextTile(i);
+
+			if (tile.IsOccupiedByActor && tile.getEntity().getMoraleState() != this.Const.MoraleState.Fleeing)
+			{
+				if (tile.getEntity().isAlliedWith(this))
+				{
+					numAlliesAdjacent++;
+				}
+				else
+				{
+					numOpponentsAdjacent++;
+					threatBonus += tile.getEntity().getCurrentProperties().Threat;
+				}
+			}
+		}
+		*/
+
+		_difficulty *= this.getCurrentProperties().MoraleEffectMult;
+
+		// MV: Changed
+		// Vanilla rewrites the chance equation separately in each if/else block. We extract it out here for better readability
+		local chance = ::Math.minf(95, bravery + _difficulty - this.MV_getMoraleCheckThreat(_change, _type) + this.MV_getMoraleCheckSupport(_change, _type));
+
+		if (_change > 0)
+		{
+			if (this.Math.rand(1, 100) > chance)
+			{
+				if (this.Math.rand(1, 100) > this.m.CurrentProperties.RerollMoraleChance || this.Math.rand(1, 100) > chance)
+				{
+					return false;
+				}
+			}
+		}
+		else if (_change < 0)
+		{
+			if (this.Math.rand(1, 100) <= chance)
+			{
+				return false;
+			}
+
+			if (this.Math.rand(1, 100) <= this.m.CurrentProperties.RerollMoraleChance && this.Math.rand(1, 100) <= chance)
+			{
+				return false;
+			}
+		}
+		else if (this.Math.rand(1, 100) <= chance)
+		{
+			return true;
+		}
+		else if (this.Math.rand(1, 100) <= this.m.CurrentProperties.RerollMoraleChance && this.Math.rand(1, 100) <= chance)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+
+		// Arriving here means that it was a >0 or <0 morale check that should result
+		// in changing the morale state of the actor. So now further handling needs
+		// to be done such as changing the morale state, icon, triggering events etc.
+
+		local oldMoraleState = this.getMoraleState();
+
+		// MV: Use setMoraleState instead of the vanilla this.m.MoraleState =
+		this.setMoraleState(this.Math.min(this.Const.MoraleState.Confident, this.Math.max(0, oldMoraleState + _change)));
+		// this.m.MoraleState = this.Math.min(this.Const.MoraleState.Confident, this.Math.max(0, this.getMoraleState() + _change));
+		this.m.FleeingRounds = 0;
+
+		/* MV: This vanilla part is unnecessary as it is triggered due to us using setMoraleState above
+
+		// if (this.getMoraleState() == this.Const.MoraleState.Confident && oldMoraleState != this.Const.MoraleState.Confident && ("State" in this.World) && this.World.State != null && this.World.Ambitions.hasActiveAmbition() && this.World.Ambitions.getActiveAmbition().getID() == "ambition.oath_of_camaraderie")
+		// {
+		// 	this.World.Statistics.getFlags().increment("OathtakersBrosConfident");
+		// }
+		*/
+
+		if (oldMoraleState == this.Const.MoraleState.Fleeing && this.m.IsActingEachTurn)
+		{
+			this.setZoneOfControl(this.getTile(), this.hasZoneOfControl());
+
+			if (this.isPlayerControlled() || !this.isHiddenToPlayer())
+			{
+				if (_noNewLine)
+				{
+					this.Tactical.EventLog.logEx(this.Const.UI.getColorizedEntityName(this) + " has rallied");
+				}
+				else
+				{
+					this.Tactical.EventLog.log(this.Const.UI.getColorizedEntityName(this) + " has rallied");
+				}
+			}
+		}
+
+		/* MV: This vanilla part is unnecessary as it is triggered due to us using setMoraleState above
+
+		else if (this.getMoraleState() == this.Const.MoraleState.Fleeing)
+		{
+			this.setZoneOfControl(this.getTile(), this.hasZoneOfControl());
+			this.m.Skills.removeByID("effects.shieldwall");
+			this.m.Skills.removeByID("effects.spearwall");
+			this.m.Skills.removeByID("effects.riposte");
+			this.m.Skills.removeByID("effects.return_favor");
+			this.m.Skills.removeByID("effects.indomitable");
+		}
+
+		local morale = this.getSprite("morale");
+
+		if (this.Const.MoraleStateBrush[this.getMoraleState()].len() != 0)
+		{
+			if (this.getMoraleState() == this.Const.MoraleState.Confident)
+			{
+				morale.setBrush(this.m.ConfidentMoraleBrush);
+			}
+			else
+			{
+				morale.setBrush(this.Const.MoraleStateBrush[this.getMoraleState()]);
+			}
+
+			morale.Visible = true;
+		}
+		else
+		{
+			morale.Visible = false;
+		}
+		*/
+
+		if (this.isPlayerControlled() || !this.isHiddenToPlayer())
+		{
+			if (_noNewLine)
+			{
+				this.Tactical.EventLog.logEx(this.Const.UI.getColorizedEntityName(this) + this.Const.MoraleStateEvent[this.getMoraleState()]);
+			}
+			else
+			{
+				this.Tactical.EventLog.log(this.Const.UI.getColorizedEntityName(this) + this.Const.MoraleStateEvent[this.getMoraleState()]);
+			}
+
+			if (_showIconBeforeMoraleIcon != "")
+			{
+				this.Tactical.spawnIconEffect(_showIconBeforeMoraleIcon, this.getTile(), this.Const.Tactical.Settings.SkillIconOffsetX, this.Const.Tactical.Settings.SkillIconOffsetY, this.Const.Tactical.Settings.SkillIconScale, this.Const.Tactical.Settings.SkillIconFadeInDuration, this.Const.Tactical.Settings.SkillIconStayDuration, this.Const.Tactical.Settings.SkillIconFadeOutDuration, this.Const.Tactical.Settings.SkillIconMovement);
+			}
+
+			if (_change > 0)
+			{
+				this.Tactical.spawnIconEffect(this.Const.Morale.MoraleUpIcon, this.getTile(), this.Const.Tactical.Settings.SkillIconOffsetX, this.Const.Tactical.Settings.SkillIconOffsetY, this.Const.Tactical.Settings.SkillIconScale, this.Const.Tactical.Settings.SkillIconFadeInDuration, this.Const.Tactical.Settings.SkillIconStayDuration, this.Const.Tactical.Settings.SkillIconFadeOutDuration, this.Const.Tactical.Settings.SkillIconMovement);
+			}
+			else
+			{
+				this.Tactical.spawnIconEffect(this.Const.Morale.MoraleDownIcon, this.getTile(), this.Const.Tactical.Settings.SkillIconOffsetX, this.Const.Tactical.Settings.SkillIconOffsetY, this.Const.Tactical.Settings.SkillIconScale, this.Const.Tactical.Settings.SkillIconFadeInDuration, this.Const.Tactical.Settings.SkillIconStayDuration, this.Const.Tactical.Settings.SkillIconFadeOutDuration, this.Const.Tactical.Settings.SkillIconMovement);
+			}
+		}
+
+		// this.m.Skills.update(); // Unnecessary due to our use of setMoraleState above which does a skill container update
+		this.setDirty(true);
+
+		if (this.getMoraleState() == this.Const.MoraleState.Fleeing && this.Tactical.TurnSequenceBar.getActiveEntity() != this)
+		{
+			this.Tactical.TurnSequenceBar.pushEntityBack(this.getID());
+		}
+
+		if (this.getMoraleState() == this.Const.MoraleState.Fleeing)
+		{
+			local actors = this.Tactical.Entities.getInstancesOfFaction(this.getFaction());
+
+			if (actors != null)
+			{
+				foreach( a in actors )
+				{
+					if (a.getID() != this.getID())
+					{
+						a.onOtherActorFleeing(this);
+					}
+				}
+			}
+		}
+
+		return true;
+	}}.checkMorale;
 });
