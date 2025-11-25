@@ -42,20 +42,20 @@
 				return __original(_value);
 		}}.setDirty;
 	// part of affordability preview system END
-	});
 
-	// VanillaFix: Vanilla only sets the Faction of certain actor types (human, skeleton, zombie)
-	// We patch it so that all dying actors add their Faction into their corpse info.
-	// Bug report: https://steamcommunity.com/app/365360/discussions/0/652585529159813893/
-	q.generateCorpse = @(__original) { function generateCorpse( _tile, _fatalityType, _killer )
-	{
-		local ret = __original(_tile, _fatalityType, _killer);
-		if (ret.Faction == ::Const.Corpse.Faction)
+		// VanillaFix: Vanilla only sets the Faction of certain actor types (human, skeleton, zombie)
+		// We patch it so that all dying actors add their Faction into their corpse info.
+		// Bug report: https://steamcommunity.com/app/365360/discussions/0/652585529159813893/
+		q.generateCorpse = @(__original) { function generateCorpse( _tile, _fatalityType, _killer )
 		{
-			corpse.Faction = this.getFaction();
-		}
-		return ret;
-	}}.generateCorpse;
+			local ret = __original(_tile, _fatalityType, _killer);
+			if (ret.Faction == ::Const.Corpse.Faction)
+			{
+				corpse.Faction = this.getFaction();
+			}
+			return ret;
+		}}.generateCorpse;
+	});
 });
 
 ::ModularVanilla.MH.hook("scripts/entity/tactical/actor", function (q) {
