@@ -48,6 +48,11 @@ Original bug report: https://steamcommunity.com/app/365360/discussions/1/6041585
 
 This causes an exception in the log when someone with the `slash_lightning` skill kills someone via Riposte or attack of opportunity. We have fixed this by copying the vanilla `onUse` function and adding a proper null check.
 
+### serpent_bite_skill missing null check for active entity in onUse
+Original bug report: https://steamcommunity.com/app/365360/discussions/1/604158579076817361/
+
+This causes an exception in the log when someone with this skill kills someone via attack of opportunity. We have fixed this by copying the vanilla `onUse` function and adding a proper null check.
+
 ### Set corpse.Faction for all dying actors
 Bug report: https://steamcommunity.com/app/365360/discussions/0/652585529159813893/
 
