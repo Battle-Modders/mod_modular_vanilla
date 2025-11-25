@@ -832,7 +832,7 @@
 		{
 			return true;
 		}
-		else if (this.Math.rand(1, 100) <= this.m.CurrentProperties.RerollMoraleChance && chance)
+		else if (this.Math.rand(1, 100) <= this.m.CurrentProperties.RerollMoraleChance && this.Math.rand(1, 100) <= chance)
 		{
 			return true;
 		}
