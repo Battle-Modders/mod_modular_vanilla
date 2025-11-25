@@ -286,3 +286,16 @@ Allows skills to modify the contribution of a bro to the player party strength.
 <starting_scenario>.MV_getPlayerPartyStrengthMult()
 ```
 Returns a float which is a multiplier used in the `player_party.updateStrength()` function. Allows origins to modify the player party strength to make the scaling in that origin harder or easier.
+
+## starting_scenario
+### MV_onWorldEntitySpawned
+```squirrel
+<starting_scenario>.MV_onWorldEntitySpawned( _entity )
+```
+Is called whenever a world entity is spawned via `::World.spawnEntity` and `::World.spawnLocation`.
+
+### MV_onLocationEntered
+```squirrel
+<starting_scenario>.MV_onLocationEntered( _location )
+```
+Is called whenever the player enters a location.
