@@ -10,7 +10,7 @@
 		};
 
 		// Use MSU isActiveEntity function which includes a null check for the active entity
-		if ((!_user.isHiddenToPlayer() || _targetTile.IsVisibleForPlayer) && ::Tactical.TurnSequenceBar.isActiveEntity(this.getContainer().getActor().getID()))
+		if ((!_user.isHiddenToPlayer() || _targetTile.IsVisibleForPlayer) && ::Tactical.TurnSequenceBar.isActiveEntity(this.getContainer().getActor()))
 		{
 			this.getContainer().setBusy(true);
 			local d = _user.getTile().getDirectionTo(_targetTile) + 3;
