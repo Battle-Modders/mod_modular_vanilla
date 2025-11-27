@@ -68,8 +68,15 @@ The missing null check throws an exception in the log whenever these skills are 
 ### MV_HireableCharacterBackgrounds
 ```squirrel
 :Const.MV_HireableCharacterBackgrounds
+
+// The list must always be fetched by using the getter function instead of direct access:
+::Const.MV_getHireableCharacterBackgrounds()
 ```
-Modular Vanilla adds this array that is populated with the filenames of all backgrounds which are hireable from settlements. This list is populated during the `FirstWorldInit` queue bucket automatically by iterating over all `settlement` with their `.m.DraftList` and `attached_location`, `building` and `situation` with their `onUpdateDraftList` functions. You can also push manual entries to this list, but this should be done before `FirstWorldInit`.
+Modular Vanilla adds this array that is populated with the filenames of all backgrounds which are hireable from settlements. This list is automatically populated upon the first access via `MV_getHireableCharacterBackgrounds()` by iterating over all `settlement` with their `.m.DraftList` and `attached_location`, `building` and `situation` with their `onUpdateDraftList` functions. You can also push manual entries to this list, but this should be done before `AfterHooks` queue bucket.
+
+Note: The first call to `MV_getHireableCharacterBackgrounds()` must be at a time when settlements etc. can be safely instantiated. Safe examples:
+- Calling it during `onSpawnAssets` of origins.
+- At any time after `FirstWorldInit`.
 
 ## Const.MoraleCheckType
 MV adds the following new morale check types. Naturally, each morale check type can also be used in the `properties.MoraleCheckBravery` and `properties.MoraleCheckBraveryMult` arrays.
