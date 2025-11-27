@@ -654,6 +654,12 @@
 	q.onCostsPreview <- { function onCostsPreview( _costsPreview )
 	{
 	}}.onCostsPreview;
+
+	// MV: Added
+	// Part of skill_conatiner.MV_onTurnPushedBack event
+	q.MV_onTurnPushedBack <- { function MV_onTurnPushedBack( _wasActiveEntity )
+	{
+	}}.MV_onTurnPushedBack;
 });
 
 

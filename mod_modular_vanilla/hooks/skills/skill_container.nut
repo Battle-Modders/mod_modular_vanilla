@@ -32,6 +32,22 @@
 		}
 		this.m.IsUpdating = wasUpdating;
 	}}.onCostsPreview;
+
+	// MV: Added
+	// Part of skill_conatiner.MV_onTurnPushedBack event. Called from turn_sequence_bar.pushEntityBack.
+	q.MV_onTurnPushedBack <- { function MV_onTurnPushedBack( _wasActiveEntity )
+	{
+		local wasUpdating = this.m.IsUpdating;
+		this.m.IsUpdating = true;
+		foreach (skill in this.m.Skills)
+		{
+			if (!skill.isGarbage())
+			{
+				skill.MV_onTurnPushedBack(_wasActiveEntity);
+			}
+		}
+		this.m.IsUpdating = wasUpdating;
+	}}.MV_onTurnPushedBack;
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {

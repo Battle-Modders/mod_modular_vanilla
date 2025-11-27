@@ -56,6 +56,22 @@
 		}}.initNextTurnBecauseOfWait;
 
 		// MV: Changed
+		// Part of skill_conatiner.MV_onTurnPushedBack event
+		// We call the skills event if this function successfully pushed an entity back.
+		q.pushEntityBack = @(__original) { function pushEntityBack( _entityId )
+		{
+			local old_activeEntity = this.getActiveEntity();
+
+			__original(_entityId);
+
+			// We check that pushEntityBack actually pushed this entity back and didn't return early. Only then we call the skill event.
+			if (this.m.CurrentEntities.top().getID() == _entityId)
+			{
+				this.m.CurrentEntities.top().getSkills().MV_onTurnPushedBack(old_activeEntity != null && old_activeEntity.getID() == _entityId);
+			}
+		}}.pushEntityBack;
+
+		// MV: Changed
 		// part of affordability preview system
 		q.setActiveEntityCostsPreview = @(__original) { function setActiveEntityCostsPreview( _costsPreview )
 		{
