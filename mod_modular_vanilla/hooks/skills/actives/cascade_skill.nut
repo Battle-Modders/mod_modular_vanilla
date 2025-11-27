@@ -18,7 +18,7 @@
 		local target = _targetTile.getEntity();
 		local ret = this.attackEntity(_user, target);
 
-		local activeEntity = ::Time.TurnSequenceBar.getActiveEntity();
+		local activeEntity = ::Tactical.TurnSequenceBar.getActiveEntity();
 
 		if (activeEntity != null && activeEntity.getID() == _user.getID() && (!_user.isHiddenToPlayer() || _targetTile.IsVisibleForPlayer))
 		{
