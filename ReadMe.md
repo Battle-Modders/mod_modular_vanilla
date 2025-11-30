@@ -69,6 +69,11 @@ Bug report: https://steamcommunity.com/app/365360/discussions/1/6852396225754599
 
 Speed mods (such as Swifter, Faster etc.) change combat speed by changing the VirtualSpeed. This causes idle sounds during combat to trigger more frequently as vanilla based them off of `VirtualTimeF`. We change this to base them off of `RealTimeF`.
 
+### `goblin_wolfrider` flip and adjust offset of sprites onFactionChanged
+Bug report: https://steamcommunity.com/app/365360/discussions/1/685238975203487639/
+
+This does not affect vanilla because goblin_wolfrider is never allied to player. But for mods this causes issues. Goblin Wolfrider does not properly flip or adjust offset of its sprites and appears bad when allied with player. The goblin faces one direction and the wolf faces the other direction. We add logic to flip and adjust offset of the relevant sprites using the `onFactionChanged` function.
+
 ## Const
 ### MV_HireableCharacterBackgrounds
 ```squirrel
