@@ -64,6 +64,11 @@ Bug report for missing isAlive check: https://steamcommunity.com/app/365360/disc
 
 The missing null check throws an exception in the log whenever these skills are triggered as attacks of opportunity and kill the target. The missing isAlive check can cause a crash if the user dies to a Riposte from the target during the scheduled attacks.
 
+### `goblin_wolfrider` flip and adjust offset of sprites onFactionChanged
+Bug report: https://steamcommunity.com/app/365360/discussions/1/685238975203487639/
+
+This does not affect vanilla because goblin_wolfrider is never allied to player. But for mods this causes issues. Goblin Wolfrider does not properly flip or adjust offset of its sprites and appears bad when allied with player. The goblin faces one direction and the wolf faces the other direction. We add logic to flip and adjust offset of the relevant sprites using the `onFactionChanged` function.
+
 ## Const
 ### MV_HireableCharacterBackgrounds
 ```squirrel
