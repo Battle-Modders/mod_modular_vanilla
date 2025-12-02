@@ -34,11 +34,121 @@
 });
 
 ::ModularVanilla.MH.hook("scripts/skills/skill", function (q) {
+	// MV: Modularized
+	// VanillaFix: Use buildPropertiesForBeingHit instead of buildPropertiesForDefense (https://steamcommunity.com/app/365360/discussions/1/604154904653626253/)
+	// Also rewrite the logic to be more accurate
+		// - Use MV functions to calculate damage to keep things DRY
+		// - Calculate accurate expected damage for body and head shots
+	// TODO: Things like Split Man are not accounted for anywhere. Some kind of framework should be made for them?
+	q.getExpectedDamage = @() { function getExpectedDamage( _target )
+	{
+		local actor = this.getContainer().getActor();
+		local p = this.getContainer().buildPropertiesForUse(this, _target);
+		local d = _target.getSkills().buildPropertiesForDefense(this.getContainer().getActor(), this);
+
+		// Set the damage in the properties to the average damage so that our MV_getDamageXYZ functions always roll the average damage
+		local damageRegularAvg = ::Math.floor((p.DamageRegularMin + p.DamageRegularMax * p.DamageTooltipMaxMult) * 0.5);
+		p.DamageRegularMin = damageRegularAvg;
+		p.DamageRegularMax = damageRegularAvg;
+
+		local armor = 0;
+		local armorDamage = 0;
+		local hitpointDamage = 0;
+
+		local headshotChance = p.getHitchance(::Const.BodyPart.Head);
+		local bodyChance = 100 - headshotChance;
+
+		if (bodyChance != 0)
+		{
+			// The MV_initHitInfo function initializes the hitinfo from the attacker's perspective only i.e. outgoing damage
+			// just like in the vanilla skill.onScheduledTargetHit function
+			p.HitChance[::Const.BodyPart.Head] = 0;
+			p.HitChanceMult[::Const.BodyPart.Head] = 0.0;
+			p.HitChance[::Const.BodyPart.Body] = 100;
+			p.HitChanceMult[::Const.BodyPart.Body] = 1.0;
+			local hitInfo = ::Const.Tactical.MV_initHitInfo(this, _target, p, d);
+
+			// This will now use the outgoing hitInfo to prepare the correct properties for receiving damage
+			hitInfo.MV_PropertiesForBeingHit = _target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
+
+			// Vanilla changes the HitInfo in certain skills in onBeforeTargetHit e.g. `pound` and `gash_skill`.
+			// Vanilla also spawns icon for `perk_coup_de_grace` in `onBeforeTargetHit`.
+			// Some mods may do some state changes in `onBeforeTargetHit`.
+			// TODO: Therefore I am not sure how we can account for these. Calling this function doesn't seem safe.
+			// local wasUpdating = this.getContainer().m.IsUpdating;
+			// this.getContainer().m.IsUpdating = true;
+			// this.getContainer().onBeforeTargetHit(this, _target, hitInfo);
+			// this.getContainer().m.IsUpdating = wasUpdating;
+
+			local ratioMult = bodyChance / 100.0;
+
+			// These MV functions calculate the accurate damage received based on extraction of the calculations in actor.onDamageReceived
+			armorDamage += _target.MV_calcArmorDamageReceived(this, hitInfo) * ratioMult;
+			hitpointDamage += _target.MV_calcHitpointsDamageReceived(this, hitInfo) * ratioMult;
+		}
+
+		if (headshotChance != 0)
+		{
+			// Same process as above but with a new HitInfo object, now with forcing the body part to be Head
+			p.HitChance[::Const.BodyPart.Head] = 100;
+			p.HitChanceMult[::Const.BodyPart.Head] = 1.0;
+			p.HitChance[::Const.BodyPart.Body] = 0;
+			p.HitChanceMult[::Const.BodyPart.Body] = 0.0;
+			local hitInfo = ::Const.Tactical.MV_initHitInfo(this, _target, p, d);
+
+			hitInfo.MV_PropertiesForBeingHit = _target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
+			// local wasUpdating = this.getContainer().m.IsUpdating;
+			// this.getContainer().m.IsUpdating = true;
+			// this.getContainer().onBeforeTargetHit(this, _target, hitInfo);
+			// this.getContainer().m.IsUpdating = wasUpdating;
+
+			// I don't like this but this is to emulate vanilla behavior inside actor.onDamageReceived whereby the hitInfo.BodyDamageMult
+			// is manually set to 1.0 if the target is immune to criticals - Midas.
+			// NOTE: Using `getCurrentProperties()` here has a caveat with split-body enemies i.e. Lindwurm Tail and Lindwurm
+			// whereby when called for Lindwurm Tail this will return the properties of the Lindwurm.
+			if (_target.getCurrentProperties().IsImmuneToCriticals || _target.getCurrentProperties().IsImmuneToHeadshots)
+			{
+				hitInfo.BodyDamageMult = 1.0;
+			}
+
+			local ratioMult = headshotChance / 100.0;
+
+			armorDamage += _target.MV_calcArmorDamageReceived(this, hitInfo) * ratioMult;
+			hitpointDamage += _target.MV_calcHitpointsDamageReceived(this, hitInfo) * ratioMult;
+		}
+
+		/*
+		In vanilla the return has 4 parts:
+			- ArmorDamage is the total amount of damage to armor inflicted
+			- DirectDamage is the damage dealt to HP through armor
+			- HitpointDamage is the additional damage dealt to HP (beyond DirectDamage) if the armor is fully destroyed
+			- TotalDamage is the sum of all the 3 above
+		Therefore the total inflicted HP damage is the sum of `HitpointDamage and DirectDamage`. And this is how it is used
+		in various vanilla places where getExpectedDamage is called.
+
+		Because MV_calcHitpointsDamageReceived returns the accurate total damage to hitpoints received, therefore we set the
+		DirectDamage part of the return here to 0. In all places where vanilla uses getExpectedDamage then calculates the
+		total hitpoints damage by doing `expectedDamage.HitpointDamage + expectedDamage.DirectDamage`. Therefore, even with
+		our change of setting DirectDamage to 0, vanilla behavior in those cases will remain as expected.
+		*/
+
+		local ret = {
+			ArmorDamage = armorDamage,
+			DirectDamage = 0,
+			HitpointDamage = hitpointDamage,
+			TotalDamage = hitpointDamage + armorDamage
+		};
+		return ret;
+	}}.getExpectedDamage;
+
 	// MV: Added
 	// Part of skill.onScheduledTargetHit modularization.
 	// But useful on its own as well.
-	q.MV_getDamageRegular <- { function MV_getDamageRegular( _properties, _targetEntity = null )
+	q.MV_getDamageRegular <- { function MV_getDamageRegular( _properties = null, _targetEntity = null )
 	{
+		if (_properties == null)
+			_properties = this.getContainer().buildPropertiesForUse(this, _targetEntity);
+
 		local damage = ::Math.rand(_properties.DamageRegularMin, _properties.DamageRegularMax) * _properties.DamageRegularMult;
 		if (_targetEntity != null && _targetEntity.isPlacedOnMap() && !::MSU.isNull(this.getContainer()) && this.getContainer().getActor().isPlacedOnMap())
 		{
@@ -50,8 +160,11 @@
 	// MV: Added
 	// Part of skill.onScheduledTargetHit modularization.
 	// But useful on its own as well.
-	q.MV_getDamageArmor <- { function MV_getDamageArmor( _properties, _targetEntity = null )
+	q.MV_getDamageArmor <- { function MV_getDamageArmor( _properties = null, _targetEntity = null )
 	{
+		if (_properties == null)
+			_properties = this.getContainer().buildPropertiesForUse(this, _targetEntity);
+
 		local damage = ::Math.rand(_properties.DamageRegularMin, _properties.DamageRegularMax) * _properties.DamageArmorMult;
 		if (_targetEntity != null && _targetEntity.isPlacedOnMap() && !::MSU.isNull(this.getContainer()) && this.getContainer().getActor().isPlacedOnMap())
 		{
@@ -63,8 +176,11 @@
 	// MV: Added
 	// Part of skill.onScheduledTargetHit modularization.
 	// But useful on its own as well.
-	q.MV_getDamageDirect <- { function MV_getDamageDirect( _properties, _targetEntity = null )
+	q.MV_getDamageDirect <- { function MV_getDamageDirect( _properties = null, _targetEntity = null )
 	{
+		if (_properties == null)
+			_properties = this.getContainer().buildPropertiesForUse(this, _targetEntity);
+
 		return ::Math.minf(1.0, _properties.DamageDirectMult * (this.getDirectDamage() + _properties.DamageDirectAdd + (this.isRanged() ? _properties.DamageDirectRangedAdd : _properties.DamageDirectMeleeAdd)));
 	}}.MV_getDamageDirect;
 
@@ -557,54 +673,12 @@
 			return;
 		}
 
-		local partHit = this.Math.rand(1, 100);
-		local bodyPart = this.Const.BodyPart.Body;
-		local bodyPartDamageMult = 1.0;
+		// MV: Extracted the initialization and calculation of HitInfo into a new function
+		local hitInfo = ::Const.Tactical.MV_initHitInfo(this, _info.TargetEntity, _info.Properties, _info.DefenderProperties);
 
-		if (partHit <= _info.Properties.getHitchance(this.Const.BodyPart.Head))
-		{
-			bodyPart = this.Const.BodyPart.Head;
-		}
-		else
-		{
-			bodyPart = this.Const.BodyPart.Body;
-		}
-
-		bodyPartDamageMult = bodyPartDamageMult * _info.Properties.DamageAgainstMult[bodyPart];
-
-		local injuries;
-
-		if (this.m.InjuriesOnBody != null && bodyPart == this.Const.BodyPart.Body)
-		{
-			injuries = this.m.InjuriesOnBody;
-		}
-		else if (this.m.InjuriesOnHead != null && bodyPart == this.Const.BodyPart.Head)
-		{
-			injuries = this.m.InjuriesOnHead;
-		}
-
-		local hitInfo = clone this.Const.Tactical.HitInfo;
-
-		// Added by MV
-		hitInfo.MV_PropertiesForUse = _info.Properties;
-		hitInfo.MV_PropertiesForDefense = _info.DefenderProperties;
-		// --
-
-		// MV: Extracted the calculation of DamageRegular, DamageArmor, DamageDirect
-		hitInfo.DamageRegular = this.MV_getDamageRegular(_info.Properties, _info.TargetEntity);
-		hitInfo.DamageArmor = this.MV_getDamageArmor(_info.Properties, _info.TargetEntity);
-		hitInfo.DamageDirect = this.MV_getDamageDirect(_info.Properties, _info.TargetEntity);
-		hitInfo.DamageFatigue = this.Const.Combat.FatigueReceivedPerHit * _info.Properties.FatigueDealtPerHitMult;
-		hitInfo.DamageMinimum = _info.Properties.DamageMinimum;
-		hitInfo.BodyPart = bodyPart;
-		hitInfo.BodyDamageMult = bodyPartDamageMult;
-		hitInfo.FatalityChanceMult = _info.Properties.FatalityChanceMult;
-		hitInfo.Injuries = injuries;
-		hitInfo.InjuryThresholdMult = _info.Properties.ThresholdToInflictInjuryMult;
-		hitInfo.Tile = _info.TargetEntity.getTile();
 		_info.Container.onBeforeTargetHit(_info.Skill, _info.TargetEntity, hitInfo);
 		local pos = _info.TargetEntity.getPos();
-		local hasArmorHitSound = _info.TargetEntity.getItems().getAppearance().ImpactSound[bodyPart].len() != 0;
+		local hasArmorHitSound = _info.TargetEntity.getItems().getAppearance().ImpactSound[hitInfo.BodyPart].len() != 0;
 		_info.TargetEntity.onDamageReceived(_info.User, _info.Skill, hitInfo);
 
 		if (hitInfo.DamageInflictedHitpoints >= this.Const.Combat.PlayHitSoundMinDamage)
