@@ -64,6 +64,11 @@ Bug report for missing isAlive check: https://steamcommunity.com/app/365360/disc
 
 The missing null check throws an exception in the log whenever these skills are triggered as attacks of opportunity and kill the target. The missing isAlive check can cause a crash if the user dies to a Riposte from the target during the scheduled attacks.
 
+### Idle sounds being more frequent at high combat speeds
+Bug report: https://steamcommunity.com/app/365360/discussions/1/685239622575459972/
+
+Speed mods (such as Swifter, Faster etc.) change combat speed by changing the VirtualSpeed. This causes idle sounds during combat to trigger more frequently as vanilla based them off of `VirtualTimeF`. We change this to base them off of `RealTimeF`.
+
 ## Const
 ### MV_HireableCharacterBackgrounds
 ```squirrel
