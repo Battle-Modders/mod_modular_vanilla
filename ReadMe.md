@@ -79,6 +79,11 @@ Bug report: https://steamcommunity.com/app/365360/discussions/1/6841157547596735
 
 Vanilla has this thing where named items have a chance to be named after a champion. This is done during the `onEquip` function of the named weapon. But, vanilla sets the name of the champion after he equips the item. This results in the item being named in a generic way e.g. "Hedge Knight's Sword" instead of using the Hedge Knight's champion name. We fix this by overwriting the `tactical_entity_manager.setupEntity` function to set the name of the champion before calling `makeMiniboss`.
 
+### `charm_skill` being able to target invalid targets
+Bug report: https://steamcommunity.com/app/365360/discussions/1/685239996035115001/
+
+Vanilla is missing an `onVerifyTarget` definition in `charm_skill` and this allows Hexen to use it on invalid targets e.g. those with `MoraleState.Ignore`. This allows Hexen to charm hostile skeletons and zombies. We fix this by adding the `onVerifyTarget` function.
+
 ## Const
 ### MV_HireableCharacterBackgrounds
 ```squirrel
