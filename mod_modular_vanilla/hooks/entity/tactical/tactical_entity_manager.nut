@@ -27,7 +27,7 @@
 			if (instances.len() != 0 && this.m.LastIdleSound + ::Math.maxf(::Const.Sound.IdleSoundMinDelay, ::Const.Sound.IdleSoundBaseDelay - ::Const.Sound.IdleSoundReducedDelay * instances.len()) < ::Time.getRealTimeF())
 			{
 				this.m.LastIdleSound = ::Time.getRealTimeF();
-				instances[::Math.rand(0, instances.len() - 1)].playIdleSound();
+				::MSU.Array.rand(instances).playIdleSound();
 			}
 		}
 
