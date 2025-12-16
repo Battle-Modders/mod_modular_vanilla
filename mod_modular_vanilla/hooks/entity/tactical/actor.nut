@@ -640,6 +640,8 @@
 	// Extracted the removal of effects into a new skill_container.MV_onMoraleStateChanged event
 	q.setMoraleState = @() { function setMoraleState( _m )
 	{
+		// TODO: Implement feature to set morale state to the closest "non-forbidden" morale state.
+
 		if (this.m.MoraleState == _m || this.getCurrentProperties().MV_ForbiddenMoraleStates.find(_m) != null)
 		{
 			return;
@@ -870,6 +872,8 @@
 		// to be done such as changing the morale state, icon, triggering events etc.
 
 		local oldMoraleState = this.getMoraleState();
+
+		// TODO: Implement feature to "jump over" forbidden morale states.
 
 		// MV: Use setMoraleState instead of the vanilla this.m.MoraleState =
 		this.setMoraleState(this.Math.min(this.Const.MoraleState.Confident, this.Math.max(0, oldMoraleState + _change)));
