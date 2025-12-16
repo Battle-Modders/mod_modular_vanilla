@@ -109,4 +109,47 @@
 			this.fillAttributeLevelUpValues(::Const.XP.MaxLevelWithPerkpoints - 1);
 		}
 	}}.setStartValuesEx;
+
+	q.setMoraleState = @() { function setMoraleState( _m )
+	{
+	/*
+	This has been implemented in hooks on these skills using the properties.MV_ForbiddenMoraleStates
+
+		if (_m == this.Const.MoraleState.Confident && this.m.Skills.hasSkill("trait.insecure"))
+		{
+			return;
+		}
+	*/
+
+	/*
+	This has been implemented via hooks on anatomists_scenario onSpawnPlayer and onHired functions
+
+		if (_m == this.Const.MoraleState.Confident && ("State" in this.World) && this.World.State != null && this.World.Assets.getOrigin().getID() == "scenario.anatomists")
+		{
+			return;
+		}
+	*/
+
+	/*
+	This has been implemented in hooks on these skills
+
+		if (_m == this.Const.MoraleState.Fleeing && this.m.Skills.hasSkill("effects.ancient_priest_potion"))
+		{
+			return;
+		}
+
+		if (_m == this.Const.MoraleState.Fleeing && this.m.Skills.hasSkill("trait.oath_of_valor"))
+		{
+			return;
+		}
+
+
+		if (_m == this.Const.MoraleState.Confident && this.getMoraleState() != this.Const.MoraleState.Confident && this.isPlacedOnMap() && this.Time.getRound() >= 1 && ("State" in this.World) && this.World.State != null && this.World.Ambitions.hasActiveAmbition() && this.World.Ambitions.getActiveAmbition().getID() == "ambition.oath_of_camaraderie")
+		{
+			this.World.Statistics.getFlags().increment("OathtakersBrosConfident");
+		}
+	*/
+
+		this.actor.setMoraleState(_m);
+	}}.setMoraleState;
 });
