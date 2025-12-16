@@ -39,6 +39,8 @@
 	// ["rf_gambeson", 1]
 	// Multiple mods can hook this function's definition in an item and add their variants to it.
 	// Optional parameter _color must be an entry from the Const.Items.Paint table.
+	// If `_color` is null, it means we want all the possible variants. So mods should return all of their variants
+	// for `_color == null` and specific variants for the specific colors.
 	q.MV_getVariants <- { function MV_getVariants( _color = null )
 	{
 		return ::MSU.Class.WeightedContainer();
