@@ -873,6 +873,14 @@
 
 		// MV: Use setMoraleState instead of the vanilla this.m.MoraleState =
 		this.setMoraleState(this.Math.min(this.Const.MoraleState.Confident, this.Math.max(0, oldMoraleState + _change)));
+
+		if (oldMoraleState == this.getMoraleState())
+		{
+			// Something prevented the morale state from being set to the new state
+			// there is no need to do anything in the rest of this function, so we return early.
+			return true;
+		}
+
 		// this.m.MoraleState = this.Math.min(this.Const.MoraleState.Confident, this.Math.max(0, this.getMoraleState() + _change));
 		this.m.FleeingRounds = 0;
 
