@@ -121,8 +121,13 @@
 		{
 			q.onPaint = @(__original) { function onPaint( _color )
 			{
+				local variantBeforePaint = this.m.Variant;
+
 				__original(_color);
-				if (::Math.rand(1, 100) <= this.m.MV_VariantChance)
+
+				// If the __original did not change this item's color we always try to get a suitable MV_Variant
+				// otherwise we roll against the chance.
+				if (variantBeforePaint == this.m.Variant || ::Math.rand(1, 100) <= this.m.MV_VariantChance)
 				{
 					local variant = this.MV_getVariants(_color).roll();
 					if (variant != null)
