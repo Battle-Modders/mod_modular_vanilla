@@ -36,7 +36,7 @@
 		// Part of MV_Variant framework for items
 		// We remove our custom variant from the flag container when setting
 		// it back to the plain variant so that the plain variant is retained
-		// upoon deserialization.
+		// upon deserialization.
 		q.setPlainVariant = @(__original) { function setPlainVariant()
 		{
 			__original();

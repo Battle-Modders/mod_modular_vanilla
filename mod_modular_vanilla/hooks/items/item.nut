@@ -33,7 +33,7 @@
 	// MV: Added
 	// Part of MV_Variant framework for items
 	// This function MUST be overwritten by a mod in a child script for which that mod is providing
-	// new variants. This is the function where you	// provide new variants. The function MUST
+	// new variants. This is the function where you provide new variants. The function MUST
 	// return an instance of ::MSU.Class.WeightedContainer where each element in the container
 	// is a len 2 array with index 0 being the VariantString and index 1 being the Variant e.g.
 	// ["rf_gambeson", 1]
