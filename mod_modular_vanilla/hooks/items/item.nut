@@ -104,6 +104,8 @@
 			// MV: Added
 			// Part of MV_Variant framework for items.
 			// Roll a chance for using one of the variants provided using the MV framework.
+			// The `isLoading()` check is purely for performance optimization because we don't care about
+			// rolling an item's variant during loading a save game, because the variant will be set later during onDeserialize.
 			if (!::MSU.Serialization.isLoading() && ::Math.rand(1, 100) <= this.m.MV_VariantChance)
 			{
 				local variant = this.MV_getVariants().roll();
