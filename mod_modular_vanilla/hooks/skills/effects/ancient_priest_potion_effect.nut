@@ -1,4 +1,4 @@
-::ModularVanilla.MH.hook("scripts/skills/effects/ancient_priest_potion", function(q) {
+::ModularVanilla.MH.hook("scripts/skills/effects/ancient_priest_potion_effect", function(q) {
 	q.onUpdate = @(__original) { function onUpdate( _properties )
 	{
 		__original(_properties);
