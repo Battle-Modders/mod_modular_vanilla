@@ -889,7 +889,8 @@
 		local forbiddenStates = this.getCurrentProperties().MV_ForbiddenMoraleStates;
 		local moraleStates = ::MSU.Table.values(::Const.MoraleState).filter(@(_, _s) forbiddenStates.find(_s) == null || _s == oldMoraleState);
 		moraleStates.sort();
-		local newState = ::Math.min(::Const.MoraleState.Confident, ::Math.max(0, moraleStates[moraleStates.find(oldMoraleState)] + _change));
+		local newState = moraleStates[::Math.max(0, ::Math.min(moraleStates.len() - 1, moraleStates.find(oldMoraleState) + _change))];
+		newState = ::Math.min(::Const.MoraleState.Confident, newState);
 
 		// MV: Use setMoraleState instead of the vanilla this.m.MoraleState =
 		// this.setMoraleState(this.Math.min(this.Const.MoraleState.Confident, this.Math.max(0, oldMoraleState + _change)));
