@@ -11,7 +11,9 @@
 			return;
 		}
 
-		if (::Tactical.TurnSequenceBar.getActiveEntity() == null || ::Tactical.TurnSequenceBar.getActiveEntity().isPlayerControlled())
+		// We add isPaused() check because otherwise idle sounds play even when the game is paused
+		// because we have changed them to play off of `getRealTimeF`.
+		if (!::Tactical.State.isPaused() && (::Tactical.TurnSequenceBar.getActiveEntity() == null || ::Tactical.TurnSequenceBar.getActiveEntity().isPlayerControlled()))
 		{
 			local instances = [];
 
