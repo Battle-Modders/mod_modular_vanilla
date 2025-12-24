@@ -719,8 +719,13 @@
 					return false;
 				}
 			}
+
+			if (_change == 1)
+			{
+				return this.getMoraleState() != ::Const.MoraleState.Fleeing;
+			}
 		}
-		else if (_change < 0 || _change == 1)
+		else if (_change < 0)
 		{
 			return this.getMoraleState() != this.Const.MoraleState.Fleeing;
 		}
