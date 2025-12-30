@@ -74,6 +74,11 @@ Bug report: https://steamcommunity.com/app/365360/discussions/1/6852389752034876
 
 This does not affect vanilla because goblin_wolfrider is never allied to player. But for mods this causes issues. Goblin Wolfrider does not properly flip or adjust offset of its sprites and appears bad when allied with player. The goblin faces one direction and the wolf faces the other direction. We add logic to flip and adjust offset of the relevant sprites using the `onFactionChanged` function.
 
+### Champion names being set after equipping their named items
+Bug report: https://steamcommunity.com/app/365360/discussions/1/684115754759673570/
+
+Vanilla has this thing where named items have a chance to be named after a champion. This is done during the `onEquip` function of the named weapon. But, vanilla sets the name of the champion after he equips the item. This results in the item being named in a generic way e.g. "Hedge Knight's Sword" instead of using the Hedge Knight's champion name. We fix this by overwriting the `tactical_entity_manager.setupEntity` function to set the name of the champion before calling `makeMiniboss`.
+
 ## Const
 ### MV_HireableCharacterBackgrounds
 ```squirrel

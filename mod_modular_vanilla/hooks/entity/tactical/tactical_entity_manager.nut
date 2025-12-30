@@ -39,4 +39,39 @@
 			::Tactical.TopbarRoundInformation.update();
 		}
 	}}.update;
+
+	// VanillaFix: https://steamcommunity.com/app/365360/discussions/1/684115754759673570/
+	// Vanilla sets the name of the champion AFTER equipping his named items (i.e. after makeMiniboss).
+	// This causes named items to use the entity's generic name instead of the champion's name.
+	// We fix this by overwriting the function to set the champion's name before calling makeMiniboss.
+	// The rest is the same as vanilla.
+	q.setupEntity = @() { function setupEntity( _e, _t )
+	{
+		_e.setWorldTroop(_t);
+		_e.setFaction(_t.Faction);
+
+		if (("Callback" in _t) && _t.Callback != null)
+		{
+			_t.Callback(_e, "Tag" in _t ? _t.Tag : null);
+		}
+
+		// We move this part up in the function.
+		if (("Name" in _t) && _t.Name != "")
+		{
+			_e.setName(_t.Name);
+			_e.m.IsGeneratingKillName = false;
+		}
+
+		if (_t.Variant != 0)
+		{
+			_e.makeMiniboss();
+		}
+
+		_e.assignRandomEquipment();
+
+		if (!::World.getTime().IsDaytime && _e.getBaseProperties().IsAffectedByNight)
+		{
+			_e.getSkills().add(::new("scripts/skills/special/night_effect"));
+		}
+	}}.setupEntity;
 });
