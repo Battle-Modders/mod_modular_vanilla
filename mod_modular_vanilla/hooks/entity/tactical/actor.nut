@@ -640,9 +640,20 @@
 	// Extracted the removal of effects into a new skill_container.MV_onMoraleStateChanged event
 	q.setMoraleState = @() { function setMoraleState( _m )
 	{
-		// TODO: Implement feature to set morale state to the closest "non-forbidden" morale state.
+		// If _m is forbidden, find a "non-forbidden" morale state between _m and current morale state closest to _m.
+		while (this.getCurrentProperties().MV_ForbiddenMoraleStates.find(_m) != null && _m != this.getMoraleState())
+		{
+			if (_m > this.getMoraleState())
+			{
+				_m--
+			}
+			else
+			{
+				_m++;
+			}
+		}
 
-		if (this.m.MoraleState == _m || this.getCurrentProperties().MV_ForbiddenMoraleStates.find(_m) != null)
+		if (this.m.MoraleState == _m)
 		{
 			return;
 		}
@@ -878,10 +889,17 @@
 
 		local oldMoraleState = this.getMoraleState();
 
-		// TODO: Implement feature to "jump over" forbidden morale states.
+		// Jump over "forbidden" morale states as if they don't exist for this character.
+		// Apply the `_change` considering only non-forbidden states.
+		local forbiddenStates = this.getCurrentProperties().MV_ForbiddenMoraleStates;
+		local moraleStates = ::MSU.Table.values(::Const.MoraleState).filter(@(_, _s) forbiddenStates.find(_s) == null || _s == oldMoraleState);
+		moraleStates.sort();
+		local newState = moraleStates[::Math.max(0, ::Math.min(moraleStates.len() - 1, moraleStates.find(oldMoraleState) + _change))];
+		newState = ::Math.min(::Const.MoraleState.Confident, newState);
 
 		// MV: Use setMoraleState instead of the vanilla this.m.MoraleState =
-		this.setMoraleState(this.Math.min(this.Const.MoraleState.Confident, this.Math.max(0, oldMoraleState + _change)));
+		// this.setMoraleState(this.Math.min(this.Const.MoraleState.Confident, this.Math.max(0, oldMoraleState + _change)));
+		this.setMoraleState(newState);
 
 		if (oldMoraleState == this.getMoraleState())
 		{
