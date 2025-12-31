@@ -1,13 +1,13 @@
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
 	::ModularVanilla.MH.hookTree("scripts/scenarios/world/anatomists_scenario", function (q) {
-		q.onSpawnPlayer = @(__original) { function onSpawnPlayer()
+		q.onInit = @(__original) { function onInit()
 		{
 			__original();
 			foreach (bro in ::World.getPlayerRoster().getAll())
 			{
 				bro.getBaseProperties().MV_ForbiddenMoraleStates.push(::Const.MoraleState.Confident);
 			}
-		}}.onSpawnPlayer;
+		}}.onInit;
 
 		q.onHired = @(__original) { function onHired( _bro )
 		{
