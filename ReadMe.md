@@ -126,7 +126,7 @@ This is the target's properties built via `skill_container.builtPropertiesForBei
 #### MV_getCurrentHitInfo
 The HitInfo related the to latest damage instance can be accessed globally. As this is a weakref, it is important to first check if it is null or not.
 ```squirrel
-::Tactical.State.MV_getCurrentHitInfo
+::Tactical.State.MV_getCurrentHitInfo()
 ```
 
 ### MV_AttackInfo
@@ -147,7 +147,7 @@ MV_AttackInfo = {
 #### MV_getCurrentHitInfo
 The AttackInfo related the to latest attack can be accessed globally. As this is a weakref, it is important to first check if it is null or not.
 ```squirrel
-::Tactical.State.MV_getCurrentAttackInfo
+::Tactical.State.MV_getCurrentAttackInfo()
 ```
 
 ## Const.Combat
