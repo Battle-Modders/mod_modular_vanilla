@@ -1,0 +1,6 @@
+.ui-control.paperdoll-item > .image-layer
+{
+	/* VanillaFix: https://steamcommunity.com/app/365360/discussions/1/682992000385997296/
+	Paperdoll items being blurry/washed out, because they are ever so slightly downscaled by this value in vanilla */
+	bottom: 0.0rem;		/* Vanilla: 0.1 */
+}

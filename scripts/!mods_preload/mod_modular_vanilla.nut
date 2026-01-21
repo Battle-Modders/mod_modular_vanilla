@@ -32,6 +32,11 @@
 {
 	::include("mod_modular_vanilla/hooks_helper.nut");
 
+	foreach (file in ::IO.enumerateFiles("ui/mods/mod_modular_vanilla/css_hooks"))
+	{
+		::Hooks.registerCSS(file + ".css");
+	}
+
 	foreach (file in ::IO.enumerateFiles("mod_modular_vanilla/config"))
 	{
 		::include(file);

@@ -84,6 +84,11 @@ Bug report: https://steamcommunity.com/app/365360/discussions/1/6852399960351150
 
 Vanilla is missing an `onVerifyTarget` definition in `charm_skill` and this allows Hexen to use it on invalid targets e.g. those with `MoraleState.Ignore`. This allows Hexen to charm hostile skeletons and zombies. We fix this by adding the `onVerifyTarget` function.
 
+### Character inventory items being slightly blurry
+Bug report: https://steamcommunity.com/app/365360/discussions/1/682992000385997296/
+
+Vanilla applies a slight downscaling to character inventory items which can cause them to look blurry. We remove this.
+
 ## Const
 ### MV_HireableCharacterBackgrounds
 ```squirrel
