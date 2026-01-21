@@ -94,6 +94,11 @@ Bug report: https://steamcommunity.com/app/365360/discussions/1/7640593305646826
 
 Vanilla does not check if the AOO is actually usable on the target tile. We add this check.
 
+### `item.clearSkills()` removing skills before SkillPtrs is cleared
+Bug report: https://steamcommunity.com/app/365360/discussions/1/604159344068529469/
+
+Vanilla removes each skill in `m.SkillPtrs` via `skill_container.remove` which immediately calls update on skill container before clearing `m.SkillPtrs` which can lead to errors if a skill accesses skills which are removed from the skill container but still present in the item's `m.SkillPtrs` and tries to do anything with that skill's `getContainer()` which would be null at that point. We fix this by calling `removeSelf()` on all the item's skills, then clearing `m.SkillPtrs` and then doing a single `skill_container.update`.
+
 ## Const
 ### MV_HireableCharacterBackgrounds
 ```squirrel
