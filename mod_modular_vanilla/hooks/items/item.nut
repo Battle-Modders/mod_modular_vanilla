@@ -25,6 +25,31 @@
 	q.randomizeValues <- { function randomizeValues()
 	{
 	}}.randomizeValues;
+
+	// VanillaFix: https://steamcommunity.com/app/365360/discussions/1/604159344068529469/
+	// Vanilla removes each skill in `m.SkillPtrs` via `skill_container.remove` which immediately calls update
+	// on skill container before clearing `m.SkillPtrs` which can lead to errors if a skill accesses skills
+	// which are removed from the skill container but still present in the item's `m.SkillPtrs` and tries to
+	// do anything with that skill's `getContainer()` which would be null at that point.
+	// We fix this by calling `removeSelf()` on all the item's skills, then clearing `m.SkillPtrs` and then
+	// doing a single `skill_container.update`.
+	q.clearSkills = @() { function clearSkills()
+	{
+		if (this.getContainer() == null || this.getContainer().getActor() == null || this.getContainer().getActor().isNull())
+		{
+			return;
+		}
+
+		// Instead of calling container.remove(skill) on each skill (which would trigger skill container update)
+		// we set each skill to garbage and do a single skill_container.update later.
+		foreach (skill in this.m.SkillPtrs)
+		{
+			skill.removeSelf();
+		}
+
+		this.m.SkillPtrs = [];
+		this.getContainer().getActor().getSkills().update();
+	}}.clearSkills;
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
