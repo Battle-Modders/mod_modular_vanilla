@@ -39,7 +39,7 @@
 		q.onRemoved = @(__original) { function onRemoved()
 		{
 			__original();
-			if ("State" in ::Tactical && !::MSU.isNull(::Tactical.State))
+			if (this.getContainer().getActor().isPreviewing())
 			{
 				::Tactical.State.cancelCurrentAction();
 			}
