@@ -30,6 +30,20 @@
 				this.m.HitChanceBonus = old_HitChanceBonus + _properties.MeleeSkill - old_MeleeSkill;
 			}}.onAnySkillUsed;
 		}
+
+		// MV: Changed
+		// part of affordability preview system
+		// Cancel current action upon removal of skill. This "fixes" edge cases with
+		// keybind mods that allow swapping items while previewing a skill which will be
+		// removed upon swapping an equipped item.
+		q.onRemoved = @(__original) { function onRemoved()
+		{
+			__original();
+			if (this.getContainer().getActor().isPreviewing())
+			{
+				::Tactical.State.cancelCurrentAction();
+			}
+		}}.onRemoved;
 	});
 });
 
