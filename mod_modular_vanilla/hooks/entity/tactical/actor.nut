@@ -636,6 +636,13 @@
 		this.m.IsMoving = false;
 	}}.onMovementFinish;
 
+	// VanillaFix: https://steamcommunity.com/app/365360/discussions/1/764059330564682654/
+	// Add check for the target entity's tile being a valid target for the AOO skill
+	q.onMovementInZoneOfControl = @(__original) { function onMovementInZoneOfControl( _entity, _isOnEnter )
+	{
+		return __original(_entity, _isOnEnter) && this.getSkills().getAttackOfOpportunity().onVerifyTarget(this.getTile(), _entity.getTile());
+	}}.onMovementInZoneOfControl;
+
 	// MV: Modularized
 	// Extracted the removal of effects into a new skill_container.MV_onMoraleStateChanged event
 	q.setMoraleState = @() { function setMoraleState( _m )

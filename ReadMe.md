@@ -89,6 +89,11 @@ Bug report: https://steamcommunity.com/app/365360/discussions/1/6829920003859972
 
 Vanilla applies a slight downscaling to character inventory items which can cause them to look blurry. We remove this.
 
+### `onVerifyTarget` in `actor.onMovementInZoneOfControl`
+Bug report: https://steamcommunity.com/app/365360/discussions/1/764059330564682654/
+
+Vanilla does not check if the AOO is actually usable on the target tile. We add this check.
+
 ## Const
 ### MV_HireableCharacterBackgrounds
 ```squirrel
