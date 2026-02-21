@@ -1,7 +1,7 @@
 ::ModularVanilla <- {
 	ID = "mod_modular_vanilla",
 	Name = "Modular Vanilla",
-	Version = "0.7.2",
+	Version = "0.7.3",
 	GitHubURL = "https://github.com/Battle-Modders/mod_modular_vanilla",
 	QueueBucket = {
 		Early = [],
