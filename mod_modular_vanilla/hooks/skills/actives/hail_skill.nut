@@ -13,8 +13,6 @@
 		}
 	}}.onAfterUpdate;
 
-	// VanillaFix: https://steamcommunity.com/app/365360/discussions/1/604158579076817361/
-	// Missing null check for active entity before trying to access its ID.
 	// VanillaFix: https://steamcommunity.com/app/365360/discussions/1/684112727828878904/
 	// Missing `_user.isAlive()` check in the scheduled functions.
 	q.onUse = @() { function onUse( _user, _targetTile )
