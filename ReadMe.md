@@ -23,11 +23,6 @@ Vanilla sets the action points during `onUpdate` which makes changes from other 
 ### Lindwurm Body being null during Tail death
 Keep a strong reference to the body while the lindwurm_tail is being killed and only nullify it with a delayed event. Otherwise attempts to call `_targetEntity.getCurrentProperties()` in things such as `skill.onTargetHit` result in an exception because `m.Body` has become null and lindwurm tail tries to return `m.Body.m.CurrentProperties` in its `getCurrentProperties()`. Vanilla gets around this issue by manually checking for `isKindOf(target, "lindwurm_tail")` in `cleave.nut` which is ugly. With our fix no such workaround is necessary and the properties can be accessed during skill_container events without any crash or error.
 
-### HitChanceBonus
-Bug report: https://steamcommunity.com/app/365360/discussions/1/604169856012736554/
-
-For skills, vanilla does not update the `m.HitChanceBonus` with respect to the actual MeleeSkill modifier in `onAnySkillUsed`, leading to wrong information in the Hitfactors tooltip if the actual value of the `HitChanceBonus` were to be shown (done by some mods). We set `HitChanceBonus` always to 0 as base value for all skills. Then set it to the correct value at the end of the `onAnySkillUsed` function based on the total `MeleeSkill` modifier applied by the used skill's `onAnySkillUsed`.
-
 ### Null check for `_targetEntity` in `spider_racial.onAnySkillUsed`
 Bug report: https://steamcommunity.com/app/365360/discussions/1/652585180866921562/
 
