@@ -206,15 +206,15 @@
 			return 0;
 		}
 
+		if (_propertiesForUse == null)
+			_propertiesForUse = this.m.Container.buildPropertiesForUse(this, _targetEntity);
+
 		if (!this.isUsingHitchance())
 		{
 			return 100;
 		}
 
 		local user = this.m.Container.getActor();
-
-		if (_propertiesForUse == null)
-			_propertiesForUse = this.m.Container.buildPropertiesForUse(this, _targetEntity);
 
 		if (_propertiesForDefense == null)
 			_propertiesForDefense = _targetEntity.getSkills().buildPropertiesForDefense(user, this);
