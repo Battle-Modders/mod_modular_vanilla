@@ -76,8 +76,9 @@
 				}
 			}
 
-			// We round the value inside the `ceil` to 1 decimal place before ceiling it.
-			return ::Math.max(0, ::Math.round(::Math.ceil(::MSU.Math.roundToDec(this.m.FatigueCost * this.m.FatigueCostMult * containerProperties.FatigueEffectMult * fatigueMultAdjust + fatigueAdjust, 1))));
+			// We round the value inside the `ceil` to 1 decimal place before ceiling it. We extract the calculation out into a new line for readability.
+			local fatigueCost = this.m.FatigueCost * this.m.FatigueCostMult * containerProperties.FatigueEffectMult * fatigueMultAdjust + fatigueAdjust;
+			return ::Math.max(0, ::Math.round(::Math.ceil(::MSU.Math.roundToDec(fatigueCost, 1))));
 		}
 		else
 		{
