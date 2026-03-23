@@ -637,10 +637,12 @@
 	}}.onMovementFinish;
 
 	// VanillaFix: https://steamcommunity.com/app/365360/discussions/1/764059330564682654/
-	// Add check for the target entity's tile being a valid target for the AOO skill
+	// Add check for the target entity's tile being a valid target for the AOO skill.
+	// We only add check for MaxLevelDifference as using onVerifyTarget does not work nicely
+	// when the _entity is not yet in valid target tile and we want to predict the ZoC attack possibility.
 	q.onMovementInZoneOfControl = @(__original) { function onMovementInZoneOfControl( _entity, _isOnEnter )
 	{
-		return __original(_entity, _isOnEnter) && this.getSkills().getAttackOfOpportunity().onVerifyTarget(this.getTile(), _entity.getTile());
+		return __original(_entity, _isOnEnter) && ::Math.abs(_entity.getTile().Level - this.getTile().Level) <= this.getSkills().getAttackOfOpportunity().m.MaxLevelDifference;
 	}}.onMovementInZoneOfControl;
 
 	// MV: Modularized
