@@ -17,6 +17,44 @@
 });
 
 ::ModularVanilla.MH.hook("scripts/skills/skill", function (q) {
+	// VanillaFix: https://steamcommunity.com/app/365360/discussions/1/796712966523236445/
+	// Floating point precision problem can sometimes cause `ceil` to increase fatigue cost by 1
+	// To fix this we round the value inside the `ceil` to 1 decimal place before ceiling it.
+	// This is a copy of the vanilla function except this one change.
+	q.getFatigueCost = @() { function getFatigueCost()
+	{
+		if (this.m.Container != null)
+		{
+			local containerProperties = this.m.Container.getActor().getCurrentProperties();
+			local fatigueAdjust = containerProperties.FatigueOnSkillUse;
+			local fatigueMultAdjust = 1.0;
+
+			foreach( skill in containerProperties.SkillCostAdjustments )
+			{
+				if (skill.ID == this.getID())
+				{
+					if ("FatigueAdjust" in skill)
+					{
+						fatigueAdjust = fatigueAdjust + skill.FatigueAdjust;
+					}
+
+					if ("FatigueMultAdjust" in skill)
+					{
+						fatigueMultAdjust = fatigueMultAdjust * skill.FatigueMultAdjust;
+					}
+				}
+			}
+
+			// We round the value inside the `ceil` to 1 decimal place before ceiling it. We extract the calculation out into a new line for readability.
+			local fatigueCost = this.m.FatigueCost * this.m.FatigueCostMult * containerProperties.FatigueEffectMult * fatigueMultAdjust + fatigueAdjust;
+			return ::Math.max(0, ::Math.round(::Math.ceil(::MSU.Math.roundToDec(fatigueCost, 1))));
+		}
+		else
+		{
+			return this.m.FatigueCost;
+		}
+	}}.getFatigueCost;
+
 	// MV: Added
 	// Part of modularization of actor.setMoraleState
 	q.MV_onMoraleStateChanged <- { function MV_onMoraleStateChanged( _oldState )
