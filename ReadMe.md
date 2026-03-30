@@ -138,12 +138,11 @@ hitInfo.MV_PropertiesForBeingHit
 ```
 This is the target's properties built via `skill_container.builtPropertiesForBeingHit`. This is added to the HitInfo during the target's `actor.onDamageReceived`.
 
-#### MV_CurrentHitInfo
-We also expose the current attack's HitInfo globally making it accessible even from functions where it is not passed directly. This can be accessed as
+#### MV_getCurrentHitInfo
+The HitInfo related the to latest damage instance can be accessed globally. As this is a weakref, it is important to first check if it is null or not.
 ```squirrel
-::Const.Tactical.MV_CurrentHitInfo
+::Tactical.State.MV_getCurrentHitInfo()
 ```
-As this is a weakref, it is important to first check if it is null or not.
 
 ### MV_AttackInfo
 MV adds this new object to `::Const.Tactical` and it is meant to be an analogue to the vanilla `::Const.Tactical.HitInfo` but contains information about the attack, not the hit. This object is created during `skill.attackEntity` and is passed around to the various modular functions. See the modularization of `skill.attackEntity` for details.
@@ -158,6 +157,12 @@ MV_AttackInfo = {
 	PropertiesForUse = null,
 	PropertiesForDefense = null
 }
+```
+
+#### MV_getCurrentHitInfo
+The AttackInfo related the to latest attack can be accessed globally. As this is a weakref, it is important to first check if it is null or not.
+```squirrel
+::Tactical.State.MV_getCurrentAttackInfo()
 ```
 
 ## Const.Combat

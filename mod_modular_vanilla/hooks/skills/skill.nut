@@ -460,7 +460,7 @@
 		}
 
 		local attackInfo = clone ::Const.Tactical.MV_AttackInfo;
-		::Const.Tactical.MV_CurrentAttackInfo = attackInfo.weakref();
+		::Tactical.State.m.__MV_CurrentAttackInfos.push(attackInfo.weakref());
 		attackInfo.User = _user;
 		attackInfo.Target = _targetEntity;
 		attackInfo.AllowDiversion = _allowDiversion;

@@ -304,7 +304,7 @@
 	{
 		// MV: Added
 		// To allow the current HitInfo to be globally accessible.
-		::Const.Tactical.MV_CurrentHitInfo = _hitInfo.weakref();
+		::Tactical.State.m.__MV_CurrentHitInfos.push(_hitInfo.weakref());
 
 		if (!this.isAlive() || !this.isPlacedOnMap())
 		{
