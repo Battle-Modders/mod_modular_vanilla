@@ -22,14 +22,16 @@
 		_hitInfo.BodyPart = ::Const.BodyPart.Body;
 		_hitInfo.BodyDamageMult = 1.0;
 
-		// This is explicitely done in the Vanilla implementation and it is needed to make Acid be applied correctly.
-		// The head is often too far (2+ tiles) away to apply acid with its own racial effect
-		// In Vanilla this call is more in the middle of the replicated onDamageReceived code. Not sure how much difference that makes
-		this.m.Racial.onDamageReceived(_attacker, _hitInfo.DamageInflictedHitpoints, _hitInfo.DamageInflictedArmor);
-
 		this.m.__MV_IsDuringOnDamageReceived = true;
 		local ret = this.actor.onDamageReceived(_attacker, _skill, _hitInfo);
 		this.m.__MV_IsDuringOnDamageReceived = false;
+
+		// This is explicitely done in the Vanilla implementation and it is needed to make Acid be applied correctly.
+		// The head is often too far (2+ tiles) away to apply acid with its own racial effect
+		// In Vanilla this call is more in the middle of the replicated onDamageReceived code. Not sure how much difference that makes.
+		// This must be done after the _hitInfo.DamageInflictedHitpoints value has been properly populated, which happens during
+		// actor.onDamageReceived. Therefore, it must be done after that.
+		this.m.Racial.onDamageReceived(_attacker, _hitInfo.DamageInflictedHitpoints, _hitInfo.DamageInflictedArmor);
 
 		return ret;
 	}}.onDamageReceived;
