@@ -15,6 +15,9 @@
 
 	// VanillaFix: https://steamcommunity.com/app/365360/discussions/1/684112727828878904/
 	// Missing `_user.isAlive()` check in the scheduled functions.
+	// VanillaFix: https://steamcommunity.com/app/365360/discussions/0/796714229048803346/
+	// Missing null check for skill container in the delayed attacks. Doesn't cause problems
+	// in vanilla but can cause issues with mods that use these skills for delayed attacks.
 	q.onUse = @() { function onUse( _user, _targetTile )
 	{
 		this.spawnAttackEffect(_targetTile, ::Const.Tactical.AttackEffectChop);
@@ -29,14 +32,14 @@
 			this.getContainer().setBusy(true);
 			::Time.scheduleEvent(::TimeUnit.Virtual, 100, function ( _skill )
 			{
-				if (target.isAlive() && _user.isAlive())
+				if (target.isAlive() && _user.isAlive() && !::MSU.isNull(_skill.getContainer()))
 				{
 					_skill.attackEntity(_user, target);
 				}
 			}.bindenv(this), this);
 			::Time.scheduleEvent(::TimeUnit.Virtual, 200, function ( _skill )
 			{
-				if (!_user.isAlive())
+				if (!_user.isAlive() || ::MSU.isNull(_skill.getContainer()))
 					return;
 
 				if (target.isAlive())
