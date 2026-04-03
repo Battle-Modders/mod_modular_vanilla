@@ -346,8 +346,15 @@
 		this.setFatigue(this.Math.min(this.getFatigueMax(), this.Math.round(this.getFatigue() + this.MV_calcFatigueDamageReceived(_skill, _hitInfo))));
 
 		this.getSkills().onDamageReceived(_attacker, _hitInfo.DamageInflictedHitpoints, _hitInfo.DamageInflictedArmor);
-		// vanilla lindwurm_tail also calls this.m.Racial.onDamageReceived here but I believe that
-		// is redundant because the skill_container event should already call that - Midas
+		// vanilla does this.m.Skills.onDamageReceived. We replace it with a `this.getSkills()` call.
+		// vanilla lindwurm_tail is different here. Instead of doing `this.m.Skills.onDamageReceived` it does two things explicilty:
+		// first it calls `this.m.Body.m.Skills.onDamageReceived`.
+		// then it calls `this.m.Racial.onDamageReceived`.
+		// Vanilla does this with lindwurm_tail to ensure that the acid effect from the racial correctly applies
+		// when attacking the tail. Because, even though the head's racial is triggered from the first line, it
+		// will only apply racial if the attacker is adjacent to the head when attacking the tail.
+		// So, for characters adjacent to both head and tail this means that the racial triggers twice in vanilla. But
+		// as the acid does not stack in vanilla, calling it twice does not hurt.
 
 		local damage = _hitInfo.DamageInflictedHitpoints;
 		local armorDamage = _hitInfo.DamageInflictedArmor;
