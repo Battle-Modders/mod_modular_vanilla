@@ -19,6 +19,13 @@
 	q.MV_onLocationEntered <- { function MV_onLocationEntered( _location )
 	{
 	}}.MV_onLocationEntered;
+
+	// MV: Added
+	// Part of starting_scenario.MV_onUpdateShopList event
+	// Called from settlement.onUpdateShopList
+	q.MV_onUpdateShopList <- { function MV_onUpdateShopList( _settlement, _buildingID, _list )
+	{
+	}}.MV_onUpdateShopList;
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
