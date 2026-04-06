@@ -50,6 +50,16 @@
 		this.m.SkillPtrs = [];
 		this.getContainer().getActor().getSkills().update();
 	}}.clearSkills;
+
+	// VanillaFix: https://steamcommunity.com/app/365360/discussions/1/764060301066826632/
+	// Vanilla does not properly check for the `.isNull()` condition for `Container` which is an instance of `WeakTableRef`.
+	q.onEquip = @() { function onEquip()
+	{
+		if (!::MSU.isNull(this.m.Container) && !::MSU.isNull(this.m.Container.getActor()))
+		{
+			this.m.LastEquippedByFaction = this.m.Container.getActor().getFaction();
+		}
+	}}.onEquip;
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
