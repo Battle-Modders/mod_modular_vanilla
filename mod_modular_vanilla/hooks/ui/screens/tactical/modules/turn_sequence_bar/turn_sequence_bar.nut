@@ -107,18 +107,20 @@
 
 			activeEntity.m.MV_CostsPreview = _costsPreview;
 			activeEntity.m.MV_IsPreviewing = true;
-			activeEntity.m.MV_IsDoingPreviewUpdate = true;
-			activeEntity.getSkills().update();
-			activeEntity.m.MV_IsDoingPreviewUpdate = false;
 
-			activeEntity.getSkills().onCostsPreview(this.m.ActiveEntityCostsPreview);
+			activeEntity.getSkills().MV_runBetweenPreviewUpdates(this.MV_doCostsPreview, this, activeEntity);
+		}}.setActiveEntityCostsPreview;
+
+		q.MV_doCostsPreview <- { function MV_doCostsPreview( _activeEntity )
+		{
+			_activeEntity.getSkills().onCostsPreview(this.m.ActiveEntityCostsPreview);
 
 			this.m.ActiveEntityCostsPreview.actionPointsMaxPreview = ::Math.max(0, this.m.ActiveEntityCostsPreview.actionPointsMaxPreview);
 			this.m.ActiveEntityCostsPreview.fatigueMaxPreview = ::Math.max(0, this.m.ActiveEntityCostsPreview.fatigueMaxPreview);
 
 			if (this.m.ActiveEntityCostsPreview.actionPointsPreview < 0)
 			{
-				this.m.ActiveEntityCostsPreview.actionPointsPreview = activeEntity.getActionPoints();
+				this.m.ActiveEntityCostsPreview.actionPointsPreview = _activeEntity.getActionPoints();
 			}
 
 			if (this.m.ActiveEntityCostsPreview.fatiguePreview > this.m.ActiveEntityCostsPreview.fatigueMaxPreview)
@@ -126,17 +128,11 @@
 				this.m.ActiveEntityCostsPreview.fatiguePreview = this.m.ActiveEntityCostsPreview.fatigueMaxPreview;
 			}
 
-			activeEntity.setPreviewActionPoints(this.m.ActiveEntityCostsPreview.actionPointsPreview);
-			activeEntity.setPreviewFatigue(this.m.ActiveEntityCostsPreview.fatiguePreview);
+			_activeEntity.setPreviewActionPoints(this.m.ActiveEntityCostsPreview.actionPointsPreview);
+			_activeEntity.setPreviewFatigue(this.m.ActiveEntityCostsPreview.fatiguePreview);
 
 			this.m.JSHandle.asyncCall("updateCostsPreview", this.m.ActiveEntityCostsPreview);
-
-			activeEntity.m.MV_IsPreviewing = false;
-			activeEntity.m.MV_IsDoingPreviewUpdate = true;
-			activeEntity.getSkills().update();
-			activeEntity.m.MV_IsDoingPreviewUpdate = false;
-			activeEntity.m.MV_IsPreviewing = true;
-		}}.setActiveEntityCostsPreview;
+		}}.MV_doCostsPreview;
 
 		// MV: Changed
 		// part of affordability preview system
