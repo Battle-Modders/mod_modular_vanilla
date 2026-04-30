@@ -13,10 +13,179 @@
 				::Tactical.State.cancelCurrentAction();
 			}
 		}}.onRemoved;
+
+		// MV: Changed
+		// part of affordability preview system
+		// Set the skill's MV_SelectedTarget and then re-make the
+		// costs preview. This allows skills to show different costs based on target.
+		q.onTargetSelected = @(__original) { function onTargetSelected( _targetTile )
+		{
+			__original(_targetTile);
+
+			this.m.MV_SelectedTarget = _targetTile;
+
+			::Tactical.TurnSequenceBar.setActiveEntityCostsPreview({
+				ActionPoints = this.getActionPointCost(),
+				Fatigue = this.getFatigueCost(),
+				SkillID = this.getID()
+			});
+		}}.onTargetSelected;
+
+		// MV: Changed
+		// part of affordability preview system
+		// Set the skill's MV_SelectedTarget to null and then re-make the
+		// costs preview. This causes the skill to preview show its default costs.
+		q.onTargetDeselected = @(__original) { function onTargetDeselected()
+		{
+			__original();
+
+			if (this.m.MV_SelectedTarget != null)
+			{
+				this.m.MV_SelectedTarget = null;
+				::Tactical.TurnSequenceBar.setActiveEntityCostsPreview({
+					ActionPoints = this.getActionPointCost(),
+					Fatigue = this.getFatigueCost(),
+					SkillID = this.getID()
+				});
+			}
+		}}.onTargetDeselected;
+
+		// MV: Changed
+		// part of affordability preview system
+		// For player-controlled actors we return the original because if this is during
+		// preview then the onTargetSelected function has already set the target. And
+		// if this is during use then the `use` function handles setting the target.
+		// For NPCs we have to set the `MV_SelectedTarget` before calling the original
+		// so that their AI behavior code makes the appropriate skill selections.
+		q.isUsableOn = @(__original) { function isUsableOn( _targetTile, _userTile = null )
+		{
+			if (this.getContainer().getActor().isPlayerControlled())
+				return __original(_targetTile, _userTile);
+
+			local o = this.m.MV_SelectedTarget;
+			this.m.MV_SelectedTarget = _targetTile;
+			local ret = __original(_targetTile, _userTile);
+			this.m.MV_SelectedTarget = o;
+			return ret;
+		}}.isUsableOn;
+
+		// MV: Changed
+		// part of affordability preview system
+		// If a skill has a defined override for "getActionPointCost" or "getFatigueCost"
+		// we assume that it may have different costs for different targets. For such skills,
+		// during AI agent evaluation, we return true only if the skill is affordable for
+		// at least 1 valid target. Otherwise an NPC may select a skill deeming it affordable
+		// based on its default costs, but may then not be able to find any valid target to
+		// use it on due to the dynamic costs (which may be higher).
+		q.isAffordable = @(__original) { function isAffordable()
+		{
+			if (this.m.MV_SelectedTarget != null)
+				return __original();
+
+			local actor = this.getContainer().getActor();
+			// For player controlled characters, the affordability will be handled by overwritten
+			// getActionPointCost() etc. and MV_SelectedTarget. So, for them we return original.
+			// Note: We only check that the agent of this skill's actor is evaluating. This means
+			// that affordability of skills of other actors will still return the original (e.g. if
+			// an NPC checks affordability of skills of other actors during his own behavior evaluation).
+			// A workaround for this can be a global private bool that we flip during `agent.evaluate`.
+			// But this current approach is simpler.
+			if (actor.isPlayerControlled() || !actor.getAIAgent().isEvaluating() || !actor.isPlacedOnMap())
+				return __original();
+
+			// In theory one can do this check during `onAdded` of the skill
+			// and then flip a member Boolean to avoid having to do this check
+			// on every call to isAffordable(). But that will fail in the rare
+			// edge case where some modder adds such a `getActionPointCost()` etc.
+			// function to the skill object AFTER it has been added to an actor.
+			local hasOverride = false;
+			local o = this;
+			do
+			{
+				if ("getActionPointCost" in o || "getFatigueCost" in o)
+				{
+					hasOverride = o.ClassName != "skill";
+					break;
+				}
+				o = o.getdelegate();
+			}
+			while(o != null);
+
+			if (!hasOverride)
+				return __original();
+
+			local tiles = [];
+			local myTile = actor.getTile();
+
+			::Tactical.queryTilesInRange(
+				myTile,
+				this.getMinRange(),
+				this.getMaxRange() + (this.isRanged() ? ::Math.min(myTile.Level, this.getMaxRangeBonus()) : 0),
+				!this.isTargetingActor(),
+				[],
+				@(_tile, _) tiles.push(_tile),
+				null
+			);
+
+			local ret = false;
+
+			foreach (t in tiles)
+			{
+				if (!this.onVerifyTarget(myTile, t))
+					continue;
+
+				this.m.MV_SelectedTarget = t;
+				ret = __original();
+				if (ret)
+				{
+					break;
+				}
+			}
+
+			this.m.MV_SelectedTarget = null;
+			return ret;
+		}}.isAffordable;
+
+		// MV: Changed
+		// part of affordability preview system
+		// Set the MV_SelectedTarget during `use` function as NPCs execute skills
+		// directly by calling the `use` function of the skills. This ensures
+		// that they spend the correct AP/Fatigue cost for using the skill on that target.
+		q.use = @(__original) { function use( _targetTile, _forFree = false )
+		{
+			this.m.MV_SelectedTarget = _targetTile;
+			local ret = __original(_targetTile, _forFree);
+			this.m.MV_SelectedTarget = null;
+			return ret;
+		}}.use;
 	});
 });
 
 ::ModularVanilla.MH.hook("scripts/skills/skill", function (q) {
+	// MV: Added
+	// part of affordability preview system
+	// Is set during `skill.onTargetSelected` and during skill execution functions
+	// i.e. `skill.use` and `tactical_state.executeEntitySkill`.
+	// Points to tactical tile which has been selected as the target for this skill.
+	q.m.MV_SelectedTarget <- null;
+
+	// MV: Added
+	// part of affordability preview system
+	q.MV_getSelectedTarget <- { function MV_getSelectedTarget()
+	{
+		// This is handling an edge case where a player mouses over a target
+		// and then mouses over a UI element without first mousing over
+		// a different tile resulting in the target not being deselected.
+		// This would cause AP costs etc. of skills to be measured using that target
+		// which can give unintended information.
+		if (this.getContainer().getActor().isPlayerControlled())
+		{
+			return ::Cursor.isOverUI() ? null : this.m.MV_SelectedTarget;
+		}
+
+		return this.m.MV_SelectedTarget;
+	}}.MV_getSelectedTarget;
+
 	// VanillaFix: https://steamcommunity.com/app/365360/discussions/1/796712966523236445/
 	// Floating point precision problem can sometimes cause `ceil` to increase fatigue cost by 1
 	// To fix this we round the value inside the `ceil` to 1 decimal place before ceiling it.
