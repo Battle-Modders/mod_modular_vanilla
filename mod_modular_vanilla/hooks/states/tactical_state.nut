@@ -1,4 +1,6 @@
 ::ModularVanilla.MH.hook("scripts/states/tactical_state", function(q) {
+	q.m.__MV_IsSettingActionState <- false;
+	q.m.__MV_Suppress <- false;
 	// Each element in this array is a weakref to an instance of MV_AttackInfo during skill.attackEntity.
 	// The purpose is to allow access to the attackInfo from all functions which
 	// do not get it passed directly e.g. onTargetMissed.
@@ -49,6 +51,8 @@
 		// part of affordability preview system
 		q.executeEntitySkill = @(__original) { function executeEntitySkill( _activeEntity, _targetTile )
 		{
+			::logWarning("executeEntitySkill " + this.m.CurrentActionState);
+			::MSU.Log.printStackTrace();
 			_activeEntity.resetPreview();
 
 			// Skills may have varying costs depending on their selected target. So, before skill execution
@@ -76,6 +80,8 @@
 					// (to ensure we get costs for usage instead of preview)
 					// therefore, we have to restore it here by selecting the target again.
 					skill.onTargetSelected(_targetTile);
+					// this.m.CurrentActionState = null;
+					// this.setActionStateBySkill(_activeEntity, skill);
 					return;
 				}
 
@@ -84,5 +90,55 @@
 
 			return __original(_activeEntity, _targetTile);
 		}}.executeEntitySkill;
+
+		q.setActionStateBySkillIndex = @(__original) { function setActionStateBySkillIndex( _skillIndex )
+		{
+			this.m.__MV_IsSettingActionState = true;
+			__original(_skillIndex);
+			this.m.__MV_IsSettingActionState = false;
+		}}.setActionStateBySkillIndex;
+
+		q.setActionStateBySkillId = @(__original) { function setActionStateBySkillId( _skillId )
+		{
+			this.m.__MV_IsSettingActionState = true;
+			__original(_skillId);
+			this.m.__MV_IsSettingActionState = false;
+		}}.setActionStateBySkillId;
+
+		q.setActionStateBySkill = @(__original) { function setActionStateBySkill( _activeEntity, _skill )
+		{
+			local was = this.m.__MV_IsSettingActionState;
+			this.m.__MV_IsSettingActionState = false;
+			this.m.__MV_Suppress = true;
+
+			// ::MSU.Log.printStackTrace();
+			if (this.m.CurrentActionState == ::Const.Tactical.ActionState.SkillSelected)
+			{
+				__original(_activeEntity, _skill)
+				this.m.__MV_IsSettingActionState = was;
+			}
+			else
+			{
+				__original(_activeEntity, _skill);
+
+				this.m.__MV_IsSettingActionState = was;
+
+				// if (this.m.CurrentActionState == ::Const.Tactical.ActionState.SkillSelected)
+				// {
+				// 	this.updateCursorAndTooltip(true);
+				// }
+			}
+			this.m.__MV_Suppress = false;
+		}}.setActionStateBySkill;
+
+		q.cancelEntitySkill = @(__original) { function cancelEntitySkill( _activeEntity )
+		{
+			local skill = _activeEntity.getSkills().getSkillByID(this.m.SelectedSkillID);
+			if (skill != null)
+			{
+				skill.m.MV_SelectedTarget = null;
+			}
+			__original(_activeEntity);
+		}}.cancelEntitySkill;
 	});
 });

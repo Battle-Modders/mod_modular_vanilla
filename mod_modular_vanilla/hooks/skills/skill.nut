@@ -10,7 +10,11 @@
 			__original();
 			if (this.getContainer().getActor().isPreviewing())
 			{
+				::logInfo("canceling current action " + ::Tactical.State.m.CurrentActionState);
 				::Tactical.State.cancelCurrentAction();
+				// this.Tactical.getNavigator().clearPath();
+				// this.Tactical.getNavigator().clearVisualisation();
+				// this.Tactical.getHighlighter().clear();
 			}
 		}}.onRemoved;
 
@@ -20,6 +24,7 @@
 		// costs preview. This allows skills to show different costs based on target.
 		q.onTargetSelected = @(__original) { function onTargetSelected( _targetTile )
 		{
+			::logWarning("onTargetSelected " + this.getID());
 			__original(_targetTile);
 
 			this.m.MV_SelectedTarget = _targetTile;
@@ -37,16 +42,19 @@
 		// costs preview. This causes the skill to preview show its default costs.
 		q.onTargetDeselected = @(__original) { function onTargetDeselected()
 		{
+			::logWarning("onTargetDeselected " + this.getID() + " " + this.m.MV_SelectedTarget);
+
 			__original();
 
 			if (this.m.MV_SelectedTarget != null)
 			{
 				this.m.MV_SelectedTarget = null;
-				::Tactical.TurnSequenceBar.setActiveEntityCostsPreview({
-					ActionPoints = this.getActionPointCost(),
-					Fatigue = this.getFatigueCost(),
-					SkillID = this.getID()
-				});
+				if (!::Tactical.State.m.__MV_Suppress)
+					::Tactical.TurnSequenceBar.setActiveEntityCostsPreview({
+						ActionPoints = this.getActionPointCost(),
+						Fatigue = this.getFatigueCost(),
+						SkillID = this.getID()
+					});
 			}
 		}}.onTargetDeselected;
 
@@ -180,7 +188,8 @@
 		// which can give unintended information.
 		if (this.getContainer().getActor().isPlayerControlled())
 		{
-			return ::Cursor.isOverUI() ? null : this.m.MV_SelectedTarget;
+			::logInfo(::Tactical.State.m.SelectedSkillID);
+			return ::Cursor.isOverUI() || ::Tactical.isActive() && (::Tactical.State.m.__MV_IsSettingActionState || ::Tactical.State.m.SelectedSkillID != this.getID()) ? null : this.m.MV_SelectedTarget;
 		}
 
 		return this.m.MV_SelectedTarget;
