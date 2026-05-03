@@ -115,19 +115,28 @@
 			if (this.m.CurrentActionState == ::Const.Tactical.ActionState.SkillSelected)
 			{
 				__original(_activeEntity, _skill)
-				this.m.__MV_IsSettingActionState = was;
 			}
 			else
 			{
+				// local reload = ::Tooltip.reload;
+				// ::Tooltip.reload = @() null;
+
+				local updateCursorAndTooltip = this.updateCursorAndTooltip;
+				this.updateCursorAndTooltip = @(_skillSelected = false) null;
+
 				__original(_activeEntity, _skill);
 
-				this.m.__MV_IsSettingActionState = was;
+				// ::Tooltip.reload = reload;
+				this.updateCursorAndTooltip = updateCursorAndTooltip;
 
-				// if (this.m.CurrentActionState == ::Const.Tactical.ActionState.SkillSelected)
-				// {
-				// 	this.updateCursorAndTooltip(true);
-				// }
+				if (this.m.CurrentActionState == ::Const.Tactical.ActionState.SkillSelected)
+				{
+					::Tooltip.reload();
+					this.updateCursorAndTooltip(true);
+				}
 			}
+
+			this.m.__MV_IsSettingActionState = was;
 			this.m.__MV_Suppress = false;
 		}}.setActionStateBySkill;
 
