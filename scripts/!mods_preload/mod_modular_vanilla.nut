@@ -1,7 +1,7 @@
 ::ModularVanilla <- {
 	ID = "mod_modular_vanilla",
 	Name = "Modular Vanilla",
-	Version = "0.8.2",
+	Version = "0.8.3",
 	GitHubURL = "https://github.com/Battle-Modders/mod_modular_vanilla",
 	QueueBucket = {
 		Early = [],
@@ -15,7 +15,7 @@
 
 ::ModularVanilla.MH <- ::Hooks.register(::ModularVanilla.ID, ::ModularVanilla.Version, ::ModularVanilla.Name);
 ::ModularVanilla.MH.require([
-	"vanilla >= 1.5.1-6",
+	"vanilla >= 1.5.1-8",
 	"dlc_lindwurm",
 	"dlc_unhold",
 	"dlc_wildmen",
