@@ -50,6 +50,38 @@
 		q.executeEntitySkill = @(__original) { function executeEntitySkill( _activeEntity, _targetTile )
 		{
 			_activeEntity.resetPreview();
+
+			// Skills may have varying costs depending on their selected target. So, before skill execution
+			// we check the affordability of the skill by setting the selected target to _targetTile.
+			local skill = _activeEntity.getSkills().getSkillByID(this.m.SelectedSkillID);
+			if (skill != null && skill.isTargeted() && skill.verifyTargetAndRange(_targetTile))
+			{
+				// skill.m.MV_SelectedTarget is expected to be null here because
+				// target gets deselected before skill execution, so we have to set it again
+				// here so that the isAffordable check gets the correct costs.
+				local original_SelectedTarget = skill.m.MV_SelectedTarget;
+				skill.m.MV_SelectedTarget = _targetTile;
+
+				if (!skill.isAffordable())
+				{
+					// This is a copy of how vanilla does flashing and sound in `tactical_state.setActionStateByMouseEvent`.
+					::Tactical.TurnSequenceBar.flashProgressbars(!skill.isAffordableBasedOnAP(), !skill.isAffordableBasedOnFatigue());
+					if (this.m.LastFatigueSoundTime + 3.0 < ::Time.getVirtualTimeF())
+					{
+						_activeEntity.playSound(::Const.Sound.ActorEvent.Fatigue, ::Const.Sound.Volume.Actor * _activeEntity.m.SoundVolume[::Const.Sound.ActorEvent.Fatigue]);
+						this.m.LastFatigueSoundTime = ::Time.getVirtualTimeF();
+					}
+
+					// We reset the affordability preview at the start of this function
+					// (to ensure we get costs for usage instead of preview)
+					// therefore, we have to restore it here by selecting the target again.
+					skill.onTargetSelected(_targetTile);
+					return;
+				}
+
+				skill.m.MV_SelectedTarget = original_SelectedTarget;
+			}
+
 			return __original(_activeEntity, _targetTile);
 		}}.executeEntitySkill;
 	});
