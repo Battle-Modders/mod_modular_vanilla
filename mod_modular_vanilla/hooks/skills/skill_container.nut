@@ -129,7 +129,7 @@
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
 	::ModularVanilla.MH.hook("scripts/skills/skill_container", function (q) {
 		q.m.__MV_InterruptionFrame <- 0; // Part of the actor.MV_interruptSkills framework
-		q.m.__MV_InterruptionCount <- 0; // Part of the actor.MV_interruptSkills framework
+		q.m.__MV_InterruptedSkillIDs <- []; // Part of the actor.MV_interruptSkills framework
 
 		// Part of actor.MV_interruptSkills framework
 		// In vanilla skills which "interrupt" a character remove: effects.shieldwall, effects.spearwall, effects.riposte
@@ -149,21 +149,21 @@
 					local frame = ::Time.getFrame();
 					if (frame != this.m.__MV_InterruptionFrame)
 					{
-						this.m.__MV_InterruptionCount = 0;
+						this.m.__MV_InterruptedSkillIDs.clear();
 						this.m.__MV_InterruptionFrame = frame;
 					}
-					else
+					else if (this.m.__MV_InterruptedSkillIDs.find(_skillID) == null)
 					{
-						this.m.__MV_InterruptionCount++;
+						this.m.__MV_InterruptedSkillIDs.push(_skillID);
 					}
 					break;
 			}
 
 			__original(_skillID);
 
-			if (this.m.__MV_InterruptionCount == 3)
+			if (this.m.__MV_InterruptedSkillIDs.len() == 3)
 			{
-				this.m.__MV_InterruptionCount = 0;
+				this.m.__MV_InterruptedSkillIDs.clear();
 				this.getActor().MV_interruptSkills();
 			}
 		}
