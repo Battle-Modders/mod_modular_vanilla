@@ -64,8 +64,7 @@
 	// Cause an 'Interruption' on this actor. That is a new standardized event, which will remove some temporary skills on the target. In Vanilla those interruptible skills are shieldwall, riposte and spearwall
 	q.MV_interruptSkills <- function()
 	{
-		if (!this.getCurrentProperties().MV_IsImmuneToSkillsInterruption)
-			this.getSkills().MV_onSkillsInterrupted();
+		this.getSkills().MV_onSkillsInterrupted();
 	}
 	
 // part of affordability preview system START
