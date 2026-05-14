@@ -1,0 +1,124 @@
+name: Upload Latest Release to NexusMods
+
+on:
+  release:
+    types: [published, released]
+  workflow_dispatch:
+    inputs:
+      is_dry_run:
+        type: boolean
+        description: 'Dry Run'
+        required: false
+
+jobs:
+  upload-to-nexusmods:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'release' && !github.event.release.prerelease)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch and Compare Versions
+        id: info
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXUS_API_KEY: ${{ secrets.NEXUSMODS_API_KEY_BATTLEMODDERS }}
+          FILE_GID: ${{ secrets.NEXUSMODS_FILE_GROUPID }}
+        run: |
+          # 1. Fetch Latest GitHub Release Info
+          GH_VER=$(gh release view --repo ${{ github.repository }} --json tagName --jq '.tagName')
+          GH_BODY=$(gh release view --repo ${{ github.repository }} --json body --jq '.body')
+          GH_REL_URL=$(gh release view --repo ${{ github.repository }} --json url --jq '.url')
+          GH_ASSET=$(gh release view --repo ${{ github.repository }} --json assets --jq '.assets[] | select(.name | test("mod_modular_vanilla.*\\.zip$"))' | head -n 1)
+          GH_ZIP_URL=$(echo "$GH_ASSET" | jq -r .url)
+          GH_ZIP_NAME=$(echo "$GH_ASSET" | jq -r .name)
+
+          # 3. Fetch Nexus Mod Files Info
+          NEXUS_JSON=$(curl -s -H "apikey: $NEXUS_API_KEY" https://api.nexusmods.com/v3/file-update-groups/$FILE_GID/versions)
+
+          # Parse Nexus (Taking the first entry as the latest)
+          NEXUS_FILE=$(echo "$NEXUS_JSON" | jq -c '.data.versions[0].file')
+          NEXUS_VER=$(echo "$NEXUS_FILE" | jq -r .version)
+
+          # Semantic comparison: returns 0 (true) if $2 is newer than $1
+          is_newer() {
+            # Strip 'v' and extract only the major.minor.patch part (x.x.x)
+            local v1=$(echo "${1#v}" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+' || echo "")
+            local v2=$(echo "${2#v}" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+' || echo "")
+
+            if [ -z "$v1" ]; then return 0; fi # No version found on Nexus
+            if [ "$v1" = "$v2" ]; then return 1; fi # Versions are identical
+
+            # Use sort -V to handle numeric comparisons (e.g., 1.10.0 > 1.2.0)
+            [ "$(printf '%s\n%s' "$v1" "$v2" | sort -V | tail -n 1)" = "$v2" ]
+          }
+
+          if is_newer "$NEXUS_VER" "$GH_VER"; then
+            echo "update_required=true" >> $GITHUB_OUTPUT
+          fi
+
+          # --- TEST LOGGING: Summary of detected state ---
+          echo "### Dry Run Detection Summary ###"
+          echo "GH Version: $GH_VER | Nexus Version: $NEXUS_VER"
+          echo "Download URL: $GH_ZIP_URL"
+          echo "Update Required: $([[ "$NEXUS_VER" != "$GH_VER" ]] && echo 'YES' || echo 'NO')"
+          echo "################################"
+          # -----------------------
+
+          # Outputs for subsequent steps
+          echo "gh_ver=$GH_VER" >> $GITHUB_OUTPUT
+          echo "gh_url=$GH_ZIP_URL" >> $GITHUB_OUTPUT
+          echo "gh_name=$GH_ZIP_NAME" >> $GITHUB_OUTPUT
+          echo "gh_release_url=$GH_REL_URL" >> $GITHUB_OUTPUT
+
+          delimiter=$(openssl rand -hex 8)
+          echo "gh_body<<$delimiter" >> $GITHUB_OUTPUT
+          echo "$GH_BODY" >> $GITHUB_OUTPUT
+          echo "$delimiter" >> $GITHUB_OUTPUT
+
+      - name: Download From GitHub
+        shell: bash
+        run: curl -L -o latest.zip "${{ steps.info.outputs.gh_url }}"
+
+      - name: Upload To Nexus (Dry Run)
+        if: ${{ inputs.is_dry_run && steps.info.outputs.update_required == 'true' }}
+        run: |
+          echo "DRY RUN: Uploading to Nexus"
+          echo "  file_group_id: ***"
+          echo "  filename: latest.zip"
+          echo "  display_name: mod_modular_vanilla"
+          echo "  description: |"
+          echo "    Release Notes: ${{ steps.info.outputs.gh_release_url }}"
+          echo "  version: ${{ steps.info.outputs.gh_ver }}"
+          echo "  archive_existing_file: true"
+          echo "  primary_mod_manager_download: true"
+          echo "  allow_mod_manager_download: true"
+          echo "  show_requirements_pop_up: true"
+
+      - name: Upload to Nexus
+        if: ${{ !inputs.is_dry_run && steps.info.outputs.update_required == 'true' }}
+        uses: Nexus-Mods/upload-action@main
+        with:
+          api_key: ${{ secrets.NEXUSMODS_API_KEY_BATTLEMODDERS }}
+          file_group_id: ${{ secrets.NEXUSMODS_FILE_GROUPID }}
+          filename: latest.zip
+          display_name: "mod_modular_vanilla"
+          description: |
+            Release Notes: ${{ steps.info.outputs.gh_release_url }}
+          version: ${{ steps.info.outputs.gh_ver }}
+          archive_existing_file: true
+          primary_mod_manager_download: true
+          allow_mod_manager_download: true
+          show_requirements_pop_up: true
+
+      - name: Export Packages for Inspection
+        if: ${{ inputs.is_dry_run }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-dry-run-packages
+          path: |
+            latest.zip
+          retention-days: 1
