@@ -15,19 +15,22 @@
 	{
 		local targetEntity = _targetTile.getEntity();
 
+		// Minor "fix": We sync the scheduleEvent delay to be exactly the delay from spawnProjectileEffect
+		// This also ensures that if Projectile is not shown, then there is no delay.
+		// vanilla delay is 200.
+		local delay = 1;
 		if (this.m.IsShowingProjectile && this.m.ProjectileType != 0)
 		{
-			local flip = !this.m.IsProjectileRotated && targetEntity.getPos().X > _user.getPos().X;
-
 			if (_user.getTile().getDistanceTo(targetEntity.getTile()) >= ::Const.Combat.SpawnProjectileMinDist)
 			{
-				::Tactical.spawnProjectileEffect(::Const.ProjectileSprite[this.m.ProjectileType], _user.getTile(), targetEntity.getTile(), 1.0, this.m.ProjectileTimeScale, this.m.IsProjectileRotated, flip);
+				local flip = !this.m.IsProjectileRotated && targetEntity.getPos().X > _user.getPos().X;
+				delay = ::Tactical.spawnProjectileEffect(::Const.ProjectileSprite[this.m.ProjectileType], _user.getTile(), targetEntity.getTile(), 1.0, this.m.ProjectileTimeScale, this.m.IsProjectileRotated, flip);
 			}
 		}
 
 		_user.getItems().unequip(_user.getItems().getItemAtSlot(::Const.ItemSlot.Offhand));
 		// This is the fix i.e. we use TimeUnit.Virtual instead of vanilla TimeUnit.Real
-		::Time.scheduleEvent(::TimeUnit.Virtual, 200, this.onApplyEffect.bindenv(this), {
+		::Time.scheduleEvent(::TimeUnit.Virtual, delay, this.onApplyEffect.bindenv(this), {
 			Skill = this,
 			TargetTile = _targetTile
 		});
