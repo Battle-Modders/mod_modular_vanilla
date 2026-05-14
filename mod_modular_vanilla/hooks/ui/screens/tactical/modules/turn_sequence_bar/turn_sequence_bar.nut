@@ -108,14 +108,14 @@
 			activeEntity.m.MV_CostsPreview = _costsPreview;
 			activeEntity.m.MV_IsPreviewing = true;
 
-			_activeEntity.getSkills().onCostsPreview(this.m.ActiveEntityCostsPreview);
+			activeEntity.getSkills().onCostsPreview(this.m.ActiveEntityCostsPreview);
 
 			this.m.ActiveEntityCostsPreview.actionPointsMaxPreview = ::Math.max(0, this.m.ActiveEntityCostsPreview.actionPointsMaxPreview);
 			this.m.ActiveEntityCostsPreview.fatigueMaxPreview = ::Math.max(0, this.m.ActiveEntityCostsPreview.fatigueMaxPreview);
 
 			if (this.m.ActiveEntityCostsPreview.actionPointsPreview < 0)
 			{
-				this.m.ActiveEntityCostsPreview.actionPointsPreview = _activeEntity.getActionPoints();
+				this.m.ActiveEntityCostsPreview.actionPointsPreview = activeEntity.getActionPoints();
 			}
 
 			if (this.m.ActiveEntityCostsPreview.fatiguePreview > this.m.ActiveEntityCostsPreview.fatigueMaxPreview)
@@ -123,13 +123,13 @@
 				this.m.ActiveEntityCostsPreview.fatiguePreview = this.m.ActiveEntityCostsPreview.fatigueMaxPreview;
 			}
 
-			_activeEntity.setPreviewActionPoints(this.m.ActiveEntityCostsPreview.actionPointsPreview);
-			_activeEntity.setPreviewFatigue(this.m.ActiveEntityCostsPreview.fatiguePreview);
+			activeEntity.setPreviewActionPoints(this.m.ActiveEntityCostsPreview.actionPointsPreview);
+			activeEntity.setPreviewFatigue(this.m.ActiveEntityCostsPreview.fatiguePreview);
 
-			activeEntity.getSkills().MV_runBetweenPreviewUpdates(this.MV_doCostsPreview, this, activeEntity);
+			activeEntity.getSkills().MV_runBetweenPreviewUpdates(this.MV_doCostsPreview, this);
 		}}.setActiveEntityCostsPreview;
 
-		q.MV_doCostsPreview <- { function MV_doCostsPreview( _activeEntity )
+		q.MV_doCostsPreview <- { function MV_doCostsPreview()
 		{
 			this.m.JSHandle.asyncCall("updateCostsPreview", this.m.ActiveEntityCostsPreview);
 		}}.MV_doCostsPreview;
