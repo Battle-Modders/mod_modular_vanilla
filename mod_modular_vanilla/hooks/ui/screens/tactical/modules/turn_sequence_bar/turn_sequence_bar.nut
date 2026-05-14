@@ -108,11 +108,6 @@
 			activeEntity.m.MV_CostsPreview = _costsPreview;
 			activeEntity.m.MV_IsPreviewing = true;
 
-			activeEntity.getSkills().MV_runBetweenPreviewUpdates(this.MV_doCostsPreview, this, activeEntity);
-		}}.setActiveEntityCostsPreview;
-
-		q.MV_doCostsPreview <- { function MV_doCostsPreview( _activeEntity )
-		{
 			_activeEntity.getSkills().onCostsPreview(this.m.ActiveEntityCostsPreview);
 
 			this.m.ActiveEntityCostsPreview.actionPointsMaxPreview = ::Math.max(0, this.m.ActiveEntityCostsPreview.actionPointsMaxPreview);
@@ -131,6 +126,11 @@
 			_activeEntity.setPreviewActionPoints(this.m.ActiveEntityCostsPreview.actionPointsPreview);
 			_activeEntity.setPreviewFatigue(this.m.ActiveEntityCostsPreview.fatiguePreview);
 
+			activeEntity.getSkills().MV_runBetweenPreviewUpdates(this.MV_doCostsPreview, this, activeEntity);
+		}}.setActiveEntityCostsPreview;
+
+		q.MV_doCostsPreview <- { function MV_doCostsPreview( _activeEntity )
+		{
 			this.m.JSHandle.asyncCall("updateCostsPreview", this.m.ActiveEntityCostsPreview);
 		}}.MV_doCostsPreview;
 
