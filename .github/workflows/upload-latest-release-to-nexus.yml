@@ -2,7 +2,7 @@ name: Upload Latest Release to NexusMods
 
 on:
   release:
-    types: [published, released]
+    types: [published]
   workflow_dispatch:
     inputs:
       is_dry_run:
