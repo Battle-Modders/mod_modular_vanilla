@@ -1,4 +1,6 @@
 ::ModularVanilla.MH.hook("scripts/states/tactical_state", function(q) {
+	q.m.__MV_IsSettingActionState <- false;
+	q.m.__MV_Suppress <- false;
 	// Each element in this array is a weakref to an instance of MV_AttackInfo during skill.attackEntity.
 	// The purpose is to allow access to the attackInfo from all functions which
 	// do not get it passed directly e.g. onTargetMissed.
@@ -49,8 +51,103 @@
 		// part of affordability preview system
 		q.executeEntitySkill = @(__original) { function executeEntitySkill( _activeEntity, _targetTile )
 		{
+			::logWarning("executeEntitySkill " + this.m.CurrentActionState);
+			::MSU.Log.printStackTrace();
 			_activeEntity.resetPreview();
+
+			// Skills may have varying costs depending on their selected target. So, before skill execution
+			// we check the affordability of the skill by setting the selected target to _targetTile.
+			local skill = _activeEntity.getSkills().getSkillByID(this.m.SelectedSkillID);
+			if (skill != null && skill.isTargeted() && skill.verifyTargetAndRange(_targetTile))
+			{
+				// skill.m.MV_SelectedTarget is expected to be null here because
+				// target gets deselected before skill execution, so we have to set it again
+				// here so that the isAffordable check gets the correct costs.
+				local original_SelectedTarget = skill.m.MV_SelectedTarget;
+				skill.m.MV_SelectedTarget = _targetTile;
+
+				if (!skill.isAffordable())
+				{
+					// This is a copy of how vanilla does flashing and sound in `tactical_state.setActionStateByMouseEvent`.
+					::Tactical.TurnSequenceBar.flashProgressbars(!skill.isAffordableBasedOnAP(), !skill.isAffordableBasedOnFatigue());
+					if (this.m.LastFatigueSoundTime + 3.0 < ::Time.getVirtualTimeF())
+					{
+						_activeEntity.playSound(::Const.Sound.ActorEvent.Fatigue, ::Const.Sound.Volume.Actor * _activeEntity.m.SoundVolume[::Const.Sound.ActorEvent.Fatigue]);
+						this.m.LastFatigueSoundTime = ::Time.getVirtualTimeF();
+					}
+
+					// We reset the affordability preview at the start of this function
+					// (to ensure we get costs for usage instead of preview)
+					// therefore, we have to restore it here by selecting the target again.
+					skill.onTargetSelected(_targetTile);
+					// this.m.CurrentActionState = null;
+					// this.setActionStateBySkill(_activeEntity, skill);
+					return;
+				}
+
+				skill.m.MV_SelectedTarget = original_SelectedTarget;
+			}
+
 			return __original(_activeEntity, _targetTile);
 		}}.executeEntitySkill;
+
+		q.setActionStateBySkillIndex = @(__original) { function setActionStateBySkillIndex( _skillIndex )
+		{
+			this.m.__MV_IsSettingActionState = true;
+			__original(_skillIndex);
+			this.m.__MV_IsSettingActionState = false;
+		}}.setActionStateBySkillIndex;
+
+		q.setActionStateBySkillId = @(__original) { function setActionStateBySkillId( _skillId )
+		{
+			this.m.__MV_IsSettingActionState = true;
+			__original(_skillId);
+			this.m.__MV_IsSettingActionState = false;
+		}}.setActionStateBySkillId;
+
+		q.setActionStateBySkill = @(__original) { function setActionStateBySkill( _activeEntity, _skill )
+		{
+			local was = this.m.__MV_IsSettingActionState;
+			this.m.__MV_IsSettingActionState = false;
+			this.m.__MV_Suppress = true;
+
+			// ::MSU.Log.printStackTrace();
+			if (this.m.CurrentActionState == ::Const.Tactical.ActionState.SkillSelected)
+			{
+				__original(_activeEntity, _skill)
+			}
+			else
+			{
+				// local reload = ::Tooltip.reload;
+				// ::Tooltip.reload = @() null;
+
+				local updateCursorAndTooltip = this.updateCursorAndTooltip;
+				this.updateCursorAndTooltip = @(_skillSelected = false) null;
+
+				__original(_activeEntity, _skill);
+
+				// ::Tooltip.reload = reload;
+				this.updateCursorAndTooltip = updateCursorAndTooltip;
+
+				if (this.m.CurrentActionState == ::Const.Tactical.ActionState.SkillSelected)
+				{
+					::Tooltip.reload();
+					this.updateCursorAndTooltip(true);
+				}
+			}
+
+			this.m.__MV_IsSettingActionState = was;
+			this.m.__MV_Suppress = false;
+		}}.setActionStateBySkill;
+
+		q.cancelEntitySkill = @(__original) { function cancelEntitySkill( _activeEntity )
+		{
+			local skill = _activeEntity.getSkills().getSkillByID(this.m.SelectedSkillID);
+			if (skill != null)
+			{
+				skill.m.MV_SelectedTarget = null;
+			}
+			__original(_activeEntity);
+		}}.cancelEntitySkill;
 	});
 });
