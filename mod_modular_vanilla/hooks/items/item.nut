@@ -54,6 +54,42 @@
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
 	::ModularVanilla.MH.hookTree("scripts/items/item", function(q) {
+		// VanillaFix: https://steamcommunity.com/app/365360/discussions/1/663863113757762810/
+		// Prevent duplicate words in named item names e.g. Sellsword's Sellsword's Hide.
+		// We do this via a hookTree on item so any new named items (e.g. Artifacts mod)
+		// are also covered by the fix, as long as they use a `createRandomName` function.
+		if (q.contains("createRandomName"))
+		{
+			q.createRandomName = @(__original) function()
+			{
+				// False if two consecutive words are the same. True otherwise.
+				local function validateName( _name )
+				{
+					local arr = ::split(_name, " ");
+					foreach (i, word in arr)
+					{
+						if (i != arr.len() - 1 && word == arr[i+1])
+							return false;
+					}
+					return true;
+				}
+
+				local ret = __original();
+
+				// For loop instead of while loop to prevent infinite loop
+				// in case __original always returns an invalid name.
+				for (local i = 0; i < 10; i++)
+				{
+					if (validateName(ret))
+						break;
+					else
+						ret = __original();
+				}
+
+				return ret;
+			}
+		}
+
 		// MV: Part of framework: base item for named items
 		q.create = @(__original) { function create()
 		{
