@@ -15,7 +15,7 @@
 	// certain skills e.g. fire_handgonne_skill to set the MaxRange of the skill to that of the item.
 	q.onItemSet = @(__original) { function onItemSet()
 	{
-		this.m.MaxRange = this.getItem().getRangeMax();
+		this.m.MaxRange = this.getItem().getRangeMax() - 1;
 		__original();
 	}}.onItemSet;
 });
