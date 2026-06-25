@@ -15,7 +15,7 @@
 
 ::ModularVanilla.MH <- ::Hooks.register(::ModularVanilla.ID, ::ModularVanilla.Version, ::ModularVanilla.Name);
 ::ModularVanilla.MH.require([
-	"vanilla >= 1.5.1-8",
+	"vanilla >= 1.5.2-3",
 	"dlc_lindwurm",
 	"dlc_unhold",
 	"dlc_wildmen",
