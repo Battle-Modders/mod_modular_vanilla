@@ -18,7 +18,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Fetch and Compare Versions
         id: info
@@ -37,11 +37,8 @@ jobs:
           GH_ZIP_NAME=$(echo "$GH_ASSET" | jq -r .name)
 
           # 3. Fetch Nexus Mod Files Info
-          NEXUS_JSON=$(curl -s -H "apikey: $NEXUS_API_KEY" https://api.nexusmods.com/v3/file-update-groups/$FILE_GID/versions)
-
-          # Parse Nexus (Taking the first entry as the latest)
-          NEXUS_FILE=$(echo "$NEXUS_JSON" | jq -c '.data.versions[0].file')
-          NEXUS_VER=$(echo "$NEXUS_FILE" | jq -r .version)
+          NEXUS_JSON=$(curl -s -H "apikey: $NEXUS_API_KEY" https://api.nexusmods.com/v3/mod-files/$FILE_GID/versions)
+          NEXUS_VER=$(echo "$NEXUS_JSON" | jq -r '.data.versions[0].version // empty')
 
           # Semantic comparison: returns 0 (true) if $2 is newer than $1
           is_newer() {
@@ -87,13 +84,13 @@ jobs:
         if: ${{ inputs.is_dry_run && steps.info.outputs.update_required == 'true' }}
         run: |
           echo "DRY RUN: Uploading to Nexus"
-          echo "  file_group_id: ***"
+          echo "  file_id: ***"
           echo "  filename: latest.zip"
           echo "  display_name: mod_modular_vanilla"
           echo "  description: |"
           echo "    Release Notes: ${{ steps.info.outputs.gh_release_url }}"
           echo "  version: ${{ steps.info.outputs.gh_ver }}"
-          echo "  archive_existing_file: true"
+          echo "  archive_existing_version: true"
           echo "  primary_mod_manager_download: true"
           echo "  allow_mod_manager_download: true"
           echo "  show_requirements_pop_up: true"
@@ -103,20 +100,20 @@ jobs:
         uses: Nexus-Mods/upload-action@main
         with:
           api_key: ${{ secrets.NEXUSMODS_API_KEY_BATTLEMODDERS }}
-          file_group_id: ${{ secrets.NEXUSMODS_FILE_GROUPID }}
+          file_id: ${{ secrets.NEXUSMODS_FILE_GROUPID }}
           filename: latest.zip
           display_name: "mod_modular_vanilla"
           description: |
             Release Notes: ${{ steps.info.outputs.gh_release_url }}
           version: ${{ steps.info.outputs.gh_ver }}
-          archive_existing_file: true
+          archive_existing_version: true
           primary_mod_manager_download: true
           allow_mod_manager_download: true
           show_requirements_pop_up: true
 
       - name: Export Packages for Inspection
         if: ${{ inputs.is_dry_run }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nexus-dry-run-packages
           path: |
