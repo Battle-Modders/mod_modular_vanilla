@@ -647,10 +647,12 @@
 	// Add check for the target entity's tile being a valid target for the AOO skill.
 	// We only add check for MaxLevelDifference as using onVerifyTarget does not work nicely
 	// when the _entity is not yet in valid target tile and we want to predict the ZoC attack possibility.
-	q.onMovementInZoneOfControl = @(__original) { function onMovementInZoneOfControl( _entity, _isOnEnter )
-	{
-		return __original(_entity, _isOnEnter) && ::Math.abs(_entity.getTile().Level - this.getTile().Level) <= this.getSkills().getAttackOfOpportunity().m.MaxLevelDifference;
-	}}.onMovementInZoneOfControl;
+	// TODO: This is disabled until we find a better solution as during movement into Spearwall vanilla calls
+	// this function BEFORE the movement is complete, causing _entity.getTile() to return the starting tile.
+	// q.onMovementInZoneOfControl = @(__original) { function onMovementInZoneOfControl( _entity, _isOnEnter )
+	// {
+	// 	return __original(_entity, _isOnEnter) && ::Math.abs(_entity.getTile().Level - this.getTile().Level) <= this.getSkills().getAttackOfOpportunity().m.MaxLevelDifference;
+	// }}.onMovementInZoneOfControl;
 
 	// MV: Modularized
 	// Extracted the removal of effects into a new skill_container.MV_onMoraleStateChanged event
