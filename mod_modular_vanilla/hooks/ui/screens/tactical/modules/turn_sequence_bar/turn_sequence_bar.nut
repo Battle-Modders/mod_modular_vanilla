@@ -83,6 +83,8 @@
 		// part of affordability preview system
 		q.setActiveEntityCostsPreview = @(__original) { function setActiveEntityCostsPreview( _costsPreview )
 		{
+			::logWarning("setActiveEntityCostsPreview " + ::Tactical.State.m.SelectedSkillID);
+			::MSU.Log.printStackTrace();
 			local activeEntity = this.getActiveEntity();
 			if (activeEntity == null || ::getModSetting("mod_msu", "ExpandedSkillTooltips").getValue() == false)
 				return __original(_costsPreview);
@@ -138,6 +140,8 @@
 		// part of affordability preview system
 		q.resetActiveEntityCostsPreview = @(__original) { function resetActiveEntityCostsPreview()
 		{
+			::logWarning("resetActiveEntityCostsPreview " + ::Tactical.State.m.SelectedSkillID);
+			::MSU.Log.printStackTrace();
 			local activeEntity = this.getActiveEntity();
 			if (activeEntity != null)
 			{
@@ -148,5 +152,12 @@
 			}
 			__original();
 		}}.resetActiveEntityCostsPreview;
+
+		q.convertEntitySkillsToUIData = @(__original) { function convertEntitySkillsToUIData( _id )
+		{
+			::logWarning("convertEntitySkillsToUIData");
+			::MSU.Log.printStackTrace();
+			return __original(_id);
+		}}.convertEntitySkillsToUIData;
 	});
 });
