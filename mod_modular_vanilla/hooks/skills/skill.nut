@@ -62,6 +62,19 @@
 	}}.MV_onMoraleStateChanged;
 
 	// MV: Added
+	// Part of the actor.MV_interruptSkills framework
+	q.MV_onSkillsInterrupted <- function()
+	{
+	}
+
+	// MV: Added
+	// skill_container event that is triggered from onAdded of disarmed_effect
+	// but modders can also manually call this from other places as necessary.
+	q.MV_onDisarmed <- function()
+	{
+	}
+
+	// MV: Added
 	// Part of skill.onScheduledTargetHit modularization.
 	// But useful on its own as well.
 	q.MV_getDamageRegular <- { function MV_getDamageRegular( _properties, _targetEntity = null )
