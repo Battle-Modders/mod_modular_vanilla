@@ -52,5 +52,18 @@
 			_activeEntity.resetPreview();
 			return __original(_activeEntity, _targetTile);
 		}}.executeEntitySkill;
+
+		// VanillaFix: https://steamcommunity.com/app/365360/discussions/1/590691400522293303/
+		// Vanilla does not trigger a skill container update for bros after they have been removed
+		// from the combat map. This can lead to lingering effects on bros after the combat. We fix
+		// this by adding an extra update after the bros are removed from combat.
+		q.onFinish = @(__original) { function onFinish()
+		{
+			__original();
+			foreach (bro in ::World.getPlayerRoster().getAll())
+			{
+				bro.getSkills().update();
+			}
+		}}.onFinish;
 	});
 });
