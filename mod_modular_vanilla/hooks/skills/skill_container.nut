@@ -89,10 +89,85 @@
 
 		this.update();
 	}}.MV_onMoraleStateChanged;
+
+	// MV: Added
+	// Part of the actor.MV_interruptSkills framework
+	q.MV_onSkillsInterrupted <- function()
+	{
+		local wasUpdating = this.m.IsUpdating;
+		this.m.IsUpdating = true;
+
+		foreach (s in this.m.Skills)
+		{
+			if (!s.isGarbage())
+				s.MV_onSkillsInterrupted();
+		}
+
+		this.m.IsUpdating = wasUpdating;
+		this.update();
+	}
+
+	// MV: Added
+	// triggered from onAdded of disarmed_effect
+	// but modders can also manually call this from other places as necessary.
+	q.MV_onDisarmed <- function()
+	{
+		local wasUpdating = this.m.IsUpdating;
+		this.m.IsUpdating = true;
+
+		foreach (s in this.m.Skills)
+		{
+			if (!s.isGarbage())
+				s.MV_onDisarmed();
+		}
+
+		this.m.IsUpdating = wasUpdating;
+		this.update();
+	}
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
 	::ModularVanilla.MH.hook("scripts/skills/skill_container", function (q) {
+		q.m.__MV_InterruptionFrame <- 0; // Part of the actor.MV_interruptSkills framework
+		q.m.__MV_InterruptedSkillIDs <- []; // Part of the actor.MV_interruptSkills framework
+
+		// Part of actor.MV_interruptSkills framework
+		// In vanilla skills which "interrupt" a character remove: effects.shieldwall, effects.spearwall, effects.riposte
+		// immediately one after the other i.e. it happens within a single frame. So we check if all 3 effects were
+		// removed in a single frame and assume that the vanilla intention is to trigger an interruption of the actor.
+		// This is done instead of hooking every single vanilla file which triggers these kinds of interruptions.
+		// This implementation should also cover all mods which followed the vanilla style of removing those 3 effects only.
+		// An exception is the disarmed_effect which doesn't remove shieldwall. For that we trigger a new event MV_onDisarmed
+		// from disarmed_effect.onAdded directly.
+		q.removeByID = @(__original) function( _skillID )
+		{
+			switch (_skillID)
+			{
+				case "effects.shieldwall":
+				case "effects.spearwall":
+				case "effects.riposte":
+					local frame = ::Time.getFrame();
+					if (frame != this.m.__MV_InterruptionFrame)
+					{
+						this.m.__MV_InterruptedSkillIDs.clear();
+						this.m.__MV_InterruptionFrame = frame;
+					}
+					else if (this.m.__MV_InterruptedSkillIDs.find(_skillID) == null)
+					{
+						this.m.__MV_InterruptedSkillIDs.push(_skillID);
+					}
+					break;
+			}
+
+			__original(_skillID);
+
+			if (this.m.__MV_InterruptedSkillIDs.len() == 3)
+			{
+				this.m.__MV_InterruptedSkillIDs.clear();
+				this.getActor().MV_interruptSkills();
+			}
+		}
+
 		// MV: Changed
 		// part of affordability preview system
 		// Prevent collectGarbage from running during a preview type skill_container.update
