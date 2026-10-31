@@ -5,7 +5,8 @@
 	// For modifying the effect of various things that can scale resources, its better to hook MV_getResourcesScalingMults instead.
 	q.MV_getScaledResources <- { function MV_getScaledResources() {
 		local ret = this.m.Resources;
-		foreach (mult in this.MV_getResourcesScalingMults)
+		local mults = this.MV_getResourcesScalingMults();
+		foreach (mult in mults)
 		{
 			ret *= mult;
 		}
@@ -27,6 +28,14 @@
 			Strength = 1.0
 		};
 	}}.MV_getResourcesScalingMults;
+
+	// MV: Added
+	// Part of location.setLootScaleBasedOnResources
+	// Uses the same modifiers as location.MV_getResourcesScalingMults by default, extracted to be modifiable
+	q.MV_getResourcesLootScalingMults <- { function MV_getResourcesLootScalingMults()
+	{
+		return this.MV_getResourcesScalingMults();
+	}}.MV_getResourcesLootScalingMults;
 
 	// MV: Extracted
 	// Part of location.createDefenders modularization
@@ -114,4 +123,16 @@
 			this.updateStrength();
 		}
 	}}.createDefenders;
+
+	// MV: Changed
+	// Use the same multipliers as difficulty by default; modifiable
+	q.setLootScaleBasedOnResources = @() {function setLootScaleBasedOnResources( _r ){
+		local resources = this.m.Resources;
+		local mults = this.MV_getResourcesLootScalingMults();
+		foreach (mult in mults)
+		{
+			resources *= mult;
+		}
+		this.m.LootScale = this.Math.minf(1.0, _r / resources);
+	}}.setLootScaleBasedOnResources;
 });
