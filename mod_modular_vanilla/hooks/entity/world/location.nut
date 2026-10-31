@@ -10,12 +10,24 @@
 		{
 			ret *= mult;
 		}
-		if (::Time.getVirtualTimeF() - this.m.LastSpawnTime <= ::Const.World.Settings.MV_LastSpawnResourcesTime)
+		local postPatrol = this.MV_getPostPatrolScales();
+		local LastSpawnResourcesTime = ::MSU.isNull(postPatrol.MV_LastSpawnResourcesTime) ? ::Const.World.Settings.MV_LastSpawnResourcesTime : postPatrol.MV_LastSpawnResourcesTime;
+		local LastSpawnResourcesMult = ::MSU.isNull(postPatrol.MV_LastSpawnResourcesMult) ? ::Const.World.Settings.MV_LastSpawnResourcesMult : postPatrol.MV_LastSpawnResourcesMult;
+		if (::Time.getVirtualTimeF() - this.m.LastSpawnTime <= LastSpawnResourcesTime)
 		{
-			ret *= ::Const.World.Settings.MV_LastSpawnResourcesMult;
+			ret *= LastSpawnResourcesMult;
 		}
 		return ret;
 	}}.MV_getScaledResources;
+
+	// MV: Added
+	// Potential overwrite for global scaling after patrol spawn.
+	q.MV_getPostPatrolScales <- { function MV_getPostPatrolScales() {
+		return {
+			MV_LastSpawnResourcesTime = null;
+			MV_LastSpawnResourcesMult = null;
+		}
+	}}.MV_getPostPatrolScales;
 
 	// MV: Added
 	// Part of location.createDefenders modularization
@@ -31,7 +43,7 @@
 
 	// MV: Added
 	// Part of location.setLootScaleBasedOnResources
-	// Uses the same modifiers as location.MV_getResourcesScalingMults by default, extracted to be modifiable
+	// Uses the same modifiers as location.MV_getResourcesScalingMults by default, extracted to be modifiable.
 	q.MV_getResourcesLootScalingMults <- { function MV_getResourcesLootScalingMults()
 	{
 		return this.MV_getResourcesScalingMults();
@@ -125,7 +137,7 @@
 	}}.createDefenders;
 
 	// MV: Changed
-	// Use the same multipliers as difficulty by default; modifiable
+	// Use the same multipliers as difficulty by default (same as vanilla logic); modifiable.
 	q.setLootScaleBasedOnResources = @() {function setLootScaleBasedOnResources( _r ){
 		local resources = this.m.Resources;
 		local mults = this.MV_getResourcesLootScalingMults();
