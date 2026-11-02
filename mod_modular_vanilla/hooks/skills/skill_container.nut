@@ -92,7 +92,9 @@
 
 	// MV: Added
 	// Part of the actor.MV_interruptSkills framework
-	q.MV_onSkillsInterrupted <- function()
+	// This is a notification, not a veto: when triggered by the detection in removeByID
+	// vanilla has already removed shieldwall, spearwall and riposte.
+	q.MV_onSkillsInterrupted <- { function MV_onSkillsInterrupted()
 	{
 		local wasUpdating = this.m.IsUpdating;
 		this.m.IsUpdating = true;
@@ -105,12 +107,12 @@
 
 		this.m.IsUpdating = wasUpdating;
 		this.update();
-	}
+	}}.MV_onSkillsInterrupted;
 
 	// MV: Added
 	// triggered from onAdded of disarmed_effect
 	// but modders can also manually call this from other places as necessary.
-	q.MV_onDisarmed <- function()
+	q.MV_onDisarmed <- { function MV_onDisarmed()
 	{
 		local wasUpdating = this.m.IsUpdating;
 		this.m.IsUpdating = true;
@@ -123,7 +125,7 @@
 
 		this.m.IsUpdating = wasUpdating;
 		this.update();
-	}
+	}}.MV_onDisarmed;
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
@@ -139,7 +141,9 @@
 		// This implementation should also cover all mods which followed the vanilla style of removing those 3 effects only.
 		// An exception is the disarmed_effect which doesn't remove shieldwall. For that we trigger a new event MV_onDisarmed
 		// from disarmed_effect.onAdded directly.
-		q.removeByID = @(__original) function( _skillID )
+		// The resulting MV_onSkillsInterrupted event fires after vanilla has already removed the effects, so it is a
+		// notification and cannot prevent the removal. New skills which interrupt should call actor.MV_interruptSkills directly.
+		q.removeByID = @(__original) { function removeByID( _skillID )
 		{
 			switch (_skillID)
 			{
@@ -166,7 +170,7 @@
 				this.m.__MV_InterruptedSkillIDs.clear();
 				this.getActor().MV_interruptSkills();
 			}
-		}
+		}}.removeByID;
 
 		// MV: Changed
 		// part of affordability preview system

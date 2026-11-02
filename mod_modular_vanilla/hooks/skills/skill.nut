@@ -63,16 +63,16 @@
 
 	// MV: Added
 	// Part of the actor.MV_interruptSkills framework
-	q.MV_onSkillsInterrupted <- function()
+	q.MV_onSkillsInterrupted <- { function MV_onSkillsInterrupted()
 	{
-	}
+	}}.MV_onSkillsInterrupted;
 
 	// MV: Added
 	// skill_container event that is triggered from onAdded of disarmed_effect
 	// but modders can also manually call this from other places as necessary.
-	q.MV_onDisarmed <- function()
+	q.MV_onDisarmed <- { function MV_onDisarmed()
 	{
-	}
+	}}.MV_onDisarmed;
 
 	// MV: Added
 	// Part of skill.onScheduledTargetHit modularization.

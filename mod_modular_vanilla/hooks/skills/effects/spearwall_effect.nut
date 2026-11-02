@@ -1,15 +1,15 @@
 ::ModularVanilla.MH.hook("scripts/skills/effects/spearwall_effect", function(q) {
 	// Part of the actor.MV_interruptSkills framework
-	q.MV_onSkillsInterrupted = @() function()
+	q.MV_onSkillsInterrupted = @() { function MV_onSkillsInterrupted()
 	{
 		this.removeSelf();
-	}
+	}}.MV_onSkillsInterrupted;
 
 	// Part of the skill_container.MV_onDisarmed framework
-	q.MV_onDisarmed = @() function()
+	q.MV_onDisarmed = @() { function MV_onDisarmed()
 	{
 		this.removeSelf();
-	}
+	}}.MV_onDisarmed;
 	
 	// MV: Added
 	// Part of modularization of actor.setMoraleState
