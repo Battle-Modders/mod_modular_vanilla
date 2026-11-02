@@ -130,7 +130,7 @@
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {
 	::ModularVanilla.MH.hook("scripts/skills/skill_container", function (q) {
-		q.m.__MV_InterruptionFrame <- 0; // Part of the actor.MV_interruptSkills framework
+		q.m.__MV_InterruptionFrame <- -1; // Part of the actor.MV_interruptSkills framework
 		q.m.__MV_InterruptedSkillIDs <- []; // Part of the actor.MV_interruptSkills framework
 
 		// Part of actor.MV_interruptSkills framework
