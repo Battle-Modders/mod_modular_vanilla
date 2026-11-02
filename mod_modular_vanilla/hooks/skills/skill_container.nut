@@ -152,7 +152,7 @@
 						this.m.__MV_InterruptedSkillIDs.clear();
 						this.m.__MV_InterruptionFrame = frame;
 					}
-					else if (this.m.__MV_InterruptedSkillIDs.find(_skillID) == null)
+					if (this.m.__MV_InterruptedSkillIDs.find(_skillID) == null)
 					{
 						this.m.__MV_InterruptedSkillIDs.push(_skillID);
 					}
