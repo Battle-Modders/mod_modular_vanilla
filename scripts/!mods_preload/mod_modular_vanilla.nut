@@ -29,6 +29,7 @@
 ::ModularVanilla.MH.queue("<mod_msu", function()
 {
 	::include("mod_modular_vanilla/hooks_helper.nut");
+	::include("mod_modular_vanilla/simulation.nut");
 
 	foreach (file in ::IO.enumerateFiles("ui/mods/mod_modular_vanilla/css_hooks"))
 	{

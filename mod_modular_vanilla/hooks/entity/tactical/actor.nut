@@ -295,6 +295,24 @@
 		}
 	}}.MV_checkMoraleOnDamageReceived;
 
+	// MV: Added
+	// Extraction of part of vanilla logic from actor.onDamageReceived.
+	// Prepares the incoming _hitInfo and sets _hitInfo.MV_PropertiesForBeingHit
+	// by running the onBeforeDamageReceived events of skills and items.
+	// Also used by skill.getExpectedDamage.
+	q.MV_prepareHitInfoForBeingHit <- { function MV_prepareHitInfoForBeingHit( _attacker, _skill, _hitInfo )
+	{
+		if (this.getCurrentProperties().IsImmuneToCriticals || this.getCurrentProperties().IsImmuneToHeadshots)
+		{
+			_hitInfo.BodyDamageMult = 1.0;
+		}
+
+		local p = this.getSkills().buildPropertiesForBeingHit(_attacker, _skill, _hitInfo);
+		_hitInfo.MV_PropertiesForBeingHit = p; // MV: Added
+
+		this.getItems().onBeforeDamageReceived(_attacker, _skill, _hitInfo, p);
+	}}.MV_prepareHitInfoForBeingHit;
+
 	// MV: Modularized
 	// Note: We also hook and redirect lindwurm_tail's custom onDamageReceived implementation
 	// to use this modularized version to keep things DRY
@@ -305,6 +323,7 @@
 		// MV: Added
 		// To allow the current HitInfo to be globally accessible.
 		::Tactical.State.m.__MV_CurrentHitInfos.push(_hitInfo.weakref());
+		::ModularVanilla.Simulation.StateVersion++;
 
 		if (!this.isAlive() || !this.isPlacedOnMap())
 		{
@@ -329,15 +348,7 @@
 			this.getTile().addVisibilityForCurrentEntity();
 		}
 
-		if (this.getCurrentProperties().IsImmuneToCriticals || this.getCurrentProperties().IsImmuneToHeadshots)
-		{
-			_hitInfo.BodyDamageMult = 1.0;
-		}
-
-		local p = this.getSkills().buildPropertiesForBeingHit(_attacker, _skill, _hitInfo);
-		_hitInfo.MV_PropertiesForBeingHit = p; // MV: Added
-
-		this.getItems().onBeforeDamageReceived(_attacker, _skill, _hitInfo, p);
+		this.MV_prepareHitInfoForBeingHit(_attacker, _skill, _hitInfo); // MV: Extracted
 
 		this.MV_calcArmorDamageReceived(_skill, _hitInfo); // MV: Extracted
 		this.MV_calcHitpointsDamageReceived(_skill, _hitInfo);// MV: Extracted
@@ -584,6 +595,7 @@
 	// MV: Modularized
 	q.onMovementFinish = @() { function onMovementFinish( _tile )
 	{
+		::ModularVanilla.Simulation.StateVersion++; // MV: Added
 		this.m.IsMoving = true;
 		this.updateVisibility(_tile, this.getCurrentProperties().getVision(), this.getFaction());
 
