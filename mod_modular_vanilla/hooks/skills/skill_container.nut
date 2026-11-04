@@ -89,6 +89,18 @@
 
 		this.update();
 	}}.MV_onMoraleStateChanged;
+
+	q.MV_onTargetedActorTooltip <- { function MV_onTargetedActorTooltip( _skill, _target, _tooltip )
+	{
+		local wasUpdating = this.m.IsUpdating;
+		this.m.IsUpdating = true;
+		foreach (s in this.m.Skills)
+		{
+			if (!s.isGarbage())
+				s.MV_onTargetedActorTooltip(_skill, _target, _tooltip);
+		}
+		this.m.IsUpdating = wasUpdating;
+	}}.MV_onTargetedActorTooltip;
 });
 
 ::ModularVanilla.QueueBucket.VeryLate.push(function() {

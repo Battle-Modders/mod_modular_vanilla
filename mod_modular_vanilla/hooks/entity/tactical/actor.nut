@@ -55,6 +55,17 @@
 			}
 			return ret;
 		}}.generateCorpse;
+
+		q.getTooltip = @(__original) { function getTooltip( _targetedWithSkill = null )
+		{
+			local ret = __original(_targetedWithSkill);
+			if (_targetedWithSkill != null)
+			{
+				this.getSkills().MV_onTargetedActorTooltip(_targetedWithSkill, this, ret);
+				_targetedWithSkill.getContainer().MV_onTargetedActorTooltip(_targetedWithSkill, this, ret);
+			}
+			return ret;
+		}}.getTooltip;
 	});
 });
 
