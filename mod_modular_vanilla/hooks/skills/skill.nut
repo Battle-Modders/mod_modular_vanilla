@@ -55,6 +55,10 @@
 		}
 	}}.getFatigueCost;
 
+	q.MV_onTargetedActorTooltip <- { function MV_onTargetedActorTooltip( _skill, _target, _tooltip )
+	{
+	}}.MV_onTargetedActorTooltip;
+
 	// MV: Added
 	// Part of modularization of actor.setMoraleState
 	q.MV_onMoraleStateChanged <- { function MV_onMoraleStateChanged( _oldState )
