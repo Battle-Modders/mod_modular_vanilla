@@ -184,7 +184,8 @@ local function removeTestSkill( _actor, _id )
 	local realM = a.m;
 	::BBTest.assertThrows(function() {
 		::ModularVanilla.Simulation.run(function() {
-			a.m.Count++;
+			// Reached through the container like the skill events do (references held outside of any `m` are not in the scope)
+			c.Attacker.getSkills().getSkillByID("test.sim_throw").m.Count++;
 			throw "test error";
 		}, [c.Attacker, c.Target]);
 	});
@@ -438,6 +439,32 @@ local function removeTestSkill( _actor, _id )
 		::BBTest.bench("full map: empty run without shadowing", @() ::ModularVanilla.Simulation.run(@() null), 50);
 		if (::MVSimTest.S != null)
 		{
+			// Force-shadowing variants of the simulation done by getExpectedDamage
+			::MVSimTest.simulate <- function( _shadowed )
+			{
+				return ::ModularVanilla.Simulation.run(function() {
+					local body = ::MVSimTest.S.MV_simulateHit(::MVSimTest.T, ::Const.BodyPart.Body);
+					::ModularVanilla.Simulation.reset();
+					local head = ::MVSimTest.S.MV_simulateHit(::MVSimTest.T, ::Const.BodyPart.Head);
+					return [body, head];
+				}, [::MVSimTest.A, ::MVSimTest.T], _shadowed);
+			};
+			local a = ::MVSimTest.A, t = ::MVSimTest.T, sk = ::MVSimTest.S;
+			::MVSimTest.Variants <- {
+				All = [sk, a, a.getSkills(), a.getItems(), t, t.getSkills(), t.getItems()],
+				Middle = [sk, t, a.getSkills(), t.getSkills()],
+				Minimal = [sk, t]
+			};
+			local results = {};
+			foreach (name in ["All", "Middle", "Minimal", "All", "Middle", "Minimal"])
+			{
+				::MVSimTest.Variant <- ::MVSimTest.Variants[name];
+				results[name] <- ::MVSimTest.simulate(::MVSimTest.Variant);
+				::BBTest.bench("full map: force-shadow " + name, @() ::MVSimTest.simulate(::MVSimTest.Variant), 100);
+			}
+			foreach (name, r in results)
+				::logWarning("MV Simulation variant " + name + ": body=" + r[0].HitpointDamage + "/" + r[0].ArmorDamage + " head=" + r[1].HitpointDamage + "/" + r[1].ArmorDamage);
+
 			::BBTest.bench("full map: getExpectedDamage uncached", function() {
 				::ModularVanilla.Simulation.StateVersion++;
 				::MVSimTest.S.getExpectedDamage(::MVSimTest.T);

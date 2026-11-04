@@ -46,7 +46,7 @@
 				head = this.MV_simulateHit(_target, ::Const.BodyPart.Head);
 			}
 			return [body, head];
-		}.bindenv(this), [this.getContainer().getActor(), _target], [this]);
+		}.bindenv(this), [this.getContainer().getActor(), _target], [this, _target, this.getContainer(), _target.getSkills()]);
 
 		local body = results[0];
 		local head = results[1];

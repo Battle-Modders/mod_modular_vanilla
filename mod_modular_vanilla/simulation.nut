@@ -14,7 +14,8 @@
 // Notes:
 // - Squirrel's `in` only checks the raw slots of a table and doesn't trigger metamethods, so `in` and `::MSU.isIn`
 //   on the `m` of an object which hasn't been written to yet see an empty table. The objects passed as `_shadowed`
-//   to `run` (e.g. attacker, target and the used skill) are shadowed right away to avoid this for them.
+//   to `run` are shadowed right away to avoid this for them (e.g. getExpectedDamage passes the target and the used
+//   skill because MSU checks `::MSU.isIn("IsHeadless", _targetEntity.m, true)` and `::MSU.isIn("AdditionalAccuracy", _caller.m, true)`).
 // - Changes to native state (e.g. sprites) and to objects outside the scope are not rolled back. Objects are
 //   outside the scope if they are only reachable through native functions (other than actors) or through
 //   values nested more than two levels deep in an `m`.
@@ -67,19 +68,13 @@
 
 	// Runs _function (without arguments) inside a simulation and returns its return value.
 	// _actors (array or null): the main actors involved e.g. attacker and target. They are always part of the scope.
-	// _shadowed (array or null): objects which are shadowed right away. The _actors and their containers always are.
+	// _shadowed (array or null): objects which are shadowed right away, see the notes at the top.
 	function run( _function, _actors = null, _shadowed = null )
 	{
 		if (_actors == null)
 			_actors = [];
 
-		local shadowed = _shadowed == null ? [] : clone _shadowed;
-		foreach (actor in _actors)
-		{
-			shadowed.push(actor);
-			shadowed.push(actor.getSkills());
-			shadowed.push(actor.getItems());
-		}
+		local shadowed = _shadowed == null ? [] : _shadowed;
 
 		local stacks = this.__getInfoStacks();
 		local transaction = {
