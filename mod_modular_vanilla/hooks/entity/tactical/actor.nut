@@ -323,6 +323,7 @@
 		// MV: Added
 		// To allow the current HitInfo to be globally accessible.
 		::Tactical.State.m.__MV_CurrentHitInfos.push(_hitInfo.weakref());
+		::ModularVanilla.Simulation.StateVersion++;
 
 		if (!this.isAlive() || !this.isPlacedOnMap())
 		{
@@ -594,6 +595,7 @@
 	// MV: Modularized
 	q.onMovementFinish = @() { function onMovementFinish( _tile )
 	{
+		::ModularVanilla.Simulation.StateVersion++; // MV: Added
 		this.m.IsMoving = true;
 		this.updateVisibility(_tile, this.getCurrentProperties().getVision(), this.getFaction());
 

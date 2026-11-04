@@ -98,9 +98,21 @@
 		// Prevent collectGarbage from running during a preview type skill_container.update
 		q.collectGarbage = @(__original) { function collectGarbage( _performUpdate = true )
 		{
-			if (!this.getActor().m.MV_IsDoingPreviewUpdate)
+			// Part of ::ModularVanilla.Simulation: no structural changes while simulating
+			if (!this.getActor().m.MV_IsDoingPreviewUpdate && !::ModularVanilla.Simulation.isActive())
 				return __original(_performUpdate);
 		}}.collectGarbage;
+
+		// MV: Changed
+		// Part of ::ModularVanilla.Simulation: no structural changes while simulating
+		q.update = @(__original) { function update()
+		{
+			if (::ModularVanilla.Simulation.isActive())
+				return;
+
+			::ModularVanilla.Simulation.StateVersion++;
+			return __original();
+		}}.update;
 
 		// MV: Changed
 		// part of affordability preview system

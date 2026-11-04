@@ -9,6 +9,8 @@
 	// Note: We populate it during actor.onDamageReceived only. However, during regular skill attack
 	// HitInfo is also first passed to onBeforeTargetHit (in skill.onScheduledTargetHit).
 	q.m.__MV_CurrentHitInfos <- [];
+	// Trap entries of ::ModularVanilla.Simulation for the objects of this combat
+	q.m.__MV_SimulationEntries <- {};
 
 	q.MV_getCurrentHitInfo <- { function MV_getCurrentHitInfo()
 	{
