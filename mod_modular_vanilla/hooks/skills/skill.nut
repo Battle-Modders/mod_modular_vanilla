@@ -22,82 +22,50 @@
 	// Also rewrite the logic to be more accurate
 		// - Use MV functions to calculate damage to keep things DRY
 		// - Calculate accurate expected damage for body and head shots
+		// - Run the same events as a real hit (onBeforeTargetHit of the attacker, onBeforeDamageReceived of the target's skills and items)
+		//   inside a ::ModularVanilla.Simulation so that any state changes or effects in those events are discarded
 	// TODO: Things like Split Man are not accounted for anywhere. Some kind of framework should be made for them?
 	q.getExpectedDamage = @() { function getExpectedDamage( _target )
 	{
-		local actor = this.getContainer().getActor();
-		local p = this.getContainer().buildPropertiesForUse(this, _target);
-		local d = _target.getSkills().buildPropertiesForDefense(this.getContainer().getActor(), this);
+		// The AI calls this function very often with the same skill and target (e.g. for every tile in ai_engage_melee)
+		// so we cache the result until the next frame or until the state of the battle changes.
+		local cache = ::ModularVanilla.Simulation.isActive() ? null : ::ModularVanilla.Simulation.getExpectedDamageCache();
+		if (cache != null && this in cache && _target in cache[this])
+		{
+			return clone cache[this][_target];
+		}
 
-		// Set the damage in the properties to the average damage so that our MV_getDamageXYZ functions always roll the average damage
-		local damageRegularAvg = ::Math.floor((p.DamageRegularMin + p.DamageRegularMax * p.DamageTooltipMaxMult) * 0.5);
-		p.DamageRegularMin = damageRegularAvg;
-		p.DamageRegularMax = damageRegularAvg;
+		// Simulate a body hit and a head hit. The simulation discards all changes made by the events called during them.
+		local results = ::ModularVanilla.Simulation.run(function() {
+			local body = this.MV_simulateHit(_target, ::Const.BodyPart.Body);
+			local head = null;
+			if (body.HeadshotChance != 0)
+			{
+				// Discard the changes of the body hit before simulating the head hit
+				::ModularVanilla.Simulation.reset();
+				head = this.MV_simulateHit(_target, ::Const.BodyPart.Head);
+			}
+			return [body, head];
+		}.bindenv(this), [this.getContainer().getActor(), _target], [this]);
 
-		local armor = 0;
+		local body = results[0];
+		local head = results[1];
+		local headshotChance = body.HeadshotChance;
 		local armorDamage = 0;
 		local hitpointDamage = 0;
 
-		local headshotChance = p.getHitchance(::Const.BodyPart.Head);
-		local bodyChance = 100 - headshotChance;
-
-		if (bodyChance != 0)
+		if (headshotChance != 100)
 		{
-			// The MV_initHitInfo function initializes the hitinfo from the attacker's perspective only i.e. outgoing damage
-			// just like in the vanilla skill.onScheduledTargetHit function
-			p.HitChance[::Const.BodyPart.Head] = 0;
-			p.HitChanceMult[::Const.BodyPart.Head] = 0.0;
-			p.HitChance[::Const.BodyPart.Body] = 100;
-			p.HitChanceMult[::Const.BodyPart.Body] = 1.0;
-			local hitInfo = ::Const.Tactical.MV_initHitInfo(this, _target, p, d);
-
-			// This will now use the outgoing hitInfo to prepare the correct properties for receiving damage
-			hitInfo.MV_PropertiesForBeingHit = _target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
-
-			// Vanilla changes the HitInfo in certain skills in onBeforeTargetHit e.g. `pound` and `gash_skill`.
-			// Vanilla also spawns icon for `perk_coup_de_grace` in `onBeforeTargetHit`.
-			// Some mods may do some state changes in `onBeforeTargetHit`.
-			// TODO: Therefore I am not sure how we can account for these. Calling this function doesn't seem safe.
-			// local wasUpdating = this.getContainer().m.IsUpdating;
-			// this.getContainer().m.IsUpdating = true;
-			// this.getContainer().onBeforeTargetHit(this, _target, hitInfo);
-			// this.getContainer().m.IsUpdating = wasUpdating;
-
-			local ratioMult = bodyChance / 100.0;
-
-			// These MV functions calculate the accurate damage received based on extraction of the calculations in actor.onDamageReceived
-			armorDamage += _target.MV_calcArmorDamageReceived(this, hitInfo) * ratioMult;
-			hitpointDamage += _target.MV_calcHitpointsDamageReceived(this, hitInfo) * ratioMult;
+			local ratioMult = (100 - headshotChance) / 100.0;
+			armorDamage += body.ArmorDamage * ratioMult;
+			hitpointDamage += body.HitpointDamage * ratioMult;
 		}
 
-		if (headshotChance != 0)
+		if (head != null)
 		{
-			// Same process as above but with a new HitInfo object, now with forcing the body part to be Head
-			p.HitChance[::Const.BodyPart.Head] = 100;
-			p.HitChanceMult[::Const.BodyPart.Head] = 1.0;
-			p.HitChance[::Const.BodyPart.Body] = 0;
-			p.HitChanceMult[::Const.BodyPart.Body] = 0.0;
-			local hitInfo = ::Const.Tactical.MV_initHitInfo(this, _target, p, d);
-
-			hitInfo.MV_PropertiesForBeingHit = _target.getSkills().buildPropertiesForBeingHit(actor, this, hitInfo);
-			// local wasUpdating = this.getContainer().m.IsUpdating;
-			// this.getContainer().m.IsUpdating = true;
-			// this.getContainer().onBeforeTargetHit(this, _target, hitInfo);
-			// this.getContainer().m.IsUpdating = wasUpdating;
-
-			// I don't like this but this is to emulate vanilla behavior inside actor.onDamageReceived whereby the hitInfo.BodyDamageMult
-			// is manually set to 1.0 if the target is immune to criticals - Midas.
-			// NOTE: Using `getCurrentProperties()` here has a caveat with split-body enemies i.e. Lindwurm Tail and Lindwurm
-			// whereby when called for Lindwurm Tail this will return the properties of the Lindwurm.
-			if (_target.getCurrentProperties().IsImmuneToCriticals || _target.getCurrentProperties().IsImmuneToHeadshots)
-			{
-				hitInfo.BodyDamageMult = 1.0;
-			}
-
 			local ratioMult = headshotChance / 100.0;
-
-			armorDamage += _target.MV_calcArmorDamageReceived(this, hitInfo) * ratioMult;
-			hitpointDamage += _target.MV_calcHitpointsDamageReceived(this, hitInfo) * ratioMult;
+			armorDamage += head.ArmorDamage * ratioMult;
+			hitpointDamage += head.HitpointDamage * ratioMult;
 		}
 
 		/*
@@ -121,8 +89,67 @@
 			HitpointDamage = hitpointDamage,
 			TotalDamage = hitpointDamage + armorDamage
 		};
+
+		if (cache != null)
+		{
+			if (!(this in cache))
+				cache[this] <- {};
+			cache[this][_target] <- clone ret;
+		}
+
 		return ret;
 	}}.getExpectedDamage;
+
+	// MV: Added
+	// Part of getExpectedDamage. Must be called inside a ::ModularVanilla.Simulation.
+	// Runs the same steps as a real hit (skill.onScheduledTargetHit and actor.onDamageReceived) with the average damage
+	// and the hit forced to _bodyPart and returns the damage the target would receive.
+	q.MV_simulateHit <- { function MV_simulateHit( _target, _bodyPart )
+	{
+		local actor = this.getContainer().getActor();
+		local p = this.getContainer().buildPropertiesForUse(this, _target);
+		local d = _target.getSkills().buildPropertiesForDefense(actor, this);
+		local headshotChance = p.getHitchance(::Const.BodyPart.Head);
+
+		// Set the damage in the properties to the average damage so that our MV_getDamageXYZ functions always roll the average damage
+		local damageRegularAvg = ::Math.floor((p.DamageRegularMin + p.DamageRegularMax * p.DamageTooltipMaxMult) * 0.5);
+		p.DamageRegularMin = damageRegularAvg;
+		p.DamageRegularMax = damageRegularAvg;
+
+		// Force the hit to the given body part
+		local otherBodyPart = _bodyPart == ::Const.BodyPart.Head ? ::Const.BodyPart.Body : ::Const.BodyPart.Head;
+		p.HitChance[_bodyPart] = 100;
+		p.HitChanceMult[_bodyPart] = 1.0;
+		p.HitChance[otherBodyPart] = 0;
+		p.HitChanceMult[otherBodyPart] = 0.0;
+
+		// The MV_initHitInfo function initializes the hitinfo from the attacker's perspective only i.e. outgoing damage
+		// just like in the vanilla skill.onScheduledTargetHit function
+		local hitInfo = ::Const.Tactical.MV_initHitInfo(this, _target, p, d);
+
+		// Make the simulated attack and hit available just like during a real attack.
+		// The simulation removes them from the stacks again afterwards.
+		local attackInfo = clone ::Const.Tactical.MV_AttackInfo;
+		attackInfo.User = actor;
+		attackInfo.Target = _target;
+		attackInfo.PropertiesForUse = p;
+		attackInfo.PropertiesForDefense = d;
+		if (("State" in ::Tactical) && ::Tactical.State != null)
+		{
+			::Tactical.State.m.__MV_CurrentAttackInfos.push(attackInfo.weakref());
+			::Tactical.State.m.__MV_CurrentHitInfos.push(hitInfo.weakref());
+		}
+
+		this.getContainer().onBeforeTargetHit(this, _target, hitInfo);
+		_target.MV_prepareHitInfoForBeingHit(actor, this, hitInfo);
+
+		// These MV functions calculate the accurate damage received based on extraction of the calculations in actor.onDamageReceived
+		return {
+			HeadshotChance = headshotChance,
+			ArmorDamage = _target.MV_calcArmorDamageReceived(this, hitInfo),
+			HitpointDamage = _target.MV_calcHitpointsDamageReceived(this, hitInfo)
+		};
+	}}.MV_simulateHit;
 
 	// VanillaFix: https://steamcommunity.com/app/365360/discussions/1/796712966523236445/
 	// Floating point precision problem can sometimes cause `ceil` to increase fatigue cost by 1
